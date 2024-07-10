@@ -12,7 +12,6 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT, withExceptT)
 import System.Directory (copyFile)
 import System.FilePath ((</>))
-import System.IO
 
 data SpigotBuildError = BuildToolsDownloadError String
                       | BuildToolsError String
