@@ -29,7 +29,7 @@ executeProcess' exeName args workDir =
 guaranteeSoftwareExistence :: String -> ExceptT String IO ()
 guaranteeSoftwareExistence exeName = executeProcess exeName ["--version"]
 
-executeJava :: String -> [String] -> String -> ExceptT String IO ()
-executeJava jarName args workDir =
-    executeProcess' "java.exe" (["-jar", jarName] ++ args) (Just workDir)
+executeJava :: [String] -> String -> ExceptT String IO ()
+executeJava args workDir =
+    executeProcess' "java.exe" args (Just workDir)
 

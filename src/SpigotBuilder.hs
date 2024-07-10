@@ -34,14 +34,14 @@ downloadBuildTools =
 buildSpigot :: ExceptT SpigotBuildError IO ()
 buildSpigot = do
     withExceptT BuildToolsError $
-        executeJava "BuildTools.jar" ["--rev", minecraftVersion] workingTempDirPath
+        executeJava ["-jar", "BuildTools.jar", "--rev", minecraftVersion] workingTempDirPath
 
     lift $ copyFile (workingTempDirPath </> spigotServerFileName) (workingDirPath </> spigotServerFileName)
 
 initialiseSpigotServer :: ExceptT SpigotBuildError IO ()
 initialiseSpigotServer = do
     withExceptT SpigotInitialisationError $
-        executeJava spigotServerFileName ["nogui"] workingTempDirPath
+        executeJava ["-jar", spigotServerFileName, "nogui"] workingTempDirPath
 
     properties <- lift $ readFile (workingTempDirPath </> "server.properties")
     let modifiedProperties = foldl
@@ -59,4 +59,4 @@ initialiseSpigotServer = do
     lift $ writeFile (workingDirPath </> "server.properties") (unlines modifiedProperties)
 
     withExceptT SpigotInitialisationError $
-        executeJava spigotServerFileName ["nogui"] workingDirPath
+        executeJava ["-jar", spigotServerFileName, "nogui"] workingDirPath

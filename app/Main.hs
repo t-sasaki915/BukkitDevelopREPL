@@ -1,5 +1,6 @@
 module Main (main) where
 
+import ClientLauncher
 import Constant
 import ProcessIO (guaranteeSoftwareExistence)
 import SpigotBuilder
@@ -13,6 +14,7 @@ data LauncherError = JavaNotFound String
                    | GitNotFound String
                    | MinecraftJarNotFound String
                    | SpigotBuildFailure SpigotBuildError
+                   | ClientFailure ClientError
 
 instance Show LauncherError where
     show (JavaNotFound s) =
@@ -24,6 +26,7 @@ instance Show LauncherError where
         , "You need to launch Minecraft " ++ minecraftVersion ++ " at least once with the vanilla launcher."
         ]
     show (SpigotBuildFailure e) = show e
+    show (ClientFailure e) = show e
 
 makeWorkingFolder :: ExceptT LauncherError IO ()
 makeWorkingFolder = lift $
@@ -36,10 +39,9 @@ makeWorkingTempFolder = lift $
 checkMinecraftJarExistence :: ExceptT LauncherError IO ()
 checkMinecraftJarExistence = do
     homeDir <- lift getHomeDirectory
-    let jarPath = minecraftVersionsDirPath homeDir </> minecraftVersion </> (minecraftVersion ++ ".jar")
-    lift (doesFileExist jarPath) >>= \case
+    lift (doesFileExist (minecraftClientPath homeDir)) >>= \case
         True  -> return ()
-        False -> throwE (MinecraftJarNotFound jarPath)
+        False -> throwE (MinecraftJarNotFound (minecraftClientPath homeDir))
 
 checkServerJarExistence :: ExceptT LauncherError IO Bool
 checkServerJarExistence = lift $
@@ -52,7 +54,8 @@ program = do
     withExceptT GitNotFound (guaranteeSoftwareExistence "git.exe")
     checkMinecraftJarExistence
     checkServerJarExistence >>= \case
-        True  -> return ()
+        True  -> do
+            withExceptT ClientFailure launchClient
         False -> do
             lift $ putStrLn "There was no server executable. Building..."
             makeWorkingTempFolder
