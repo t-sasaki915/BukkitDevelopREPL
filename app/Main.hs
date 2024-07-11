@@ -3,6 +3,7 @@ module Main (main) where
 import AppOptions
 import FileIO
 import MinecraftClient
+import PluginInstaller
 import ProcessIO
 import SpigotServer
 import SpigotServerSetup
@@ -32,6 +33,8 @@ program = do
 
     checkFileExistence serverJar >>= \case
         True  -> do
+            instalPlugins
+
             clientProcess <- runMinecraftClient
             when serverOnly (terminate clientProcess)
             

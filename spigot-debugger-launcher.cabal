@@ -24,6 +24,7 @@ library
       Constant
       FileIO
       MinecraftClient
+      PluginInstaller
       ProcessIO
       SpigotServer
       SpigotServerSetup

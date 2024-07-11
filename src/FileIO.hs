@@ -1,5 +1,6 @@
 module FileIO
     ( makeDirectory
+    , deleteDirectory
     , checkFileExistence
     , verifyFileExistence
     , copyFileT
@@ -22,6 +23,13 @@ makeDirectory dirName =
         Right ()   -> return ()
         Left ioErr -> throwE $
             "Failed to create a directory " ++ dirName ++ ": " ++ ioeGetErrorString ioErr
+
+deleteDirectory :: FilePath -> ExceptT String (StateT AppOptions IO) ()
+deleteDirectory dirName =
+    lift (lift (try (removeDirectoryRecursive dirName))) >>= \case
+        Right ()   -> return ()
+        Left ioErr -> throwE $
+            "Failed to delete a directory " ++ dirName ++ ": " ++ ioeGetErrorString ioErr
 
 checkFileExistence :: FilePath -> ExceptT String (StateT AppOptions IO) Bool
 checkFileExistence filePath =
