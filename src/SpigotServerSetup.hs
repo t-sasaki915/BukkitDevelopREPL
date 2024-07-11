@@ -51,6 +51,10 @@ setupSpigotServer = do
 
     execProcess "java.exe" ["-jar", serverJar] workDir >>=
         expectExitSuccess
+    
+    lift $ lift $ do
+        putStrLn ("A Spigot server has successfully built and stored in " ++ workDir ++ ".")
+        putStrLn ("Please edit " ++ (workDir </> "eula.txt") ++ " to accept the eula.")
 
 
 customiseServerProperties :: String -> String
