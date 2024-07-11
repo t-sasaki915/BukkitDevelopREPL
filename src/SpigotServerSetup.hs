@@ -54,11 +54,11 @@ setupSpigotServer = do
 
 
 customiseServerProperties :: String -> String
-customiseServerProperties properties = unlines $ foldl (\lst -> \case
-        "online-mode=true"           -> lst ++ ["online-mode=false"]
-        "gamemode=survival"          -> lst ++ ["gamemode=creative"]
-        "motd=A Minecraft Server"    -> lst ++ ["motd=Plugin DEV Server"]
-        "max-players=20"             -> lst ++ ["max-players=3"]
-        "enable-command-block=false" -> lst ++ ["enable-command-block=true"]
-        other                        -> lst ++ [other]
-    ) [] (lines properties)
+customiseServerProperties properties = unlines $ map (\case
+        "online-mode=true"           -> "online-mode=false"
+        "gamemode=survival"          -> "gamemode=creative"
+        "motd=A Minecraft Server"    -> "motd=Plugin DEV Server"
+        "max-players=20"             -> "max-players=3"
+        "enable-command-block=false" -> "enable-command-block=true"
+        other                        -> other
+    ) (lines properties)
