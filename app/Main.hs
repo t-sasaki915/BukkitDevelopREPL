@@ -15,7 +15,7 @@ import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
 import Data.Version (showVersion)
 import Options.Applicative
 import System.Directory (getCurrentDirectory, getHomeDirectory)
-import System.Exit (exitSuccess)
+import System.Exit (exitSuccess, exitFailure)
 import System.Process (waitForProcess)
 
 import Paths_spigot_debugger_launcher (version)
@@ -47,6 +47,8 @@ program = do
             terminate serverProcess
             terminate clientProcess
 
+            lift $ lift exitSuccess
+
         False -> do
             execProcess "git.exe" ["--version"] workDir >>= expectExitSuccess
             lift $ lift $ putStrLn "No Spigot server has found. Building..."
@@ -70,4 +72,4 @@ main = do
                     )
 
     (result, _) <- runStateT (runExceptT program) appOptions
-    either putStrLn (const (return ())) result
+    either (const exitFailure . putStrLn) (const (return ())) result

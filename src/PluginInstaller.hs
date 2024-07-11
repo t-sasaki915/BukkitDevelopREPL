@@ -16,7 +16,9 @@ instalPlugins = do
 
     case pluginsToInstal appOptions of
         Just plugins -> do
-            deleteDirectory (workDir </> "plugins")
+            checkDirectoryExistence (workDir </> "plugins") >>= \case
+                True  -> deleteDirectory (workDir </> "plugins")
+                False -> return ()
             makeDirectory (workDir </> "plugins")
 
             mapM_ instalPlugin plugins
