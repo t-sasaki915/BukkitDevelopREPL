@@ -12,10 +12,13 @@ import Control.Monad (when)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT, runExceptT)
 import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
+import Data.Version (showVersion)
 import Options.Applicative
 import System.Directory (getCurrentDirectory, getHomeDirectory)
 import System.Exit (exitSuccess)
 import System.Process (waitForProcess)
+
+import Paths_spigot_debugger_launcher (version)
 
 program :: ExceptT String (StateT AppOptions IO) ()
 program = do
@@ -60,7 +63,11 @@ main = do
     currentDir  <- getCurrentDirectory
     homeDir     <- getHomeDirectory
     appOptions  <- customExecParser (prefs disambiguate)
-                    (info (helper <*> appOptionsParser currentDir homeDir) idm)
+                    ( info (helper <*> appOptionsParser currentDir homeDir)
+                        ( fullDesc
+                            <> header ("spigot-debugger-launcher " ++ showVersion version ++ " by TSasaki")
+                        )
+                    )
 
     (result, _) <- runStateT (runExceptT program) appOptions
     either putStrLn (const (return ())) result
