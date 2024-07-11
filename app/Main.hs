@@ -1,67 +1,51 @@
 module Main (main) where
 
-import ClientLauncher
-import Constant
-import ProcessIO (guaranteeSoftwareExistence)
-import SpigotBuilder
+import AppOptions
+import FileIO
+import ProcessIO
+import SpigotServerSetup
 
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE, withExceptT)
-import System.Directory
-import System.FilePath ((</>))
+import Control.Monad.Trans.Except (ExceptT, runExceptT)
+import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
+import Options.Applicative
+import System.Directory (getCurrentDirectory, getHomeDirectory)
+import System.Exit (exitSuccess)
 
-data LauncherError = JavaNotFound String
-                   | GitNotFound String
-                   | MinecraftJarNotFound String
-                   | SpigotBuildFailure SpigotBuildError
-                   | ClientFailure ClientError
-
-instance Show LauncherError where
-    show (JavaNotFound s) =
-        "The launcher could not find a Java executable: " ++ s
-    show (GitNotFound s) =
-        "The launcher could not find a Git executable: " ++ s
-    show (MinecraftJarNotFound s) = unlines
-        [ "The launcher could not find a Minecraft executable: " ++ s
-        , "You need to launch Minecraft " ++ minecraftVersion ++ " at least once with the vanilla launcher."
-        ]
-    show (SpigotBuildFailure e) = show e
-    show (ClientFailure e) = show e
-
-makeWorkingFolder :: ExceptT LauncherError IO ()
-makeWorkingFolder = lift $
-    createDirectoryIfMissing False workingDirPath
-
-makeWorkingTempFolder :: ExceptT LauncherError IO ()
-makeWorkingTempFolder = lift $
-    createDirectoryIfMissing False workingTempDirPath
-
-checkMinecraftJarExistence :: ExceptT LauncherError IO ()
-checkMinecraftJarExistence = do
-    homeDir <- lift getHomeDirectory
-    lift (doesFileExist (minecraftClientPath homeDir)) >>= \case
-        True  -> return ()
-        False -> throwE (MinecraftJarNotFound (minecraftClientPath homeDir))
-
-checkServerJarExistence :: ExceptT LauncherError IO Bool
-checkServerJarExistence = lift $
-    doesFileExist (workingDirPath </> spigotServerFileName)
-
-program :: ExceptT LauncherError IO ()
+program :: ExceptT String (StateT AppOptions IO) ()
 program = do
-    makeWorkingFolder
-    withExceptT JavaNotFound (guaranteeSoftwareExistence "java.exe")
-    withExceptT GitNotFound (guaranteeSoftwareExistence "git.exe")
-    checkMinecraftJarExistence
-    checkServerJarExistence >>= \case
+    appOptions <- lift get
+    let workDir    = workingDir appOptions
+        tmpWorkDir = tempWorkDir appOptions
+        clientJar  = minecraftClientJarFile appOptions
+        serverJar  = spigotServerJarFile appOptions
+
+    makeDirectory workDir
+    execProcess "java.exe" ["-version"] workDir >>= expectExitSuccess
+    verifyFileExistence clientJar $
+        "The launcher could not find Minecraft client executable: " ++ clientJar
+
+    checkFileExistence serverJar >>= \case
         True  -> do
-            withExceptT ClientFailure launchClient
+            setupSpigotServer
+
         False -> do
-            lift $ putStrLn "There was no server executable. Building..."
-            makeWorkingTempFolder
-            withExceptT SpigotBuildFailure downloadBuildTools
-            withExceptT SpigotBuildFailure buildSpigot
-            withExceptT SpigotBuildFailure initialiseSpigotServer
+            execProcess "git.exe" ["--version"] workDir >>= expectExitSuccess
+            lift $ lift $ putStrLn "No Spigot server has found. Building..."
+
+            makeDirectory tmpWorkDir
+            downloadBuildTools
+            buildSpigot
+            setupSpigotServer
+
+            lift $ lift exitSuccess
 
 main :: IO ()
-main = runExceptT program >>= either print (const (return ()))
+main = do
+    currentDir  <- getCurrentDirectory
+    homeDir     <- getHomeDirectory
+    appOptions  <- customExecParser (prefs disambiguate)
+                    (info (helper <*> appOptionsParser currentDir homeDir) idm)
+
+    (result, _) <- runStateT (runExceptT program) appOptions
+    either putStrLn (const (return ())) result

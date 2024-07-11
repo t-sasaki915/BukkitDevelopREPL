@@ -2,38 +2,31 @@
 
 module Constant where
 
-import Data.List (intercalate)
 import System.FilePath ((</>))
 
-workingDirPath :: String
-workingDirPath = "." </> "run"
+type JVMOption = String
 
-workingTempDirPath :: String
-workingTempDirPath = workingDirPath </> "temp"
+buildToolsUrl :: FilePath
+buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
 
-minecraftDirPath :: String -> String
-minecraftDirPath home = home </> "AppData" </> "Roaming" </> ".minecraft"
-
-minecraftVersionsDirPath :: String -> String
-minecraftVersionsDirPath home = minecraftDirPath home </> "versions"
-
-minecraftLibrariesDirPath :: String -> String
-minecraftLibrariesDirPath home = minecraftDirPath home </> "libraries"
-
-minecraftClientPath :: String -> String
-minecraftClientPath home = minecraftVersionsDirPath home </> minecraftVersion </> (minecraftVersion ++ ".jar")
-
-spigotServerFileName :: String
-spigotServerFileName = "spigot-" ++ minecraftVersion ++ ".jar"
+minecraftClientJVMOptions :: [JVMOption]
+minecraftClientJVMOptions =
+    [ "-XX:+UnlockExperimentalVMOptions"
+    , "-XX:+UseG1GC"
+    , "-XX:G1NewSizePercent=20"
+    , "-XX:G1ReservePercent=20"
+    , "-XX:MaxGCPauseMillis=50"
+    , "-XX:G1HeapRegionSize=32M"
+    ]
 
 minecraftVersion :: String
 minecraftVersion = "1.20.1"
 
-buildToolsUrl :: String
-buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
+minecraftAssetIndex :: Int
+minecraftAssetIndex = 5
 
-minecraftClientLibraries :: String -> [String]
-minecraftClientLibraries home = map (minecraftLibrariesDirPath home </>)
+minecraftClientLibraries :: [FilePath]
+minecraftClientLibraries =
     [ "com" </> "github" </> "oshi" </> "oshi-core" </> "6.2.2" </> "oshi-core-6.2.2.jar"
     , "com" </> "google" </> "code" </> "gson" </> "gson" </> "2.10" </> "gson-2.10.jar"
     , "com" </> "google" </> "guava" </> "failureaccess" </> "1.0.1" </> "failureaccess-1.0.1.jar"
@@ -98,43 +91,4 @@ minecraftClientLibraries home = map (minecraftLibrariesDirPath home </>)
     , "org" </> "lwjgl" </> "lwjgl" </> "3.3.1" </> "lwjgl-3.3.1-natives-windows-arm64.jar"
     , "org" </> "lwjgl" </> "lwjgl" </> "3.3.1" </> "lwjgl-3.3.1-natives-windows-x86.jar"
     , "org" </> "slf4j" </> "slf4j-api" </> "2.0.1" </> "slf4j-api-2.0.1.jar"
-    ]
-
-minecraftAssetsDirPath :: String -> String
-minecraftAssetsDirPath home = minecraftDirPath home </> "assets"
-
-minecraftAssetIndex :: Int
-minecraftAssetIndex = 5
-
-minecraftClientJVMOptions :: [String]
-minecraftClientJVMOptions =
-    [ "-Xms2G"
-    , "-Xmx2G"
-    , "-XX:+UnlockExperimentalVMOptions"
-    , "-XX:+UseG1GC"
-    , "-XX:G1NewSizePercent=20"
-    , "-XX:G1ReservePercent=20"
-    , "-XX:MaxGCPauseMillis=50"
-    , "-XX:G1HeapRegionSize=32M"
-    ]
-
-minecraftClientOptions :: String -> [String]
-minecraftClientOptions home =
-    [ "-cp"
-    , intercalate ";" (minecraftClientLibraries home ++ [minecraftClientPath home])
-    , "net.minecraft.client.main.Main"
-    , "--username"
-    , "Debugger"
-    , "--version"
-    , minecraftVersion
-    , "--accessToken"
-    , "0"
-    , "--userProperties"
-    , "{}"
-    , "--gameDir"
-    , workingDirPath
-    , "--assetsDir"
-    , minecraftAssetsDirPath home
-    , "--assetIndex"
-    , show minecraftAssetIndex
     ]
