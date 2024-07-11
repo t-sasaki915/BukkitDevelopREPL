@@ -4,8 +4,10 @@ import AppOptions
 import FileIO
 import MinecraftClient
 import ProcessIO
+import SpigotServer
 import SpigotServerSetup
 
+import Control.Monad (when)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT, runExceptT)
 import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
@@ -21,6 +23,7 @@ program = do
         tmpWorkDir = tempWorkDir appOptions
         clientJar  = minecraftClientJarFile appOptions
         serverJar  = spigotServerJarFile appOptions
+        serverOnly = noClient appOptions
 
     makeDirectory workDir
     execProcess "java.exe" ["-version"] workDir >>= expectExitSuccess
@@ -30,7 +33,12 @@ program = do
     checkFileExistence serverJar >>= \case
         True  -> do
             clientProcess <- runMinecraftClient
-            _ <- lift $ lift $ waitForProcess clientProcess -- temporary
+            when serverOnly (terminate clientProcess)
+            
+            serverProcess <- runSpigotServer
+            _             <- lift $ lift $ waitForProcess serverProcess
+
+            terminate serverProcess
             terminate clientProcess
 
         False -> do

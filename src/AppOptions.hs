@@ -20,6 +20,9 @@ data AppOptions = AppOptions
     , minecraftClientUsername :: String
     , minecraftClientXms      :: Int
     , minecraftClientXmx      :: Int
+    , minecraftServerXms      :: Int
+    , minecraftServerXmx      :: Int
+    , noClient                :: Bool
     , pluginsToInstal         :: Maybe [FilePath]
     }
     deriving Show
@@ -86,6 +89,22 @@ appOptionsParser currentDir homeDir =
            <> metavar "Int"
            <> value 2
            <> help "Customises Minecraft client JVM Xmx."
+            )
+        <*> option auto
+            ( long "mc-server-xms"
+           <> metavar "Int"
+           <> value 2
+           <> help "Customises Minecraft server JVM Xms."
+            )
+        <*> option auto
+            ( long "mc-server-xmx"
+           <> metavar "Int"
+           <> value 2
+           <> help "Customises Minecraft server JVM Xmx."
+            )
+        <*> switch
+            ( long "no-client"
+           <> help "Prevents Minecraft client from startup."
             )
         <*> optional
             ( some

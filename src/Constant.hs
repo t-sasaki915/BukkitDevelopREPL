@@ -19,6 +19,9 @@ minecraftClientJVMOptions =
     , "-XX:G1HeapRegionSize=32M"
     ]
 
+minecraftServerJVMOptions :: [JVMOption]
+minecraftServerJVMOptions = []
+
 minecraftVersion :: String
 minecraftVersion = "1.20.1"
 

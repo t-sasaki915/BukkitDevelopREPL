@@ -25,6 +25,7 @@ library
       FileIO
       MinecraftClient
       ProcessIO
+      SpigotServer
       SpigotServerSetup
   other-modules:
       Paths_spigot_debugger_launcher
