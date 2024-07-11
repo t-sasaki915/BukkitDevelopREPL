@@ -1,6 +1,7 @@
 module ProcessIO
     ( execProcess
     , expectExitSuccess
+    , terminate
     ) where
 
 import AppOptions (AppOptions(..))
@@ -11,7 +12,7 @@ import Control.Monad.Trans.Except (ExceptT, throwE)
 import Control.Monad.Trans.State.Strict (StateT)
 import GHC.IO.Exception (ExitCode (ExitSuccess))
 import System.IO.Error (ioeGetErrorString)
-import System.Process (ProcessHandle, waitForProcess, runProcess)
+import System.Process (ProcessHandle, waitForProcess, runProcess, terminateProcess)
 
 execProcess :: FilePath -> [String] -> String -> ExceptT String (StateT AppOptions IO) ProcessHandle
 execProcess execName cmdArgs execDir =
@@ -26,3 +27,7 @@ expectExitSuccess handler =
     lift (lift (waitForProcess handler)) >>= \case
         ExitSuccess -> return ()
         exitCode    -> throwE ("An external process has terminated: " ++ show exitCode)
+
+terminate :: ProcessHandle -> ExceptT String (StateT AppOptions IO) ()
+terminate handler =
+    lift (lift (terminateProcess handler)) >>= const (return ())

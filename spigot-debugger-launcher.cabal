@@ -23,6 +23,7 @@ library
       AppOptions
       Constant
       FileIO
+      MinecraftClient
       ProcessIO
       SpigotServerSetup
   other-modules:

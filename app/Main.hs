@@ -2,6 +2,7 @@ module Main (main) where
 
 import AppOptions
 import FileIO
+import MinecraftClient
 import ProcessIO
 import SpigotServerSetup
 
@@ -11,6 +12,7 @@ import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
 import Options.Applicative
 import System.Directory (getCurrentDirectory, getHomeDirectory)
 import System.Exit (exitSuccess)
+import System.Process (waitForProcess)
 
 program :: ExceptT String (StateT AppOptions IO) ()
 program = do
@@ -27,7 +29,9 @@ program = do
 
     checkFileExistence serverJar >>= \case
         True  -> do
-            setupSpigotServer
+            clientProcess <- runMinecraftClient
+            _ <- lift $ lift $ waitForProcess clientProcess -- temporary
+            terminate clientProcess
 
         False -> do
             execProcess "git.exe" ["--version"] workDir >>= expectExitSuccess
