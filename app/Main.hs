@@ -47,8 +47,6 @@ program = do
             terminate serverProcess
             terminate clientProcess
 
-            lift $ lift exitSuccess
-
         False -> do
             execProcess "git.exe" ["--version"] workDir >>= expectExitSuccess
             lift $ lift $ putStrLn "No Spigot server has found. Building..."
@@ -57,8 +55,6 @@ program = do
             downloadBuildTools
             buildSpigot
             setupSpigotServer
-
-            lift $ lift exitSuccess
 
 main :: IO ()
 main = do
@@ -72,4 +68,6 @@ main = do
                     )
 
     (result, _) <- runStateT (runExceptT program) appOptions
-    either (const exitFailure . putStrLn) (const (return ())) result
+    case result of
+        Right () -> exitSuccess
+        Left err -> putStrLn err >> exitFailure

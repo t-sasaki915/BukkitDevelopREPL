@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:           spigot-debugger-launcher
-version:        1.0.0.1
+version:        1.0.0.2
 description:    Please see the README on GitHub at <https://github.com/t-sasaki915/spigot-debugger-launcher#readme>
 homepage:       https://github.com/t-sasaki915/spigot-debugger-launcher#readme
 bug-reports:    https://github.com/t-sasaki915/spigot-debugger-launcher/issues
