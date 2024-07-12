@@ -23,3 +23,4 @@ runSpigotServer = do
         serverOptions = [ "-jar", serverJar, "nogui"]
 
     execProcess "java.exe" (jvmOptions ++ serverOptions) workDir
+        "Failed to execute java.exe that was to run a Spigot server"

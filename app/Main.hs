@@ -30,7 +30,10 @@ program = do
         serverOnly = noClient appOptions
 
     makeDirectory workDir
-    execProcess "java.exe" ["-version"] workDir >>= expectExitSuccess
+    execProcess "java.exe" ["-version"] workDir
+        "This program requires java.exe but could not find it" >>=
+            expectExitSuccess
+                "Failed to check the version of java.exe"
     verifyFileExistence clientJar $
         "The launcher could not find Minecraft client executable: " ++ clientJar
 
@@ -48,7 +51,10 @@ program = do
             terminate clientProcess
 
         False -> do
-            execProcess "git.exe" ["--version"] workDir >>= expectExitSuccess
+            execProcess "git.exe" ["--version"] workDir
+                "This program requires git.exe but could not find it" >>=
+                    expectExitSuccess
+                        "Failed to check the version of java.exe"
             lift $ lift $ putStrLn "No Spigot server has found. Building..."
 
             makeDirectory tmpWorkDir

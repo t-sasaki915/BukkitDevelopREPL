@@ -47,3 +47,4 @@ runMinecraftClient = do
             ]
 
     execProcess "java.exe" (jvmOptions ++ clientOptions) workDir
+        "Failed to execute java.exe that was to run a Minecraft client"

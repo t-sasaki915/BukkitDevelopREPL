@@ -19,8 +19,10 @@ downloadBuildTools :: ExceptT String (StateT AppOptions IO) ()
 downloadBuildTools = do
     dlLocation <- lift (get <&> buildToolsJarFile)
     tmpWorkDir <- lift (get <&> tempWorkDir)
-    execProcess "curl.exe" ["-L", "-o", dlLocation, buildToolsUrl] tmpWorkDir >>=
-        expectExitSuccess
+    execProcess "curl.exe" ["-L", "-o", dlLocation, buildToolsUrl] tmpWorkDir
+        "Failed to execute curl.exe that was to download BuildTools" >>=
+            expectExitSuccess
+                "Failed to download BuildTools"
 
 buildSpigot :: ExceptT String (StateT AppOptions IO) ()
 buildSpigot = do
@@ -30,9 +32,11 @@ buildSpigot = do
         serverJar     = spigotServerJarFile appOptions
         tmpServerJar  = tmpWorkDir </> takeFileName serverJar
 
-    execProcess "java.exe" ["-jar", buildToolsJar, "--rev", minecraftVersion] tmpWorkDir >>=
-        expectExitSuccess >>
-            copyFileT tmpServerJar serverJar
+    execProcess "java.exe" ["-jar", buildToolsJar, "--rev", minecraftVersion] tmpWorkDir
+        "Failed to execute java.exe that was to build a Spigot server" >>=
+            expectExitSuccess
+                "Failed to build a Spigot server" >>
+                    copyFileT tmpServerJar serverJar
 
 setupSpigotServer :: ExceptT String (StateT AppOptions IO) ()
 setupSpigotServer = do
@@ -42,15 +46,19 @@ setupSpigotServer = do
         serverJar    = spigotServerJarFile appOptions
         tmpServerJar = tmpWorkDir </> takeFileName serverJar
 
-    execProcess "java.exe" ["-jar", tmpServerJar] tmpWorkDir >>=
-        expectExitSuccess
+    execProcess "java.exe" ["-jar", tmpServerJar] tmpWorkDir
+        "Failed to execute java.exe that was to generate a template of server.properties" >>=
+            expectExitSuccess
+                "Failed to generate a template of server.properties"
     
     serverProperties <- readFileT (tmpWorkDir </> "server.properties")
     let customisedProperties = customiseServerProperties serverProperties
     writeFileT (workDir </> "server.properties") customisedProperties
 
-    execProcess "java.exe" ["-jar", serverJar] workDir >>=
-        expectExitSuccess
+    execProcess "java.exe" ["-jar", serverJar] workDir
+        "Failed to execute java.exe that was to do the first server startup" >>=
+            expectExitSuccess
+                "Failed to do the first server startup"
     
     lift $ lift $ do
         putStrLn ("A Spigot server has successfully built and stored in " ++ workDir ++ ".")
