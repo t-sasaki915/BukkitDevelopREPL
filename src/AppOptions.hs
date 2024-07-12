@@ -1,5 +1,6 @@
 module AppOptions
     ( AppOptions(..)
+    , tempWorkDir
     , minecraftAssetsDir
     , minecraftLibrariesDir
     , minecraftClientJarFile
@@ -15,7 +16,6 @@ import System.FilePath ((</>))
 
 data AppOptions = AppOptions
     { workingDir              :: FilePath
-    , tempWorkDir             :: FilePath
     , minecraftDir            :: FilePath
     , minecraftClientUsername :: String
     , minecraftClientXms      :: Int
@@ -26,6 +26,9 @@ data AppOptions = AppOptions
     , pluginsToInstal         :: Maybe [FilePath]
     }
     deriving Show
+
+tempWorkDir :: AppOptions -> FilePath
+tempWorkDir opts = workingDir opts </> "temp"
 
 minecraftAssetsDir :: AppOptions -> FilePath
 minecraftAssetsDir opts = minecraftDir opts </> "assets"
@@ -51,12 +54,6 @@ appOptionsParser currentDir homeDir =
            <> metavar "FilePath"
            <> value (currentDir </> "run")
            <> help "Specifies working directory expressly. The default value is '.\\run'."
-            )
-        <*> strOption
-            ( long "temp-work-dir"
-           <> metavar "FilePath"
-           <> value (currentDir </> "run" </> "temp")
-           <> help "Specifies temporary working directory expressly. The default value is '.\\run\\temp'."
             )
         <*> strOption
             ( long "minecraft-dir"
