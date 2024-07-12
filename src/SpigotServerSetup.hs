@@ -37,6 +37,7 @@ buildSpigot = do
             expectExitSuccess
                 "Failed to build a Spigot server" >>
                     copyFileT tmpServerJar serverJar
+                        "Failed to copy a Spigot server executable"
 
 setupSpigotServer :: ExceptT String (StateT AppOptions IO) ()
 setupSpigotServer = do
@@ -52,8 +53,10 @@ setupSpigotServer = do
                 "Failed to generate a template of server.properties"
     
     serverProperties <- readFileT (tmpWorkDir </> "server.properties")
+        "Failed to read a template of server.properties"
     let customisedProperties = customiseServerProperties serverProperties
     writeFileT (workDir </> "server.properties") customisedProperties
+        "Failed to generate a customised server.properties"
 
     execProcess "java.exe" ["-jar", serverJar] workDir
         "Failed to execute java.exe that was to do the first server startup" >>=

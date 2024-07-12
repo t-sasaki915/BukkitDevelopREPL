@@ -8,9 +8,9 @@ import ProcessIO
 import SpigotServer
 import SpigotServerSetup
 
-import Control.Monad (when)
+import Control.Monad (when, unless)
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, runExceptT)
+import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
 import Data.Version (showVersion)
 import Options.Applicative
@@ -29,38 +29,40 @@ program = do
         serverJar  = spigotServerJarFile appOptions
         serverOnly = noClient appOptions
 
-    makeDirectory workDir
+    makeDirectory workDir "Failed to make the working directory"
     execProcess "java.exe" ["-version"] workDir
         "This program requires java.exe but could not find it" >>=
             expectExitSuccess
                 "Failed to check the version of java.exe"
-    verifyFileExistence clientJar $
-        "The launcher could not find Minecraft client executable: " ++ clientJar
+    checkFileExistence clientJar
+        ("Failed to check the existence of Minecraft client executable '" ++ clientJar ++ "'") >>= \exists ->
+            unless exists $ throwE ("Could not find Minecraft client executable '" ++ clientJar ++ "'")
 
-    checkFileExistence serverJar >>= \case
-        True  -> do
-            instalPlugins
+    checkFileExistence serverJar
+        ("Failed to check the existence of Spigot server executable '" ++ serverJar ++ "'") >>= \case
+            True  -> do
+                instalPlugins
 
-            clientProcess <- runMinecraftClient
-            when serverOnly (terminate clientProcess)
+                clientProcess <- runMinecraftClient
+                when serverOnly (terminate clientProcess)
             
-            serverProcess <- runSpigotServer
-            _             <- lift $ lift $ waitForProcess serverProcess
+                serverProcess <- runSpigotServer
+                _             <- lift $ lift $ waitForProcess serverProcess
 
-            terminate serverProcess
-            terminate clientProcess
+                terminate serverProcess
+                terminate clientProcess
 
-        False -> do
-            execProcess "git.exe" ["--version"] workDir
-                "This program requires git.exe but could not find it" >>=
-                    expectExitSuccess
-                        "Failed to check the version of java.exe"
-            lift $ lift $ putStrLn "No Spigot server has found. Building..."
+            False -> do
+                execProcess "git.exe" ["--version"] workDir
+                    "This program requires git.exe but could not find it" >>=
+                        expectExitSuccess
+                            "Failed to check the version of git.exe"
+                lift $ lift $ putStrLn "No Spigot server has found. Building..."
 
-            makeDirectory tmpWorkDir
-            downloadBuildTools
-            buildSpigot
-            setupSpigotServer
+                makeDirectory tmpWorkDir "Failed to make the temporary working directory"
+                downloadBuildTools
+                buildSpigot
+                setupSpigotServer
 
 main :: IO ()
 main = do

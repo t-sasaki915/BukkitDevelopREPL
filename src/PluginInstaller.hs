@@ -3,8 +3,9 @@ module PluginInstaller (instalPlugins) where
 import AppOptions
 import FileIO
 
+import Control.Monad (when, unless)
 import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except (ExceptT, throwE)
 import Control.Monad.Trans.State.Strict (StateT, get)
 import Data.Functor ((<&>))
 import System.FilePath ((</>), takeFileName)
@@ -16,10 +17,12 @@ instalPlugins = do
 
     case pluginsToInstal appOptions of
         Just plugins -> do
-            checkDirectoryExistence (workDir </> "plugins") >>= \case
-                True  -> deleteDirectory (workDir </> "plugins")
-                False -> return ()
+            checkDirectoryExistence (workDir </> "plugins")
+                "Failed to check the existence of plugins directory" >>= \exists ->
+                    when exists $ deleteDirectory (workDir </> "plugins")
+                        "Failed to delete plugins directory"
             makeDirectory (workDir </> "plugins")
+                "Failed to make plugins directory"
 
             mapM_ instalPlugin plugins
 
@@ -30,8 +33,11 @@ instalPlugin :: FilePath -> ExceptT String (StateT AppOptions IO) ()
 instalPlugin plugin = do
     workDir <- lift get <&> workingDir
 
-    verifyFileExistence plugin ("Failed to read a plugin: " ++ plugin)
+    checkFileExistence plugin
+        ("Failed to check the existence of a plugin '" ++ plugin ++ "'") >>= \exists ->
+            unless exists $ throwE ("Failed to read a plugin '" ++ plugin ++ "'")
 
     copyFileT plugin (workDir </> "plugins" </> takeFileName plugin)
+        ("Failed to instal a plugin '" ++ plugin ++ "'")
 
     lift $ lift $ putStrLn ("Installed a plugin: " ++ plugin)

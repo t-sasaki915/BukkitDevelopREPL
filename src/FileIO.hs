@@ -3,7 +3,6 @@ module FileIO
     , deleteDirectory
     , checkDirectoryExistence
     , checkFileExistence
-    , verifyFileExistence
     , copyFileT
     , readFileT
     , writeFileT
@@ -18,57 +17,44 @@ import Control.Monad.Trans.State.Strict (StateT)
 import System.Directory
 import System.IO.Error (ioeGetErrorString)
 
-makeDirectory :: FilePath -> ExceptT String (StateT AppOptions IO) ()
-makeDirectory dirName =
+makeDirectory :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
+makeDirectory dirName errorMsg =
     lift (lift (try (createDirectoryIfMissing False dirName))) >>= \case
         Right ()   -> return ()
-        Left ioErr -> throwE $
-            "Failed to create a directory " ++ dirName ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-deleteDirectory :: FilePath -> ExceptT String (StateT AppOptions IO) ()
-deleteDirectory dirName =
+deleteDirectory :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
+deleteDirectory dirName errorMsg =
     lift (lift (try (removeDirectoryRecursive dirName))) >>= \case
         Right ()   -> return ()
-        Left ioErr -> throwE $
-            "Failed to delete a directory " ++ dirName ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-checkDirectoryExistence :: FilePath -> ExceptT String (StateT AppOptions IO) Bool
-checkDirectoryExistence dirName =
+checkDirectoryExistence :: FilePath -> String -> ExceptT String (StateT AppOptions IO) Bool
+checkDirectoryExistence dirName errorMsg =
     lift (lift (try (doesDirectoryExist dirName))) >>= \case
         Right result -> return result
-        Left ioErr   -> throwE $
-            "Failed to check the existence of " ++ dirName ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-checkFileExistence :: FilePath -> ExceptT String (StateT AppOptions IO) Bool
-checkFileExistence filePath =
+checkFileExistence :: FilePath -> String -> ExceptT String (StateT AppOptions IO) Bool
+checkFileExistence filePath errorMsg =
     lift (lift (try (doesFileExist filePath))) >>= \case
         Right result -> return result
-        Left ioErr   -> throwE $
-            "Failed to check the existence of " ++ filePath ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-verifyFileExistence :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
-verifyFileExistence filePath errorMsg =
-    checkFileExistence filePath >>= \case
-        True  -> return ()
-        False -> throwE errorMsg
-
-copyFileT :: FilePath -> FilePath -> ExceptT String (StateT AppOptions IO) ()
-copyFileT from to =
+copyFileT :: FilePath -> FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
+copyFileT from to errorMsg =
     lift (lift (try (copyFile from to))) >>= \case
         Right ()   -> return ()
-        Left ioErr -> throwE $
-            "Failed to copy a file " ++ from ++ " to " ++ to ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-readFileT :: FilePath -> ExceptT String (StateT AppOptions IO) String
-readFileT filePath =
+readFileT :: FilePath -> String -> ExceptT String (StateT AppOptions IO) String
+readFileT filePath errorMsg =
     lift (lift (try (readFile filePath))) >>= \case
         Right content -> return content
-        Left ioErr    -> throwE $
-            "Failed to read a file " ++ filePath ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr    -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
-writeFileT :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
-writeFileT filePath content =
+writeFileT :: FilePath -> String -> String -> ExceptT String (StateT AppOptions IO) ()
+writeFileT filePath content errorMsg =
     lift (lift (try (writeFile filePath content))) >>= \case
         Right ()   -> return ()
-        Left ioErr -> throwE $
-            "Failed to write a file " ++ filePath ++ ": " ++ ioeGetErrorString ioErr
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
