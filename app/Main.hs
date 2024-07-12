@@ -8,14 +8,14 @@ import ProcessIO
 import SpigotServer
 import SpigotServerSetup
 
-import Control.Monad (when, unless)
+import Control.Monad (unless)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
 import Data.Version (showVersion)
 import Options.Applicative
 import System.Directory (getCurrentDirectory, getHomeDirectory)
-import System.Exit (exitSuccess, exitFailure)
+import System.Exit (exitSuccess, exitFailure, ExitCode(..))
 import System.Process (waitForProcess)
 
 import Paths_spigot_debugger_launcher (version)
@@ -25,38 +25,58 @@ program = do
     appOptions <- lift get
     let workDir    = workingDir appOptions
         tmpWorkDir = tempWorkDir appOptions
+        mcRootDir  = minecraftDir appOptions
         clientJar  = minecraftClientJarFile appOptions
         serverJar  = spigotServerJarFile appOptions
         serverOnly = noClient appOptions
 
-    makeDirectory workDir "Failed to make the working directory"
     execProcess "java.exe" ["-version"] workDir
-        "This program requires java.exe but could not find it" >>=
+        "This program requires Java but could not find it" >>=
             expectExitSuccess
-                "Failed to check the version of java.exe"
-    checkFileExistence clientJar
-        ("Failed to check the existence of Minecraft client executable '" ++ clientJar ++ "'") >>= \exists ->
-            unless exists $ throwE ("Could not find Minecraft client executable '" ++ clientJar ++ "'")
+                "Failed to check the version of Java"
+    
+    makeDirectory workDir "Failed to make the working directory"
 
     checkFileExistence serverJar
         ("Failed to check the existence of Spigot server executable '" ++ serverJar ++ "'") >>= \case
-            True  -> do
+            True | serverOnly -> do
+                instalPlugins
+
+                serverProcess <- runSpigotServer
+                
+                lift (lift $ waitForProcess serverProcess) >>= \case
+                    ExitSuccess     -> return ()
+                    (ExitFailure n) -> throwE $
+                        "The Spigot server process has finished with a code " ++ show n ++ "."
+
+            True -> do
+                checkDirectoryExistence mcRootDir
+                    ("Failed to check the existence of Minecraft directory '" ++ mcRootDir ++ "'") >>=
+                        \exists -> unless exists $ throwE $
+                            "Could not find Minecraft directory '" ++ mcRootDir ++ "'"
+                checkFileExistence clientJar
+                    ("Failed to check the existence of Minecraft client executable '" ++ clientJar ++ "'") >>=
+                        \exists -> unless exists $ throwE $
+                            "Could not find Minecraft client executable '" ++ clientJar ++ "'"
+
                 instalPlugins
 
                 clientProcess <- runMinecraftClient
-                when serverOnly (terminate clientProcess)
-            
                 serverProcess <- runSpigotServer
-                _             <- lift $ lift $ waitForProcess serverProcess
+                exitCode      <- lift $ lift $ waitForProcess serverProcess
 
-                terminate serverProcess
                 terminate clientProcess
+
+                case exitCode of
+                    ExitSuccess     -> return ()
+                    (ExitFailure n) -> throwE $
+                        "The Spigot server process has finished with a code " ++ show n ++ "."
 
             False -> do
                 execProcess "git.exe" ["--version"] workDir
-                    "This program requires git.exe but could not find it" >>=
+                    "This program requires Git for Windows but could not find it" >>=
                         expectExitSuccess
-                            "Failed to check the version of git.exe"
+                            "Failed to check the version of Git for Windows"
                 lift $ lift $ putStrLn "No Spigot server has found. Building..."
 
                 makeDirectory tmpWorkDir "Failed to make the temporary working directory"
