@@ -6,6 +6,8 @@ module FileIO
     , copyFileT
     , readFileT
     , writeFileT
+    , directoryContents
+    , deleteFile
     ) where
 
 import AppOptions (AppOptions(..))
@@ -15,6 +17,7 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.Trans.Except (ExceptT, throwE)
 import Control.Monad.Trans.State.Strict (StateT)
 import System.Directory
+import System.FilePath ((</>))
 import System.IO.Error (ioeGetErrorString)
 
 makeDirectory :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
@@ -56,5 +59,17 @@ readFileT filePath errorMsg =
 writeFileT :: FilePath -> String -> String -> ExceptT String (StateT AppOptions IO) ()
 writeFileT filePath content errorMsg =
     lift (lift (try (writeFile filePath content))) >>= \case
+        Right ()   -> return ()
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+directoryContents :: FilePath -> String -> ExceptT String (StateT AppOptions IO) [FilePath]
+directoryContents filePath errorMsg =
+    lift (lift (try (map (filePath </>) <$> listDirectory filePath))) >>= \case
+        Right lst  -> return lst
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+deleteFile :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
+deleteFile filePath errorMsg =
+    lift (lift (try (removeFile filePath))) >>= \case
         Right ()   -> return ()
         Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)

@@ -14,6 +14,7 @@ import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.State.Strict (StateT, get)
 import Data.Functor ((<&>))
 import System.FilePath ((</>), takeFileName)
+import System.IO (hFlush, stdout)
 
 downloadBuildTools :: ExceptT String (StateT AppOptions IO) ()
 downloadBuildTools = do
@@ -66,6 +67,7 @@ setupSpigotServer = do
     lift $ lift $ do
         putStrLn ("A Spigot server has successfully built and stored in " ++ workDir ++ ".")
         putStrLn ("Please edit " ++ (workDir </> "eula.txt") ++ " to accept the eula.")
+        hFlush stdout
 
 
 customiseServerProperties :: String -> String

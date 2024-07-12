@@ -16,6 +16,7 @@ import Data.Version (showVersion)
 import Options.Applicative
 import System.Directory (getCurrentDirectory, getHomeDirectory)
 import System.Exit (exitSuccess, exitFailure, ExitCode(..))
+import System.IO (hFlush, stdout)
 import System.Process (waitForProcess)
 
 import Paths_spigot_debugger_launcher (version)
@@ -77,7 +78,10 @@ program = do
                     "This program requires Git for Windows but could not find it" >>=
                         expectExitSuccess
                             "Failed to check the version of Git for Windows"
-                lift $ lift $ putStrLn "No Spigot server has found. Building..."
+
+                lift $ lift $ do
+                    putStrLn "No Spigot server has found. Building..."
+                    hFlush stdout
 
                 makeDirectory tmpWorkDir "Failed to make the temporary working directory"
                 downloadBuildTools
