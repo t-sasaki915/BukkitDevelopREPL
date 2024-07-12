@@ -1,5 +1,8 @@
 module AppOptions
     ( AppOptions(..)
+    , minecraftAssetsDir
+    , minecraftLibrariesDir
+    , minecraftClientJarFile
     , spigotServerJarFile
     , buildToolsJarFile
     , appOptionsParser
@@ -14,9 +17,6 @@ data AppOptions = AppOptions
     { workingDir              :: FilePath
     , tempWorkDir             :: FilePath
     , minecraftDir            :: FilePath
-    , minecraftAssetsDir      :: FilePath
-    , minecraftLibrariesDir   :: FilePath
-    , minecraftClientJarFile  :: FilePath
     , minecraftClientUsername :: String
     , minecraftClientXms      :: Int
     , minecraftClientXmx      :: Int
@@ -26,6 +26,16 @@ data AppOptions = AppOptions
     , pluginsToInstal         :: Maybe [FilePath]
     }
     deriving Show
+
+minecraftAssetsDir :: AppOptions -> FilePath
+minecraftAssetsDir opts = minecraftDir opts </> "assets"
+
+minecraftLibrariesDir :: AppOptions -> FilePath
+minecraftLibrariesDir opts = minecraftDir opts </> "libraries"
+
+minecraftClientJarFile :: AppOptions -> FilePath
+minecraftClientJarFile opts =
+    minecraftDir opts </> "versions" </> minecraftVersion </> (minecraftVersion ++ ".jar")
 
 spigotServerJarFile :: AppOptions -> FilePath
 spigotServerJarFile opts = workingDir opts </> ("spigot-" ++ minecraftVersion ++ ".jar")
@@ -40,67 +50,49 @@ appOptionsParser currentDir homeDir =
             ( long "work-dir"
            <> metavar "FilePath"
            <> value (currentDir </> "run")
-           <> help "Specifies working directory expressly."
+           <> help "Specifies working directory expressly. The default value is '.\\run'."
             )
         <*> strOption
             ( long "temp-work-dir"
            <> metavar "FilePath"
            <> value (currentDir </> "run" </> "temp")
-           <> help "Specifies temporary working directory expressly."
+           <> help "Specifies temporary working directory expressly. The default value is '.\\run\\temp'."
             )
         <*> strOption
             ( long "minecraft-dir"
            <> metavar "FilePath"
            <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft")
-           <> help "Specifies Minecraft directory expressly."
-            )
-        <*> strOption
-            ( long "mc-assets-dir"
-           <> metavar "FilePath"
-           <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft" </> "assets")
-           <> help "Specifies Minecraft assets directory expressly."
-            )
-        <*> strOption
-            ( long "mc-libraries-dir"
-           <> metavar "FilePath"
-           <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft" </> "libraries")
-           <> help "Specifies Minecraft libraries directory expressly."
-            )
-        <*> strOption
-            ( long "mc-client-jar"
-           <> metavar "FilePath"
-           <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft" </> "versions" </> minecraftVersion </> (minecraftVersion ++ ".jar"))
-           <> help "Specifies Minecraft client executable expressly."
+           <> help "Specifies Minecraft directory expressly. The default value is '~\\AppData\\Roaming\\.minecraft'."
             )
         <*> strOption
             ( long "mc-client-username"
            <> metavar "String"
            <> value "DEV"
-           <> help "Customises Minecraft client username."
+           <> help "Customises Minecraft client username. The default value is 'DEV'."
             )
         <*> option auto
             ( long "mc-client-xms"
            <> metavar "Int"
            <> value 2
-           <> help "Customises Minecraft client JVM Xms."
+           <> help "Customises Minecraft client JVM Xms. The default value is '2'."
             )
         <*> option auto
             ( long "mc-client-xmx"
            <> metavar "Int"
            <> value 2
-           <> help "Customises Minecraft client JVM Xmx."
+           <> help "Customises Minecraft client JVM Xmx. The default value is '2'."
             )
         <*> option auto
             ( long "mc-server-xms"
            <> metavar "Int"
            <> value 2
-           <> help "Customises Minecraft server JVM Xms."
+           <> help "Customises Minecraft server JVM Xms. The default value is '2'."
             )
         <*> option auto
             ( long "mc-server-xmx"
            <> metavar "Int"
            <> value 2
-           <> help "Customises Minecraft server JVM Xmx."
+           <> help "Customises Minecraft server JVM Xmx. The default value is '2'."
             )
         <*> switch
             ( long "no-client"
