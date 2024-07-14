@@ -6,6 +6,7 @@ module FileIO
     , copyFileT
     , readFileT
     , writeFileT
+    , writeFileBL
     , directoryContents
     , deleteFile
     ) where
@@ -19,6 +20,8 @@ import Control.Monad.Trans.State.Strict (StateT)
 import System.Directory
 import System.FilePath ((</>))
 import System.IO.Error (ioeGetErrorString)
+
+import qualified Data.ByteString.Lazy as BL
 
 makeDirectory :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
 makeDirectory dirName errorMsg =
@@ -59,6 +62,12 @@ readFileT filePath errorMsg =
 writeFileT :: FilePath -> String -> String -> ExceptT String (StateT AppOptions IO) ()
 writeFileT filePath content errorMsg =
     lift (lift (try (writeFile filePath content))) >>= \case
+        Right ()   -> return ()
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+writeFileBL :: FilePath -> BL.ByteString -> String -> ExceptT String (StateT AppOptions IO) ()
+writeFileBL filePath content errorMsg =
+    lift (lift (try (BL.writeFile filePath content))) >>= \case
         Right ()   -> return ()
         Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 

@@ -43,6 +43,10 @@ library
     , transformers ==0.6.1.0
     , optparse-applicative ==0.18.1.0
     , regex-posix ==0.96.0.1
+    , named-binary-tag ==0.1.0.0
+    , cereal ==0.5.8.3
+    , bytestring ==0.11.5.3
+    , rrb-vector ==0.2.1.0
   default-language: Haskell2010
   default-extensions: LambdaCase
 
@@ -64,5 +68,7 @@ executable spigot-debugger-launcher-exe
     , transformers ==0.6.1.0
     , optparse-applicative ==0.18.1.0
     , regex-posix ==0.96.0.1
+    , named-binary-tag ==0.1.0.0
+    , cereal ==0.5.8.3
   default-language: Haskell2010
   default-extensions: LambdaCase

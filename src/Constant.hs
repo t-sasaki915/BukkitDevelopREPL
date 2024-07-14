@@ -1,10 +1,25 @@
 {-# OPTIONS_GHC -Wno-missing-export-lists #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Constant where
 
+import Data.Nbt (Nbt(Nbt), Cmpnd(Cmpnd), Tag(..))
+import Data.RRBVector (fromList)
 import System.FilePath ((</>))
 
 type JVMOption = String
+
+defaultServersDat :: Nbt ()
+defaultServersDat =
+    Nbt "" $ Compound $ Cmpnd () $ fromList
+        [ Nbt "servers" $ List $ fromList
+            [ Compound $ Cmpnd () $ fromList
+                [ Nbt "hidden" (Byte 0)
+                , Nbt "ip" (String "localhost:25565")
+                , Nbt "name" (String "DEVV")
+                ]
+            ]
+        ]
 
 buildToolsUrl :: FilePath
 buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
