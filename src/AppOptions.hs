@@ -23,7 +23,7 @@ data AppOptions = AppOptions
     , minecraftServerXms      :: Int
     , minecraftServerXmx      :: Int
     , noClient                :: Bool
-    , pluginsToInstal         :: Maybe [FilePath]
+    , pluginsToInstall        :: Maybe [FilePath]
     }
     deriving Show
 
@@ -99,7 +99,7 @@ appOptionsParser currentDir homeDir =
             ( some
                 ( argument str
                     ( metavar "Plugins..."
-                   <> help "Specifies Spigot plugin locations to instal."
+                   <> help "Specifies Spigot plugin locations to install."
                     )
                 )
             )

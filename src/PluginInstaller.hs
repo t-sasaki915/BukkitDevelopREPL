@@ -1,4 +1,4 @@
-module PluginInstaller (instalPlugins) where
+module PluginInstaller (installPlugins) where
 
 import           AppOptions
 import           FileIO
@@ -14,11 +14,11 @@ import           System.FilePath                  (takeFileName, (</>))
 import           System.IO                        (hFlush, stdout)
 import           Text.Regex.Posix                 ((=~))
 
-instalPlugins :: ExceptT String (StateT AppOptions IO) ()
-instalPlugins = do
+installPlugins :: ExceptT String (StateT AppOptions IO) ()
+installPlugins = do
     appOptions <- lift get
     let workDir = workingDir appOptions
-        plugins = fromMaybe [] (pluginsToInstal appOptions)
+        plugins = fromMaybe [] (pluginsToInstall appOptions)
 
     makeDirectory (workDir </> "plugins") "Failed to make plugins directory"
 
@@ -47,11 +47,11 @@ instalPlugins = do
             url | isUrl url -> urlFileName url `notElem` map takeFileName installedJars
             _               -> False
 
-    mapM_ instalLocalPlugin newLocalPlugins
-    mapM_ instalRemotePlugin newRemotePlugins
+    mapM_ installLocalPlugin newLocalPlugins
+    mapM_ installRemotePlugin newRemotePlugins
 
-instalLocalPlugin :: FilePath -> ExceptT String (StateT AppOptions IO) ()
-instalLocalPlugin plugin = do
+installLocalPlugin :: FilePath -> ExceptT String (StateT AppOptions IO) ()
+installLocalPlugin plugin = do
     workDir <- lift get <&> workingDir
 
     checkFileExistence plugin
@@ -59,14 +59,14 @@ instalLocalPlugin plugin = do
             unless exists $ throwE ("Could not find a local plugin '" ++ plugin ++ "'")
 
     copyFileT plugin (workDir </> "plugins" </> takeFileName plugin)
-        ("Failed to instal a local plugin '" ++ plugin ++ "'")
+        ("Failed to install a local plugin '" ++ plugin ++ "'")
 
     lift $ lift $ do
         putStrLn ("Installed a local plugin '" ++ plugin ++ "'.")
         hFlush stdout
 
-instalRemotePlugin :: FilePath -> ExceptT String (StateT AppOptions IO) ()
-instalRemotePlugin plugin = do
+installRemotePlugin :: FilePath -> ExceptT String (StateT AppOptions IO) ()
+installRemotePlugin plugin = do
     workDir <- lift get <&> workingDir
 
     let dlLocation = workDir </> "plugins" </> urlFileName plugin

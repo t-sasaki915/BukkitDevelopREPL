@@ -43,7 +43,7 @@ program = do
     checkFileExistence serverJar
         ("Failed to check the existence of Spigot server executable '" ++ serverJar ++ "'") >>= \case
             True | serverOnly -> do
-                instalPlugins
+                installPlugins
 
                 serverProcess <- runSpigotServer
 
@@ -62,7 +62,7 @@ program = do
                         \exists -> unless exists $ throwE $
                             "Could not find Minecraft client executable '" ++ clientJar ++ "'"
 
-                instalPlugins
+                installPlugins
 
                 clientProcess <- runMinecraftClient
                 serverProcess <- runSpigotServer

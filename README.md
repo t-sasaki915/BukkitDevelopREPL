@@ -9,9 +9,9 @@ Minecraft client and server launcher for Spigot plugin debugging
 ## Usage
 __**WARNING**__ This program is NOT for production. Please use this program on purpose of brief debugging.
 ```
-spigot-debugger-launcher-exe.exe [Options] [Plugin Paths to Instal]
+spigot-debugger-launcher-exe.exe [Options] [Plugin Paths to Install]
 ```
-Both `[Options]` and `[Plugin Paths to Instal]` could be non-specified.
+Both `[Options]` and `[Plugin Paths to Install]` could be non-specified.
 That is, double-clicking the `.EXE` file is the easiest usage.
 
 ### Options
@@ -62,7 +62,7 @@ __**Note**__ You need a sbt plugin `sbt-assembly`.
      val options = List()
 
      /**
-      * Plugin paths to instal on the Spigot server.
+      * Plugin paths to install on the Spigot server.
       * Examples:
       *   val plugins = List(".\\dependencies\\worldedit.jar", ".\\dependencies\\placeholderapi.jar")
       */
