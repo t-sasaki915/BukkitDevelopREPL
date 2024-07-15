@@ -16,7 +16,7 @@ defaultServersDat =
             [ Compound $ Cmpnd () $ fromList
                 [ Nbt "hidden" (Byte 0)
                 , Nbt "ip" (String "localhost:25565")
-                , Nbt "name" (String "DEVV")
+                , Nbt "name" (String "DEV")
                 ]
             ]
         ]
