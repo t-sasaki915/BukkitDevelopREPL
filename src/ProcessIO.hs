@@ -4,15 +4,15 @@ module ProcessIO
     , terminate
     ) where
 
-import AppOptions (AppOptions(..))
+import           AppOptions                       (AppOptions (..))
 
-import Control.Exception (try)
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, throwE)
-import Control.Monad.Trans.State.Strict (StateT)
-import GHC.IO.Exception (ExitCode (ExitSuccess))
-import System.IO.Error (ioeGetErrorString)
-import System.Process (ProcessHandle, waitForProcess, runProcess, terminateProcess)
+import           Control.Exception                (try)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT, throwE)
+import           Control.Monad.Trans.State.Strict (StateT)
+import           GHC.IO.Exception                 (ExitCode (ExitSuccess))
+import           System.IO.Error                  (ioeGetErrorString)
+import           System.Process
 
 execProcess :: FilePath -> [String] -> String -> String -> ExceptT String (StateT AppOptions IO) ProcessHandle
 execProcess execName cmdArgs execDir errorMsg =

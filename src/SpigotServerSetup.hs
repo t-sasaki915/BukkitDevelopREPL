@@ -4,17 +4,18 @@ module SpigotServerSetup
     , setupSpigotServer
     ) where
 
-import AppOptions
-import Constant (buildToolsUrl, minecraftVersion)
-import FileIO
-import ProcessIO
+import           AppOptions
+import           Constant
 
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT)
-import Control.Monad.Trans.State.Strict (StateT, get)
-import Data.Functor ((<&>))
-import System.FilePath ((</>), takeFileName)
-import System.IO (hFlush, stdout)
+import           FileIO
+import           ProcessIO
+
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT)
+import           Control.Monad.Trans.State.Strict (StateT, get)
+import           Data.Functor                     ((<&>))
+import           System.FilePath                  (takeFileName, (</>))
+import           System.IO                        (hFlush, stdout)
 
 downloadBuildTools :: ExceptT String (StateT AppOptions IO) ()
 downloadBuildTools = do
@@ -52,7 +53,7 @@ setupSpigotServer = do
         "Failed to execute java.exe that was to generate a template of server.properties" >>=
             expectExitSuccess
                 "Failed to generate a template of server.properties"
-    
+
     serverProperties <- readFileT (tmpWorkDir </> "server.properties")
         "Failed to read a template of server.properties"
     let customisedProperties = customiseServerProperties serverProperties
@@ -63,7 +64,7 @@ setupSpigotServer = do
         "Failed to execute java.exe that was to do the first server startup" >>=
             expectExitSuccess
                 "Failed to do the first server startup"
-    
+
     lift $ lift $ do
         putStrLn ("A Spigot server has successfully built and stored in " ++ workDir ++ ".")
         putStrLn ("Please edit " ++ (workDir </> "eula.txt") ++ " to accept the eula.")

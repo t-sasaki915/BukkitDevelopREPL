@@ -1,25 +1,27 @@
 module Main (main) where
 
-import AppOptions
-import FileIO
-import MinecraftClient
-import PluginInstaller
-import ProcessIO
-import SpigotServer
-import SpigotServerSetup
+import           AppOptions
+import           FileIO
+import           MinecraftClient
+import           PluginInstaller
+import           ProcessIO
+import           SpigotServer
+import           SpigotServerSetup
 
-import Control.Monad (unless)
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
-import Control.Monad.Trans.State.Strict (StateT, runStateT, get)
-import Data.Version (showVersion)
-import Options.Applicative
-import System.Directory (getCurrentDirectory, getHomeDirectory)
-import System.Exit (exitSuccess, exitFailure, ExitCode(..))
-import System.IO (hFlush, stdout)
-import System.Process (waitForProcess)
+import           Control.Monad                    (unless)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT, runExceptT, throwE)
+import           Control.Monad.Trans.State.Strict (StateT, get, runStateT)
+import           Data.Version                     (showVersion)
+import           Options.Applicative
+import           System.Directory                 (getCurrentDirectory,
+                                                   getHomeDirectory)
+import           System.Exit                      (ExitCode (..), exitFailure,
+                                                   exitSuccess)
+import           System.IO                        (hFlush, stdout)
+import           System.Process                   (waitForProcess)
 
-import Paths_spigot_debugger_launcher (version)
+import           Paths_spigot_debugger_launcher   (version)
 
 program :: ExceptT String (StateT AppOptions IO) ()
 program = do
@@ -35,7 +37,7 @@ program = do
         "This program requires Java but could not find it" >>=
             expectExitSuccess
                 "Failed to check the version of Java"
-    
+
     makeDirectory workDir "Failed to make the working directory"
 
     checkFileExistence serverJar
@@ -44,7 +46,7 @@ program = do
                 instalPlugins
 
                 serverProcess <- runSpigotServer
-                
+
                 lift (lift $ waitForProcess serverProcess) >>= \case
                     ExitSuccess     -> return ()
                     (ExitFailure n) -> throwE $

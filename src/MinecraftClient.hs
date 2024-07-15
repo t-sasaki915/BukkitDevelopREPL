@@ -2,19 +2,19 @@
 
 module MinecraftClient (runMinecraftClient) where
 
-import AppOptions
-import Constant
-import FileIO
-import ProcessIO
+import           AppOptions
+import           Constant
+import           FileIO
+import           ProcessIO
 
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT)
-import Control.Monad.Trans.State.Strict (StateT, get)
-import Data.List (intercalate)
-import Data.ByteString.Lazy (fromChunks)
-import Data.Serialize (encode)
-import System.FilePath ((</>))
-import System.Process (ProcessHandle)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT)
+import           Control.Monad.Trans.State.Strict (StateT, get)
+import           Data.ByteString.Lazy             (fromChunks)
+import           Data.List                        (intercalate)
+import           Data.Serialize                   (encode)
+import           System.FilePath                  ((</>))
+import           System.Process                   (ProcessHandle)
 
 generateServersDat :: ExceptT String (StateT AppOptions IO) ()
 generateServersDat = do

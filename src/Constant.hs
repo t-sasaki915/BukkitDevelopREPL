@@ -3,9 +3,9 @@
 
 module Constant where
 
-import Data.Nbt (Nbt(Nbt), Cmpnd(Cmpnd), Tag(..))
-import Data.RRBVector (fromList)
-import System.FilePath ((</>))
+import           Data.Nbt        (Cmpnd (Cmpnd), Nbt (Nbt), Tag (..))
+import           Data.RRBVector  (fromList)
+import           System.FilePath ((</>))
 
 type JVMOption = String
 

@@ -1,18 +1,18 @@
 module PluginInstaller (instalPlugins) where
 
-import AppOptions
-import FileIO
-import ProcessIO
+import           AppOptions
+import           FileIO
+import           ProcessIO
 
-import Control.Monad (forM_, unless, filterM)
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, throwE)
-import Control.Monad.Trans.State.Strict (StateT, get)
-import Data.Functor ((<&>))
-import Data.Maybe (fromMaybe)
-import System.FilePath ((</>), takeFileName)
-import System.IO (hFlush, stdout)
-import Text.Regex.Posix ((=~))
+import           Control.Monad                    (filterM, forM_, unless)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT, throwE)
+import           Control.Monad.Trans.State.Strict (StateT, get)
+import           Data.Functor                     ((<&>))
+import           Data.Maybe                       (fromMaybe)
+import           System.FilePath                  (takeFileName, (</>))
+import           System.IO                        (hFlush, stdout)
+import           Text.Regex.Posix                 ((=~))
 
 instalPlugins :: ExceptT String (StateT AppOptions IO) ()
 instalPlugins = do
@@ -38,7 +38,7 @@ instalPlugins = do
             lift $ lift $ do
                 putStrLn ("Deleted an unused plugin '" ++ unusedJar ++ "'.")
                 hFlush stdout
-    
+
     let newLocalPlugins = flip filter plugins $ \case
             url | isUrl url -> False
             path            -> urlFileName path `notElem` map takeFileName installedJars
@@ -74,7 +74,7 @@ instalRemotePlugin plugin = do
         ("Failed to execute curl.exe that was to download a remote plugin '" ++ plugin ++ "'") >>=
             expectExitSuccess
                 ("Failed to download a remote plugin '" ++ plugin ++ "'")
-    
+
     lift $ lift $ do
         putStrLn ("Installed a remote plugin '" ++ plugin ++ "'.")
         hFlush stdout

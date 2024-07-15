@@ -9,10 +9,10 @@ module AppOptions
     , appOptionsParser
     ) where
 
-import Constant (minecraftVersion)
+import           Constant            (minecraftVersion)
 
-import Options.Applicative
-import System.FilePath ((</>))
+import           Options.Applicative
+import           System.FilePath     ((</>))
 
 data AppOptions = AppOptions
     { workingDir              :: FilePath

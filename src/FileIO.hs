@@ -11,17 +11,17 @@ module FileIO
     , deleteFile
     ) where
 
-import AppOptions (AppOptions(..))
+import           AppOptions                       (AppOptions (..))
 
-import Control.Exception (try)
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT, throwE)
-import Control.Monad.Trans.State.Strict (StateT)
-import System.Directory
-import System.FilePath ((</>))
-import System.IO.Error (ioeGetErrorString)
+import           Control.Exception                (try)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT, throwE)
+import           Control.Monad.Trans.State.Strict (StateT)
+import           System.Directory
+import           System.FilePath                  ((</>))
+import           System.IO.Error                  (ioeGetErrorString)
 
-import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Lazy             as BL
 
 makeDirectory :: FilePath -> String -> ExceptT String (StateT AppOptions IO) ()
 makeDirectory dirName errorMsg =

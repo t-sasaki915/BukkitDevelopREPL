@@ -1,13 +1,13 @@
 module SpigotServer (runSpigotServer) where
 
-import AppOptions
-import Constant
-import ProcessIO
+import           AppOptions
+import           Constant
+import           ProcessIO
 
-import Control.Monad.Trans.Class (lift)
-import Control.Monad.Trans.Except (ExceptT)
-import Control.Monad.Trans.State.Strict (StateT, get)
-import System.Process (ProcessHandle)
+import           Control.Monad.Trans.Class        (lift)
+import           Control.Monad.Trans.Except       (ExceptT)
+import           Control.Monad.Trans.State.Strict (StateT, get)
+import           System.Process                   (ProcessHandle)
 
 runSpigotServer :: ExceptT String (StateT AppOptions IO) ProcessHandle
 runSpigotServer = do
