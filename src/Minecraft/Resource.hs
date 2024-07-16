@@ -1,50 +1,19 @@
-{-# OPTIONS_GHC -Wno-missing-export-lists #-}
-{-# LANGUAGE OverloadedStrings #-}
+module Minecraft.Resource (clientAssetIndex, clientLibraries) where
 
-module Constant where
+import           Minecraft.MinecraftVersion (MinecraftVersion (..))
 
-import           Data.Nbt        (Cmpnd (Cmpnd), Nbt (Nbt), Tag (..))
-import           Data.RRBVector  (fromList)
-import           System.FilePath ((</>))
+import           System.FilePath            ((</>))
 
-type JVMOption = String
+clientAssetIndex_1_20_1 :: Int
+clientAssetIndex_1_20_1 = 5
 
-defaultServersDat :: Nbt ()
-defaultServersDat =
-    Nbt "" $ Compound $ Cmpnd () $ fromList
-        [ Nbt "servers" $ List $ fromList
-            [ Compound $ Cmpnd () $ fromList
-                [ Nbt "hidden" (Byte 0)
-                , Nbt "ip" (String "localhost:25565")
-                , Nbt "name" (String "DEV")
-                ]
-            ]
-        ]
+clientAssetIndex :: MinecraftVersion -> Maybe Int
+clientAssetIndex = \case
+    (MinecraftVersion 1 20 1) -> Just clientAssetIndex_1_20_1
+    _                         -> Nothing
 
-buildToolsUrl :: FilePath
-buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
-
-minecraftClientJVMOptions :: [JVMOption]
-minecraftClientJVMOptions =
-    [ "-XX:+UnlockExperimentalVMOptions"
-    , "-XX:+UseG1GC"
-    , "-XX:G1NewSizePercent=20"
-    , "-XX:G1ReservePercent=20"
-    , "-XX:MaxGCPauseMillis=50"
-    , "-XX:G1HeapRegionSize=32M"
-    ]
-
-minecraftServerJVMOptions :: [JVMOption]
-minecraftServerJVMOptions = []
-
-minecraftVersion :: String
-minecraftVersion = "1.20.1"
-
-minecraftAssetIndex :: Int
-minecraftAssetIndex = 5
-
-minecraftClientLibraries :: [FilePath]
-minecraftClientLibraries =
+clientLibraries_1_20_1 :: [FilePath]
+clientLibraries_1_20_1 =
     [ "com" </> "github" </> "oshi" </> "oshi-core" </> "6.2.2" </> "oshi-core-6.2.2.jar"
     , "com" </> "google" </> "code" </> "gson" </> "gson" </> "2.10" </> "gson-2.10.jar"
     , "com" </> "google" </> "guava" </> "failureaccess" </> "1.0.1" </> "failureaccess-1.0.1.jar"
@@ -110,3 +79,8 @@ minecraftClientLibraries =
     , "org" </> "lwjgl" </> "lwjgl" </> "3.3.1" </> "lwjgl-3.3.1-natives-windows-x86.jar"
     , "org" </> "slf4j" </> "slf4j-api" </> "2.0.1" </> "slf4j-api-2.0.1.jar"
     ]
+
+clientLibraries :: MinecraftVersion -> Maybe [FilePath]
+clientLibraries = \case
+    (MinecraftVersion 1 20 1) -> Just clientLibraries_1_20_1
+    _                         -> Nothing

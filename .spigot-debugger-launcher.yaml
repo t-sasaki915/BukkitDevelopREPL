@@ -1,0 +1,37 @@
+server:
+    version: "1.20.1"
+
+    jvmOptions:
+        [ "-Xms2G"
+        , "-Xmx2G"
+        ]
+    
+    # Using online mode will make dev clients unusable.
+    onlineMode: false
+
+    # The dependencies of your plugin should be put in here.
+    # However, your plugin itself should be specified as a command line argument.
+    # Because these plugins will not have been reinstalled unless their file name have changed.
+    # Both urls and paths are acceptable.
+    #
+    # staticPlugins:
+    #     [ ".\\dependencies\\coreprotect.jar"
+    #     , ".\\dependencies\\placeholderapi.jar"
+    #     , "https://example.com/luckperms.jar"
+    #     ]
+    staticPlugins: []
+
+client:
+    # Supported versions: 1.20.1
+    defaultVersion: "1.20.1"
+
+    jvmOptions:
+        [ "-Xms2G"
+        , "-Xmx2G"
+        , "-XX:+UnlockExperimentalVMOptions"
+        , "-XX:+UseG1GC"
+        , "-XX:G1NewSizePercent=20"
+        , "-XX:G1ReservePercent=20"
+        , "-XX:MaxGCPauseMillis=50"
+        , "-XX:G1HeapRegionSize=32M"
+        ]
