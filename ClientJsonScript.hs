@@ -6,7 +6,7 @@ build-depends: base >=4.7 && <5
              , text ==2.0.2
 -}
 
--- Usage: cabal run clientJsonScript.hs <assetIndex | libraries> <Path to client.json>
+-- Usage: cabal run ClientJsonScript.hs <assetIndex | libraries> <Path to client.json>
 
 {-# LANGUAGE OverloadedStrings #-}
 
