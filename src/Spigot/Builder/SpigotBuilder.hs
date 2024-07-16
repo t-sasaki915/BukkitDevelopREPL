@@ -28,7 +28,7 @@ useBuildTools = do
     serverVersion  <- getServerVersion
     buildDir       <- getBuildDir
 
-    execProcess "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
+    execProcessNewWindow "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
         "Failed to execute java.exe that was to build a Spigot server" >>=
             expectExitSuccess
                 "Failed to build a Spigot server"

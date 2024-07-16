@@ -12,6 +12,7 @@ import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT)
 import           Control.Monad.Trans.State.Strict (StateT, get)
 import           Data.Functor                     ((<&>))
+import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
 
 type AppStateIO = ExceptT String (StateT AppState IO)
@@ -30,8 +31,12 @@ initialState = do
     let constructor = AppState
     return (constructor cliOpts conf)
 
+absolutePath :: FilePath -> AppStateIO FilePath
+absolutePath = lift . lift . makeAbsolute
+
 getWorkingDir :: AppStateIO FilePath
-getWorkingDir = lift get <&> (workingDir . applicationConfig . config)
+getWorkingDir = lift get >>=
+    absolutePath . workingDir . applicationConfig . config
 
 getClientWorkingDir :: AppStateIO FilePath
 getClientWorkingDir = getWorkingDir <&> (</> "client")
@@ -43,7 +48,8 @@ getBuildToolsPath :: AppStateIO FilePath
 getBuildToolsPath = getBuildDir <&> (</> "BuildTools.jar")
 
 getMinecraftDir :: AppStateIO FilePath
-getMinecraftDir = lift get <&> (minecraftDir . cliOptions)
+getMinecraftDir = lift get >>=
+    absolutePath . minecraftDir . cliOptions
 
 getMinecraftAssetsDir :: AppStateIO FilePath
 getMinecraftAssetsDir = getMinecraftDir <&> (</> "assets")
