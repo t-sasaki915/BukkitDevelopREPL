@@ -6,6 +6,7 @@ import           CLIOptions.CLIOptions            (CLIOptions (..))
 import           CLIOptions.Parser                (parseCLIOptions)
 import           Config.Config
 import           Config.Loader                    (loadConfig)
+import           Minecraft.MinecraftVersion       (MinecraftVersion)
 
 import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT)
@@ -52,3 +53,14 @@ getMinecraftLibrariesDir = getMinecraftDir <&> (</> "libraries")
 
 getMinecraftVersionsDir :: AppStateIO FilePath
 getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
+
+getServerVersion :: AppStateIO MinecraftVersion
+getServerVersion = lift get <&> (serverVersion . serverConfig . config)
+
+getServerJarPath :: AppStateIO FilePath
+getServerJarPath = getServerVersion >>= \ver ->
+    getWorkingDir <&> (</> "spigot-" ++ show ver ++ ".jar")
+
+getTemporaryServerJarPath :: AppStateIO FilePath
+getTemporaryServerJarPath = getServerVersion >>= \ver ->
+    getBuildDir <&> (</> "spigot-" ++ show ver ++ ".jar")

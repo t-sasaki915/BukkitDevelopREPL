@@ -28,7 +28,10 @@ library
       Minecraft.MinecraftVersion
       Minecraft.Resource
       Spigot.Builder.Resource
+      Spigot.Builder.SpigotBuilder
       AppState
+      FileIO
+      ProcessIO
   other-modules:
       Paths_spigot_debugger_launcher
   autogen-modules:
