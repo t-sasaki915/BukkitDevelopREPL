@@ -1,3 +1,6 @@
+application:
+    workingDir: ".\\spigot-debugger-launcher"
+
 server:
     version: "1.20.1"
 

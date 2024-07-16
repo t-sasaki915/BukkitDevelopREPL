@@ -5,8 +5,7 @@ import           System.Directory    (getCurrentDirectory, getHomeDirectory)
 import           System.FilePath     ((</>))
 
 data CLIOptions = CLIOptions
-    { workingDir   :: FilePath
-    , minecraftDir :: FilePath
+    { minecraftDir :: FilePath
     , configFile   :: FilePath
     }
     deriving Show
@@ -18,12 +17,6 @@ cliOptionsParser = do
     return $
         CLIOptions
             <$> strOption
-                ( long "work-dir"
-               <> metavar "FilePath"
-               <> value (currentDir </> "spigot-debugger-launcher")
-               <> help "Specifies working directory expressly. The default value is '.\\spigot-debugger-launcher'."
-                )
-            <*> strOption
                 ( long "minecraft-dir"
                <> metavar "FilePath"
                <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft")

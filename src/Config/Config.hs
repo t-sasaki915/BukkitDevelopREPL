@@ -1,14 +1,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Config.Config (Config(..), ServerConfig(..), ClientConfig(..)) where
+module Config.Config
+    ( Config(..)
+    , ApplicationConfig(..)
+    , ServerConfig(..)
+    , ClientConfig(..)
+    ) where
 
 import           Minecraft.MinecraftVersion (MinecraftVersion)
 
 import           Data.Yaml                  (FromJSON (..), Value (..), (.:))
 
 data Config = Config
-    { serverConfig :: ServerConfig
-    , clientConfig :: ClientConfig
+    { applicationConfig :: ApplicationConfig
+    , serverConfig      :: ServerConfig
+    , clientConfig      :: ClientConfig
+    }
+    deriving Show
+
+newtype ApplicationConfig = ApplicationConfig
+    { workingDir :: FilePath
     }
     deriving Show
 
@@ -44,10 +55,18 @@ instance FromJSON ServerConfig where
 
     parseJSON _ = fail "Unrecognisable server config"
 
+instance FromJSON ApplicationConfig where
+    parseJSON (Object m) =
+        ApplicationConfig
+            <$> m .: "workingDir"
+
+    parseJSON _ = fail "Unrecognisable application config"
+
 instance FromJSON Config where
     parseJSON (Object m) =
         Config
-            <$> m .: "server"
+            <$> m .: "application"
+            <*> m .: "server"
             <*> m .: "client"
 
     parseJSON _ = fail "Unrecognisable config"
