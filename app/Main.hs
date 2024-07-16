@@ -3,7 +3,7 @@ module Main (main) where
 import           AppState                         (AppStateIO, getWorkingDir,
                                                    initialState)
 import           FileIO                           (makeDirectory)
-import           Spigot.Builder.SpigotBuilder     (buildSpigot)
+import           Repl.Repl                        (startRepl)
 
 import           Control.Monad.Trans.Except       (runExceptT)
 import           Control.Monad.Trans.State.Strict (runStateT)
@@ -19,7 +19,7 @@ makeNecessaryDirectories = do
 program :: AppStateIO ()
 program = do
     makeNecessaryDirectories
-    buildSpigot
+    startRepl
 
 main :: IO ()
 main = do

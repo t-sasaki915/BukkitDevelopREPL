@@ -14,6 +14,7 @@ import           Control.Monad.Trans.State.Strict (StateT, get)
 import           Data.Functor                     ((<&>))
 import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
+import           System.IO                        (hFlush, stdout)
 
 type AppStateIO = ExceptT String (StateT AppState IO)
 
@@ -33,6 +34,11 @@ initialState = do
 
 absolutePath :: FilePath -> AppStateIO FilePath
 absolutePath = lift . lift . makeAbsolute
+
+putStrLn' :: String -> AppStateIO ()
+putStrLn' msg = lift $ lift $ do
+    putStrLn msg
+    hFlush stdout
 
 getWorkingDir :: AppStateIO FilePath
 getWorkingDir = lift get >>=
@@ -70,3 +76,6 @@ getServerJarPath = getServerVersion >>= \ver ->
 getTemporaryServerJarPath :: AppStateIO FilePath
 getTemporaryServerJarPath = getServerVersion >>= \ver ->
     getBuildDir <&> (</> "spigot-" ++ show ver ++ ".jar")
+
+getServerJvmOptions :: AppStateIO [String]
+getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . config)
