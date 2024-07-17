@@ -9,7 +9,7 @@ import           Data.Yaml           (FromJSON (..), Value (..))
 import           Options.Applicative (ReadM, eitherReader)
 import           Text.Regex.Posix    ((=~))
 
-data MinecraftVersion = MinecraftVersion Int Int Int
+data MinecraftVersion = MinecraftVersion Int Int Int deriving Eq
 
 instance Show MinecraftVersion where
     show (MinecraftVersion major minor 0) =

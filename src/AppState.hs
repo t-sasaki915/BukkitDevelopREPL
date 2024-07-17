@@ -21,10 +21,16 @@ import           System.Process                   (ProcessHandle,
 type AppStateIO = ExceptT String (StateT AppState IO)
 
 data AppState = AppState
-    { clients_    :: [(String, ProcessHandle)]
+    { clients_    :: [(ClientInfo, ProcessHandle)]
     , cliOptions_ :: CLIOptions
     , config_     :: Config
     }
+
+data ClientInfo = ClientInfo
+    { runningClientName    :: String
+    , runningClientVersion :: MinecraftVersion
+    }
+    deriving Eq
 
 initialState :: IO AppState
 initialState = do
@@ -42,7 +48,7 @@ putStrLn' msg = lift $ lift $ do
     putStrLn msg
     hFlush stdout
 
-getClients :: AppStateIO [(String, ProcessHandle)]
+getClients :: AppStateIO [(ClientInfo, ProcessHandle)]
 getClients = lift get <&> clients_
 
 getWorkingDir :: AppStateIO FilePath
@@ -97,10 +103,10 @@ getTemporaryServerJarPath = getServerVersion >>= \ver ->
 getServerJvmOptions :: AppStateIO [String]
 getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . config_)
 
-registerNewClient :: String -> ProcessHandle -> AppStateIO ()
-registerNewClient clientUsername clientHandle = do
+registerNewClient :: ClientInfo -> ProcessHandle -> AppStateIO ()
+registerNewClient clientInfo clientHandle = do
     state <- lift get
-    let updated = clients_ state ++ [(clientUsername, clientHandle)]
+    let updated = clients_ state ++ [(clientInfo, clientHandle)]
 
     lift $ put (AppState updated (cliOptions_ state) (config_ state))
 

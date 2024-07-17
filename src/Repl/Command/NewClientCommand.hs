@@ -8,6 +8,7 @@ import           Minecraft.MinecraftVersion       (MinecraftVersion,
                                                    minecraftVersionParser)
 import           Repl.Command.ReplCommand         (ReplCommand (..))
 
+import           Data.Bifunctor                   (first)
 import           Options.Applicative
 
 data NewClientCommand = NewClientCommand
@@ -55,13 +56,13 @@ newClientCommandProcedure opts = do
     updateClientList
 
     clients <- getClients
-    case lookup username clients of
+    case lookup username (map (first runningClientName) clients) of
         Just _ -> do
             putStrLn' ("A Minecraft client whose name is '" ++ username ++ "' is existing.")
             putStrLn' "Please use '--username' option to avoid confliction."
 
         Nothing -> do
             clientProcess <- spawnMinecraftClient version username
-            registerNewClient username clientProcess
+            registerNewClient (ClientInfo username version) clientProcess
 
             putStrLn' ("Successfully created a new Minecraft client with a name of '" ++ username ++ "'.")
