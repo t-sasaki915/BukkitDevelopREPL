@@ -21,8 +21,10 @@ program = do
     v <- getClientDefaultVersion
     assetIndex <- getAssetIndex v
     mainClass  <- getMainClass v
+    libraries  <- getLibraries v
     putStrLn' assetIndex
     putStrLn' mainClass
+    putStrLn' (show libraries)
     makeNecessaryDirectories
     startRepl
 

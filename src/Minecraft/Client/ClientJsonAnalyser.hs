@@ -1,6 +1,7 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass) where
+module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass, getLibraries) where
 
 import           AppState
 import           FileIO
@@ -9,11 +10,23 @@ import           Minecraft.MinecraftVersion (MinecraftVersion (..))
 import           Control.Monad.Trans.Except (throwE)
 import           Data.Aeson
 import           Data.ByteString            (fromStrict)
+import           Data.Maybe                 (maybeToList)
 import           System.FilePath            ((</>))
 
-data RuleAction = Allow | Disallow deriving Show
+binaryOSName :: OSName
+#ifdef mingw32_HOST_OS
+binaryOSName = Windows
+#endif
+#ifdef linux_HOST_OS
+binaryOSName = Linux
+#endif
+#ifdef darwin_HOST_OS
+binaryOSName = OSX
+#endif
 
-data OSName = Linux | OSX | Windows deriving Show
+data RuleAction = Allow | Disallow deriving (Show, Eq)
+
+data OSName = Linux | OSX | Windows deriving (Show, Eq)
 
 instance FromJSON RuleAction where
     parseJSON (String "allow")    = pure Allow
@@ -158,3 +171,55 @@ getMainClass :: MinecraftVersion -> AppStateIO String
 getMainClass mcVersion = do
     clientJson <- parseClientJson mcVersion
     return (mainClass clientJson)
+
+getLibraries :: MinecraftVersion -> AppStateIO [String]
+getLibraries mcVersion = do
+    clientJson <- parseClientJson mcVersion
+    return (foldl gatherLibraries [] (libraries clientJson))
+    where
+        gatherLibraries :: [String] -> Library -> [String]
+        gatherLibraries adopted = \case
+            lib | shouldAdopt lib ->
+                let downloads = libraryDownloads lib
+                    artifact = maybeToList (downloadArtifact downloads)
+                    classifier =
+                        case downloadClassifiers downloads of
+                            Just classifiers -> maybeToList $
+                                case binaryOSName of
+                                    Linux   -> nativesLinuxClassifier classifiers
+                                    OSX     -> nativesOSXClassifier classifiers
+                                    Windows -> nativesWindowsClassifier classifiers
+                            Nothing ->
+                                []
+                in
+                adopted ++ map artifactPath (artifact ++ classifier)
+
+            _ ->
+                adopted
+
+shouldAdopt :: Library -> Bool
+shouldAdopt lib =
+    case libraryRules lib of
+        Just rules -> binaryOSName `elem` compileLibraryRules rules
+        Nothing    -> True
+    where
+        compileLibraryRules :: [LibraryRule] -> [OSName]
+        compileLibraryRules = flip foldl [] $ \accepted rule ->
+            case ruleAction rule of
+                Allow ->
+                    case ruleOS rule of
+                        Just allowOS ->
+                            let allowOSName = libraryRuleOSName allowOS in
+                                if allowOSName `elem` accepted
+                                    then accepted
+                                    else accepted ++ [allowOSName]
+                        Nothing ->
+                            [Linux, OSX, Windows]
+
+                Disallow ->
+                    case ruleOS rule of
+                        Just disallowOS ->
+                            let disallowOSName = libraryRuleOSName disallowOS in
+                                filter (/= disallowOSName) accepted
+                        Nothing ->
+                            []
