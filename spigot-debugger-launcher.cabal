@@ -30,6 +30,7 @@ library
       Minecraft.Server.Spigot.Builder.Resource
       Minecraft.Server.Spigot.Builder.SpigotBuilder
       Minecraft.Server.Spigot.SpigotServer
+      Minecraft.Server.ServerBrand
       Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand

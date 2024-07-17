@@ -7,9 +7,10 @@ module Config.Config
     , ClientConfig(..)
     ) where
 
-import           Minecraft.MinecraftVersion (MinecraftVersion)
+import           Minecraft.MinecraftVersion   (MinecraftVersion)
+import           Minecraft.Server.ServerBrand (ServerBrand)
 
-import           Data.Yaml                  (FromJSON (..), Value (..), (.:))
+import           Data.Yaml                    (FromJSON (..), Value (..), (.:))
 
 data Config = Config
     { applicationConfig :: ApplicationConfig
@@ -24,7 +25,8 @@ newtype ApplicationConfig = ApplicationConfig
     deriving Show
 
 data ServerConfig = ServerConfig
-    { serverVersion       :: MinecraftVersion
+    { serverBrand         :: ServerBrand
+    , serverVersion       :: MinecraftVersion
     , serverJvmOptions    :: [String]
     , serverOnlineMode    :: Bool
     , serverStaticPlugins :: [FilePath]
@@ -50,7 +52,8 @@ instance FromJSON ClientConfig where
 instance FromJSON ServerConfig where
     parseJSON (Object m) =
         ServerConfig
-            <$> m .: "version"
+            <$> m .: "brand"
+            <*> m .: "version"
             <*> m .: "jvmOptions"
             <*> m .: "onlineMode"
             <*> m .: "staticPlugins"
