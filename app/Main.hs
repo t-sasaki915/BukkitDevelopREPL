@@ -2,7 +2,7 @@ module Main (main) where
 
 import           AppState
 import           FileIO                              (makeDirectory)
-import           Minecraft.Client.ClientJsonAnalyser (parseClientJson)
+import           Minecraft.Client.ClientJsonAnalyser
 import           Repl.Repl                           (startRepl)
 
 import           Control.Monad.Trans.Except          (runExceptT)
@@ -19,7 +19,10 @@ makeNecessaryDirectories = do
 program :: AppStateIO ()
 program = do
     v <- getClientDefaultVersion
-    parseClientJson v
+    assetIndex <- getAssetIndex v
+    mainClass  <- getMainClass v
+    putStrLn' assetIndex
+    putStrLn' mainClass
     makeNecessaryDirectories
     startRepl
 

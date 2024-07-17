@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Minecraft.Client.ClientJsonAnalyser (parseClientJson) where
+module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass) where
 
 import           AppState
 import           FileIO
@@ -11,11 +11,8 @@ import           Data.Aeson
 import           Data.ByteString            (fromStrict)
 import           System.FilePath            ((</>))
 
-data DownloadArtifact = DownloadArtifact
+newtype DownloadArtifact = DownloadArtifact
     { artifactPath :: String
-    , artifactSha1 :: String
-    , artifactSize :: Integer
-    , artifactUrl  :: String
     }
     deriving Show
 
@@ -23,9 +20,6 @@ instance FromJSON DownloadArtifact where
     parseJSON (Object m) =
         DownloadArtifact
             <$> (m .: "path")
-            <*> (m .: "sha1")
-            <*> (m .: "size")
-            <*> (m .: "url")
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
@@ -75,18 +69,6 @@ instance FromJSON LibraryNatives where
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
-newtype LibraryExtract = LibraryExtract
-    { exclude :: [String]
-    }
-    deriving Show
-
-instance FromJSON LibraryExtract where
-    parseJSON (Object m) =
-        LibraryExtract
-            <$> (m .: "exclude")
-
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
-
 data LibraryRuleOS = LibraryRuleOS
     { libraryRuleOSName    :: Maybe String
     , libraryRuleOSVersion :: Maybe String
@@ -119,9 +101,7 @@ instance FromJSON LibraryRule where
 
 data Library = Library
     { libraryDownloads :: LibraryDownloads
-    , libraryName      :: String
     , libraryNatives   :: Maybe LibraryNatives
-    , libraryExtract   :: Maybe LibraryExtract
     , libraryRules     :: Maybe [LibraryRule]
     }
     deriving Show
@@ -130,19 +110,13 @@ instance FromJSON Library where
     parseJSON (Object m) =
         Library
             <$> (m .:  "downloads")
-            <*> (m .:  "name")
             <*> (m .:? "natives")
-            <*> (m .:? "extract")
             <*> (m .:? "rules")
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
-data AssetIndex = AssetIndex
-    { assetIndexId        :: String
-    , assetIndexSha1      :: String
-    , assetIndexSize      :: Integer
-    , assetIndexTotalSize :: Integer
-    , assetIndexUrl       :: String
+newtype AssetIndex = AssetIndex
+    { assetIndexId :: String
     }
     deriving Show
 
@@ -150,10 +124,6 @@ instance FromJSON AssetIndex where
     parseJSON (Object m) =
         AssetIndex
             <$> (m .: "id")
-            <*> (m .: "sha1")
-            <*> (m .: "size")
-            <*> (m .: "totalSize")
-            <*> (m .: "url")
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
@@ -173,7 +143,7 @@ instance FromJSON ClientJson where
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
-parseClientJson :: MinecraftVersion -> AppStateIO ()
+parseClientJson :: MinecraftVersion -> AppStateIO ClientJson
 parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir
     let clientJsonPath = versionsDir </> show mcVersion </> (show mcVersion ++ ".json")
@@ -181,5 +151,15 @@ parseClientJson mcVersion = do
     jsonContent <- readFileBS clientJsonPath $
         "Failed to read '" ++ clientJsonPath ++ "'"
     case eitherDecode (fromStrict jsonContent) :: Either String ClientJson of
-        Right clientJson -> putStrLn' (show clientJson)
+        Right clientJson -> return clientJson
         Left err         -> throwE ("Failed to parse client.json: " ++ err)
+
+getAssetIndex :: MinecraftVersion -> AppStateIO String
+getAssetIndex mcVersion = do
+    clientJson <- parseClientJson mcVersion
+    return (assetIndexId (assetIndex clientJson))
+
+getMainClass :: MinecraftVersion -> AppStateIO String
+getMainClass mcVersion = do
+    clientJson <- parseClientJson mcVersion
+    return (mainClass clientJson)
