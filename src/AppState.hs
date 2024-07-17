@@ -15,7 +15,8 @@ import           Data.Functor                     ((<&>))
 import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
 import           System.IO                        (hFlush, stdout)
-import           System.Process                   (ProcessHandle)
+import           System.Process                   (ProcessHandle,
+                                                   getProcessExitCode)
 
 type AppStateIO = ExceptT String (StateT AppState IO)
 
@@ -100,5 +101,17 @@ registerNewClient :: String -> ProcessHandle -> AppStateIO ()
 registerNewClient clientUsername clientHandle = do
     state <- lift get
     let updated = clients_ state ++ [(clientUsername, clientHandle)]
+
+    lift $ put (AppState updated (cliOptions_ state) (config_ state))
+
+updateClientList :: AppStateIO ()
+updateClientList = do
+    state <- lift get
+    condMap <- mapM
+        (\(n, p) -> lift $ lift $ getProcessExitCode p <&> maybe (n, False) (const (n, True)))
+            (clients_ state)
+
+    let terminatedClients = map fst $ filter snd condMap
+        updated = filter (\(n, _) -> n `notElem` terminatedClients) (clients_ state)
 
     lift $ put (AppState updated (cliOptions_ state) (config_ state))

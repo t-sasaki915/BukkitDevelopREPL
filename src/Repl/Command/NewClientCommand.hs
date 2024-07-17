@@ -52,6 +52,8 @@ newClientCommandProcedure opts = do
     let version  = clientVersion opts
         username = clientUsername opts
 
+    updateClientList
+
     clients <- getClients
     case lookup username clients of
         Just _ -> do
