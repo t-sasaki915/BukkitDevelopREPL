@@ -11,6 +11,23 @@ import           Data.Aeson
 import           Data.ByteString            (fromStrict)
 import           System.FilePath            ((</>))
 
+data RuleAction = Allow | Disallow deriving Show
+
+data OSName = Linux | OSX | Windows deriving Show
+
+instance FromJSON RuleAction where
+    parseJSON (String "allow")    = pure Allow
+    parseJSON (String "disallow") = pure Disallow
+
+    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+
+instance FromJSON OSName where
+    parseJSON (String "linux")   = pure Linux
+    parseJSON (String "osx")     = pure OSX
+    parseJSON (String "windows") = pure Windows
+
+    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+
 newtype DownloadArtifact = DownloadArtifact
     { artifactPath :: String
     }
@@ -53,24 +70,20 @@ instance FromJSON LibraryDownloads where
 
     parseJSON x = fail ("Failed to parse client.json" ++ show x)
 
-data LibraryRuleOS = LibraryRuleOS
-    { libraryRuleOSName    :: Maybe String
-    , libraryRuleOSVersion :: Maybe String
-    , libraryRuleOSArch    :: Maybe String
+newtype LibraryRuleOS = LibraryRuleOS
+    { libraryRuleOSName :: OSName
     }
     deriving Show
 
 instance FromJSON LibraryRuleOS where
     parseJSON (Object m) =
         LibraryRuleOS
-            <$> (m .:? "name")
-            <*> (m .:? "version")
-            <*> (m .:? "arch")
+            <$> (m .: "name")
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
 data LibraryRule = LibraryRule
-    { ruleAction :: String
+    { ruleAction :: RuleAction
     , ruleOS     :: Maybe LibraryRuleOS
     }
     deriving Show
