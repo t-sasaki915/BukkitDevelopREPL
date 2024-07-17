@@ -43,6 +43,7 @@ library
       CrossPlatform
       FileIO
       ProcessIO
+      Util
   other-modules:
       Paths_spigot_debugger_launcher
   autogen-modules:

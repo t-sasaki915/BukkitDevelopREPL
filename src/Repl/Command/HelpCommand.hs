@@ -2,6 +2,7 @@ module Repl.Command.HelpCommand (HelpCommand(HelpCommand)) where
 
 import           AppState
 import           Repl.Command.ReplCommand (ReplCommand (..))
+import           Util                     (fillWithSpace)
 
 data HelpCommand = HelpCommand
                  | HelpCommandOptions
@@ -16,14 +17,20 @@ instance ReplCommand HelpCommand where
     cmdProcedure = helpCommandProcedure
 
 helpCommandProcedure :: HelpCommand -> AppStateIO ()
-helpCommandProcedure _ =
-    putStrLn' $ unlines
-        [ "spigot-debugger-launcher REPL Command Reference"
-        , "For more informations about each command, please refer '<Command> --help'."
-        , ""
-        , "  help            : Show the command reference of this REPL."
-        , "  exit            : Exit the program."
-        , "  newClient       : Create a new Minecraft client."
-        , "  listClient      : Show a list of Minecraft clients that are currently running."
-        , "  terminateClient : Terminate a Minecraft client."
-        ]
+helpCommandProcedure _ = do
+    putStrLn' "spigot-debugger-launcher REPL Command Reference"
+    putStrLn' "For more informations about each command, please refer '<Command> --help'."
+    putStrLn' ""
+
+    let maxCmdSize = maximum $ map (length . fst) reference
+    mapM_ (\(c, d) -> putStrLn' (fillWithSpace maxCmdSize c ++ " : " ++ d)) reference
+
+reference :: [(String, String)]
+reference =
+    [ "help"            ~> "Show the command reference of this REPL."
+    , "exit"            ~> "Exit the program."
+    , "newClient"       ~> "Create a new Minecraft client."
+    , "listClient"      ~> "Show a list of Minecraft clients that are currently running."
+    , "terminateClient" ~> "Terminate a Minecraft client."
+    ]
+    where (~>) a b = (a, b)
