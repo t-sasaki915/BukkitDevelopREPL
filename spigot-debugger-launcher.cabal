@@ -30,9 +30,12 @@ library
       Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
+      Repl.Command.ListClientCommand
       Repl.Command.NewClientCommand
       Repl.Command.ReplCommand
+      Repl.Command.TerminateClientCommand
       Repl.Repl
+      Repl.Util
       Spigot.Builder.Resource
       Spigot.Builder.SpigotBuilder
       Spigot.Server.SpigotServer
