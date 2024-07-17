@@ -56,7 +56,7 @@ createClientProcess clientVersion clientUsername = do
             , assetIndex
             ]
 
-    execProcessNewWindow "java.exe" (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
+    execProcessQuiet "java.exe" (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
         "Failed to execute java.exe that was to run a Minecraft client"
 
 spawnMinecraftClient :: MinecraftVersion -> String -> AppStateIO ProcessHandle

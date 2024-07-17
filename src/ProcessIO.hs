@@ -1,5 +1,6 @@
 module ProcessIO
     ( execProcess
+    , execProcessQuiet
     , execProcessNewWindow
     , expectExitSuccess
     ) where
@@ -18,6 +19,18 @@ execProcess execName procArgs procWorkDir errorMsg =
     lift (lift (try (runProcess execName procArgs (Just procWorkDir) Nothing Nothing Nothing Nothing))) >>= \case
         Right handle -> return handle
         Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+execProcessQuiet :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
+execProcessQuiet execName procArgs procWorkDir errorMsg =
+    lift (lift (try program)) >>= \case
+        Right handle -> return handle
+        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+    where
+        program = do
+            (_, _, _, handle) <-
+                createProcess_ "runProcess" (proc execName procArgs)
+                    {cwd = Just procWorkDir, std_in = NoStream, std_out = NoStream, std_err = NoStream}
+            return handle
 
 execProcessNewWindow :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
 execProcessNewWindow execName procArgs procWorkDir errorMsg = do
