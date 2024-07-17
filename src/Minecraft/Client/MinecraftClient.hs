@@ -24,12 +24,17 @@ createClientProcess clientVersion clientUsername = do
     assetsDir   <- getMinecraftAssetsDir
     libsDir     <- getMinecraftLibrariesDir
     versionsDir <- getMinecraftVersionsDir
+    binDir      <- getMinecraftBinDir
 
     assetIndex  <- ClientJson.getAssetIndex clientVersion
     libraries   <- ClientJson.getLibraries clientVersion
     mainClass   <- ClientJson.getMainClass clientVersion
 
-    let clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
+    nativeDirs  <- directoryContents binDir $
+        "Failed to enumerate the contents of '" ++ binDir ++ "'"
+
+    let nativeOption = "-Djava.library.path=" ++ intercalate ";" nativeDirs
+        clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
         libs = map (libsDir </>) libraries ++ [clientJar]
         clientOptions =
             [ "-cp"
@@ -51,7 +56,7 @@ createClientProcess clientVersion clientUsername = do
             , assetIndex
             ]
 
-    execProcessNewWindow "java.exe" (jvmOptions ++ clientOptions) workDir
+    execProcessNewWindow "java.exe" (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
         "Failed to execute java.exe that was to run a Minecraft client"
 
 spawnMinecraftClient :: MinecraftVersion -> String -> AppStateIO ProcessHandle
