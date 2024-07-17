@@ -40,6 +40,9 @@ initialState = do
     let constructor = AppState []
     return (constructor cliOpts conf)
 
+getAutoexecCommands :: AppState -> [String]
+getAutoexecCommands = autoexecCommands . applicationConfig . config_
+
 absolutePath :: FilePath -> AppStateIO FilePath
 absolutePath = lift . lift . makeAbsolute
 

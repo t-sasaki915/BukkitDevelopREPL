@@ -1,6 +1,10 @@
 application:
     workingDir: ".\\spigot-debugger-launcher"
 
+    autoexec:
+        [ "newClient"
+        ]
+
 server:
     # Supported brands: Spigot
     brand: "Spigot"

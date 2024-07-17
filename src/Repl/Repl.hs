@@ -8,6 +8,7 @@ import           Repl.Command.NewClientCommand       (NewClientCommand (NewClien
 import           Repl.Command.ReplCommand            (ReplCommand (..))
 import           Repl.Command.TerminateClientCommand (TerminateClientCommand (TerminateClientCommand))
 
+import           Control.Monad                       (foldM)
 import           Control.Monad.Trans.Except          (runExceptT)
 import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Split                     (splitOn)
@@ -62,6 +63,22 @@ repLoop appState = do
         Right () -> repLoop newState
         Left err -> putStrLn err >> repLoop newState
 
+runAutoexec :: AppState -> IO AppState
+runAutoexec appState = foldM program appState (getAutoexecCommands appState)
+    where
+        program :: AppState -> String -> IO AppState
+        program appState' cmd = do
+            putStrLn ("> " ++ cmd ++ " (autoexec)")
+
+            let cmdName = head (splitOn " " cmd)
+                cmdArgs = drop 1 (splitOn " " cmd)
+                execution = execReplCommand cmdName cmdArgs
+
+            (result, newState) <- runStateT (runExceptT execution) appState'
+            case result of
+                Right () -> return newState
+                Left err -> putStrLn err >> return newState
+
 startRepl :: IO ()
 startRepl = do
     initState <- initialState
@@ -71,4 +88,6 @@ startRepl = do
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
     putStrLn ""
 
-    repLoop initState
+    newState <- runAutoexec initState
+
+    repLoop newState

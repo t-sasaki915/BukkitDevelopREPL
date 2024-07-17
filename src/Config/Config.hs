@@ -19,8 +19,9 @@ data Config = Config
     }
     deriving Show
 
-newtype ApplicationConfig = ApplicationConfig
-    { workingDir :: FilePath
+data ApplicationConfig = ApplicationConfig
+    { workingDir       :: FilePath
+    , autoexecCommands :: [String]
     }
     deriving Show
 
@@ -64,6 +65,7 @@ instance FromJSON ApplicationConfig where
     parseJSON (Object m) =
         ApplicationConfig
             <$> m .: "workingDir"
+            <*> m .: "autoexec"
 
     parseJSON _ = fail "Unrecognisable application config"
 
