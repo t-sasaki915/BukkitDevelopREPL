@@ -1,27 +1,43 @@
 module Repl.Repl (startRepl) where
 
 import           AppState
-import           Repl.Command.ReplCommand
+import           Repl.Command.ExitCommand       (ExitCommand (ExitCommand))
+import           Repl.Command.HelpCommand       (HelpCommand (HelpCommand))
+import           Repl.Command.ReplCommand       (ReplCommand (..))
 
 import           Control.Monad.Trans.Class      (lift)
 import           Data.List.Split                (splitOn)
 import           Data.Version                   (showVersion)
+import           Options.Applicative
 import           System.IO                      (hFlush, stdout)
 
 import           Paths_spigot_debugger_launcher (version)
 
 execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =
-    case lookup cmdName (map (\c -> (cmdLabel c, c)) replCommands) of
-        Just cmd -> do
-            cmdProcedure cmd cmdArgs >>= \case
-                True  -> return ()
-                False -> do
-                    putStrLn' ("Invalid usage of '" ++ cmdName ++ "'.")
-                    putStrLn' ("Usage: " ++ cmdName ++ " " ++ cmdUsage cmd)
+    case cmdName of
+        "help" -> execute HelpCommand
+        "exit" -> execute ExitCommand
+        _      -> putStrLn' ("Command '" ++ cmdName ++ "' is undefined.")
+    where
+        execute :: ReplCommand c => c -> AppStateIO ()
+        execute cmd = do
+            parser <- cmdArgParser cmd
+            let executor =
+                    execParserPure
+                        (prefs disambiguate)
+                            (info (helper <*> parser)
+                                (fullDesc <> progDesc (cmdDescription cmd)))
+            case executor cmdArgs of
+                Success parsedArgs ->
+                    cmdProcedure parsedArgs
 
-        Nothing  ->
-            putStrLn' ("Undefined command: " ++ cmdName)
+                Failure err ->
+                    let (helpMsg, _, _) = execFailure err (cmdLabel cmd) in
+                        putStrLn' (show helpMsg)
+
+                _ ->
+                    return ()
 
 repLoop :: AppStateIO ()
 repLoop = do

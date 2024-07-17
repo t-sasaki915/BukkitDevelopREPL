@@ -29,12 +29,14 @@ library
       Minecraft.MinecraftVersion
       Minecraft.Resource
       Repl.Command.ExitCommand
+      Repl.Command.HelpCommand
       Repl.Command.ReplCommand
       Repl.Repl
       Spigot.Builder.Resource
       Spigot.Builder.SpigotBuilder
       Spigot.Server.SpigotServer
       AppState
+      CrossPlatform
       FileIO
       ProcessIO
   other-modules:

@@ -1,9 +1,9 @@
-{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass, getLibraries) where
 
 import           AppState
+import           CrossPlatform              (OSType (..), currentOSType)
 import           FileIO
 import           Minecraft.MinecraftVersion (MinecraftVersion (..))
 
@@ -13,31 +13,11 @@ import           Data.ByteString            (fromStrict)
 import           Data.Maybe                 (maybeToList)
 import           System.FilePath            ((</>))
 
-binaryOSName :: OSName
-#ifdef mingw32_HOST_OS
-binaryOSName = Windows
-#endif
-#ifdef linux_HOST_OS
-binaryOSName = Linux
-#endif
-#ifdef darwin_HOST_OS
-binaryOSName = OSX
-#endif
-
 data RuleAction = Allow | Disallow deriving (Show, Eq)
-
-data OSName = Linux | OSX | Windows deriving (Show, Eq)
 
 instance FromJSON RuleAction where
     parseJSON (String "allow")    = pure Allow
     parseJSON (String "disallow") = pure Disallow
-
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
-
-instance FromJSON OSName where
-    parseJSON (String "linux")   = pure Linux
-    parseJSON (String "osx")     = pure OSX
-    parseJSON (String "windows") = pure Windows
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
@@ -84,7 +64,7 @@ instance FromJSON LibraryDownloads where
     parseJSON x = fail ("Failed to parse client.json" ++ show x)
 
 newtype LibraryRuleOS = LibraryRuleOS
-    { libraryRuleOSName :: OSName
+    { libraryRuleOSName :: OSType
     }
     deriving Show
 
@@ -185,7 +165,7 @@ getLibraries mcVersion = do
                     classifier =
                         case downloadClassifiers downloads of
                             Just classifiers -> maybeToList $
-                                case binaryOSName of
+                                case currentOSType of
                                     Linux   -> nativesLinuxClassifier classifiers
                                     OSX     -> nativesOSXClassifier classifiers
                                     Windows -> nativesWindowsClassifier classifiers
@@ -200,10 +180,10 @@ getLibraries mcVersion = do
 shouldAdopt :: Library -> Bool
 shouldAdopt lib =
     case libraryRules lib of
-        Just rules -> binaryOSName `elem` compileLibraryRules rules
+        Just rules -> currentOSType `elem` compileLibraryRules rules
         Nothing    -> True
     where
-        compileLibraryRules :: [LibraryRule] -> [OSName]
+        compileLibraryRules :: [LibraryRule] -> [OSType]
         compileLibraryRules = flip foldl [] $ \accepted rule ->
             case ruleAction rule of
                 Allow ->
