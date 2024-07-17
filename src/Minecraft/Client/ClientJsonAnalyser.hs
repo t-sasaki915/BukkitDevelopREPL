@@ -53,22 +53,6 @@ instance FromJSON LibraryDownloads where
 
     parseJSON x = fail ("Failed to parse client.json" ++ show x)
 
-data LibraryNatives = LibraryNatives
-    { nativesLinux   :: Maybe String
-    , nativesOSX     :: Maybe String
-    , nativesWindows :: Maybe String
-    }
-    deriving Show
-
-instance FromJSON LibraryNatives where
-    parseJSON (Object m) =
-        LibraryNatives
-            <$> (m .:? "linux")
-            <*> (m .:? "osx")
-            <*> (m .:? "windows")
-
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
-
 data LibraryRuleOS = LibraryRuleOS
     { libraryRuleOSName    :: Maybe String
     , libraryRuleOSVersion :: Maybe String
@@ -101,7 +85,6 @@ instance FromJSON LibraryRule where
 
 data Library = Library
     { libraryDownloads :: LibraryDownloads
-    , libraryNatives   :: Maybe LibraryNatives
     , libraryRules     :: Maybe [LibraryRule]
     }
     deriving Show
@@ -110,7 +93,6 @@ instance FromJSON Library where
     parseJSON (Object m) =
         Library
             <$> (m .:  "downloads")
-            <*> (m .:? "natives")
             <*> (m .:? "rules")
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
