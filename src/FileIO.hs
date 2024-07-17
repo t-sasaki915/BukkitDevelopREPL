@@ -16,7 +16,7 @@ import           System.IO.Error            (ioeGetErrorString)
 
 makeDirectory :: FilePath -> String -> AppStateIO ()
 makeDirectory dirName errorMsg =
-    lift (lift (try (createDirectoryIfMissing False dirName))) >>= \case
+    lift (lift (try (createDirectoryIfMissing True dirName))) >>= \case
         Right ()   -> return ()
         Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 

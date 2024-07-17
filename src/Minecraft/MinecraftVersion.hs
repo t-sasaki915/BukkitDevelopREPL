@@ -1,8 +1,13 @@
-module Minecraft.MinecraftVersion (MinecraftVersion(..), parseMinecraftVersion) where
+module Minecraft.MinecraftVersion
+    ( MinecraftVersion(..)
+    , parseMinecraftVersion
+    , minecraftVersionParser
+    ) where
 
-import           Data.Text        (unpack)
-import           Data.Yaml        (FromJSON (..), Value (..))
-import           Text.Regex.Posix ((=~))
+import           Data.Text           (unpack)
+import           Data.Yaml           (FromJSON (..), Value (..))
+import           Options.Applicative (ReadM, eitherReader)
+import           Text.Regex.Posix    ((=~))
 
 data MinecraftVersion = MinecraftVersion Int Int Int
 
@@ -35,3 +40,9 @@ parseMinecraftVersion str
         takeWhileAndRemains f s =
             let taken = takeWhile f s in
                 (taken, drop (length taken + 1) s)
+
+minecraftVersionParser :: ReadM MinecraftVersion
+minecraftVersionParser = eitherReader $ \str ->
+    case parseMinecraftVersion str of
+        Just v  -> Right v
+        Nothing -> Left "Unrecognisable minecraft version"

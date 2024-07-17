@@ -21,6 +21,7 @@ helpCommandProcedure _ =
         [ "spigot-debugger-launcher REPL Command Reference"
         , "For more informations about each command, please refer '<Command> --help'."
         , ""
-        , "  help : Show the command reference of this REPL."
-        , "  exit : Exit the program."
+        , "  help      : Show the command reference of this REPL."
+        , "  exit      : Exit the program."
+        , "  newClient : Create a new Minecraft client."
         ]

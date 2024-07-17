@@ -26,10 +26,11 @@ library
       Config.Loader
       Config.Resource
       Minecraft.Client.ClientJsonAnalyser
+      Minecraft.Client.MinecraftClient
       Minecraft.MinecraftVersion
-      Minecraft.Resource
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
+      Repl.Command.NewClientCommand
       Repl.Command.ReplCommand
       Repl.Repl
       Spigot.Builder.Resource
