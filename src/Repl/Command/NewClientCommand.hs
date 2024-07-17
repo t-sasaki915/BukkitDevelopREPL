@@ -29,7 +29,6 @@ instance ReplCommand NewClientCommand where
 newClientCommandArgParser :: AppStateIO (Parser NewClientCommand)
 newClientCommandArgParser = do
     defaultVersion  <- getClientDefaultVersion
-    defaultUsername <- getClientDefaultUsername
 
     return $
         NewClientCommandOptions
@@ -40,12 +39,9 @@ newClientCommandArgParser = do
                <> value defaultVersion
                <> help ("Specifies Minecraft client version. The default is " ++ show defaultVersion)
                 )
-            <*> strOption
-                ( long "username"
-               <> short 'u'
-               <> metavar "String"
-               <> value defaultUsername
-               <> help ("Specifies Minecraft client username. The default is " ++ defaultUsername)
+            <*> argument str
+                ( metavar "Username"
+               <> help "Specifies Minecraft client username."
                 )
 
 newClientCommandProcedure :: NewClientCommand -> AppStateIO ()

@@ -86,9 +86,6 @@ getMinecraftBinDir = getMinecraftDir <&> (</> "bin")
 getClientDefaultVersion :: AppStateIO MinecraftVersion
 getClientDefaultVersion = lift get <&> (clientDefaultVersion . clientConfig . config_)
 
-getClientDefaultUsername :: AppStateIO String
-getClientDefaultUsername = lift get <&> (clientDefaultUsername . clientConfig . config_)
-
 getClientJvmOptions :: AppStateIO [String]
 getClientJvmOptions = lift get <&> (clientJvmOptions . clientConfig . config_)
 

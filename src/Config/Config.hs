@@ -35,9 +35,8 @@ data ServerConfig = ServerConfig
     deriving Show
 
 data ClientConfig = ClientConfig
-    { clientDefaultVersion  :: MinecraftVersion
-    , clientDefaultUsername :: String
-    , clientJvmOptions      :: [String]
+    { clientDefaultVersion :: MinecraftVersion
+    , clientJvmOptions     :: [String]
     }
     deriving Show
 
@@ -45,7 +44,6 @@ instance FromJSON ClientConfig where
     parseJSON (Object m) =
         ClientConfig
             <$> m .: "defaultVersion"
-            <*> m .: "defaultUsername"
             <*> m .: "jvmOptions"
 
     parseJSON _ = fail "Unrecognisable client config"
