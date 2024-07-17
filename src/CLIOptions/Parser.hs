@@ -1,11 +1,11 @@
 module CLIOptions.Parser (parseCLIOptions) where
 
-import           CLIOptions.CLIOptions          (CLIOptions, cliOptionsParser)
+import           CLIOptions.CLIOptions   (CLIOptions, cliOptionsParser)
 
-import           Data.Version                   (showVersion)
+import           Data.Version            (showVersion)
 import           Options.Applicative
 
-import           Paths_spigot_debugger_launcher (version)
+import           Paths_BukkitDevelopREPL (version)
 
 parseCLIOptions :: IO CLIOptions
 parseCLIOptions = do
@@ -14,5 +14,5 @@ parseCLIOptions = do
         (prefs disambiguate)
             (info (helper <*> parser)
                 (fullDesc <> header
-                    ("spigot-debugger-launcher " ++ showVersion version ++ " by TSasaki")))
+                    ("BukkitDevelopREPL " ++ showVersion version ++ " by TSasaki")))
 

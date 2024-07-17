@@ -6,4 +6,4 @@ import           Data.ByteString (ByteString)
 import           Data.FileEmbed  (embedFile)
 
 defaultConfigFile :: ByteString
-defaultConfigFile = $(embedFile ".spigot-debugger-launcher.yaml")
+defaultConfigFile = $(embedFile ".BukkitDevelopREPL.yaml")

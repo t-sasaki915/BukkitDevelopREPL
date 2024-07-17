@@ -25,7 +25,7 @@ cliOptionsParser = do
             <*> strOption
                 ( long "config"
                <> metavar "FilePath"
-               <> value (currentDir </> ".spigot-debugger-launcher.yaml")
-               <> help "Specifies config file expressly. The default is '.\\.spigot-debugger-launcher.yaml'."
+               <> value (currentDir </> ".BukkitDevelopREPL.yaml")
+               <> help "Specifies config file expressly. The default is '.\\.BukkitDevelopREPL.yaml'."
                 )
 

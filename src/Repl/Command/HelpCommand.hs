@@ -18,7 +18,7 @@ instance ReplCommand HelpCommand where
 
 helpCommandProcedure :: HelpCommand -> AppStateIO ()
 helpCommandProcedure _ = do
-    putStrLn' "spigot-debugger-launcher REPL Command Reference"
+    putStrLn' "BukkitDevelopREPL Command Reference"
     putStrLn' "For more informations about each command, please refer '<Command> --help'."
     putStrLn' ""
 

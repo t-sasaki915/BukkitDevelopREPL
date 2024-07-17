@@ -1,6 +1,6 @@
 .stack-work/
 dist-newstyle/
-spigot-debugger-launcher/
+BukkitDevelopREPL/
 *~
 
 stack.yaml.lock

@@ -16,7 +16,7 @@ import           Data.Version                        (showVersion)
 import           Options.Applicative
 import           System.IO                           (hFlush, stdout)
 
-import           Paths_spigot_debugger_launcher      (version)
+import           Paths_BukkitDevelopREPL             (version)
 
 execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =
@@ -83,7 +83,7 @@ startRepl :: IO ()
 startRepl = do
     initState <- initialState
 
-    putStrLn ("spigot-debugger-launcher REPL " ++ showVersion version ++ " by TSasaki")
+    putStrLn ("BukkitDevelopREPL " ++ showVersion version ++ " by TSasaki")
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
     putStrLn ""
