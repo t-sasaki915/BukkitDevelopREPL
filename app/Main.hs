@@ -1,13 +1,13 @@
 module Main (main) where
 
-import           AppState                         (AppStateIO, getWorkingDir,
-                                                   initialState)
-import           FileIO                           (makeDirectory)
-import           Repl.Repl                        (startRepl)
+import           AppState
+import           FileIO                              (makeDirectory)
+import           Minecraft.Client.ClientJsonAnalyser (parseClientJson)
+import           Repl.Repl                           (startRepl)
 
-import           Control.Monad.Trans.Except       (runExceptT)
-import           Control.Monad.Trans.State.Strict (runStateT)
-import           System.Exit                      (exitFailure, exitSuccess)
+import           Control.Monad.Trans.Except          (runExceptT)
+import           Control.Monad.Trans.State.Strict    (runStateT)
+import           System.Exit                         (exitFailure, exitSuccess)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
@@ -18,6 +18,8 @@ makeNecessaryDirectories = do
 
 program :: AppStateIO ()
 program = do
+    v <- getClientDefaultVersion
+    parseClientJson v
     makeNecessaryDirectories
     startRepl
 

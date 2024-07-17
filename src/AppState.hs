@@ -66,6 +66,9 @@ getMinecraftLibrariesDir = getMinecraftDir <&> (</> "libraries")
 getMinecraftVersionsDir :: AppStateIO FilePath
 getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
 
+getClientDefaultVersion :: AppStateIO MinecraftVersion
+getClientDefaultVersion = lift get <&> (clientDefaultVersion . clientConfig . config)
+
 getServerVersion :: AppStateIO MinecraftVersion
 getServerVersion = lift get <&> (serverVersion . serverConfig . config)
 

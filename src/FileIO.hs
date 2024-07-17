@@ -2,6 +2,7 @@ module FileIO
     ( makeDirectory
     , copyFile'
     , checkFileExistence
+    , readFileBS
     ) where
 
 import           AppState
@@ -9,6 +10,7 @@ import           AppState
 import           Control.Exception          (try)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (throwE)
+import qualified Data.ByteString            as BS
 import           System.Directory
 import           System.IO.Error            (ioeGetErrorString)
 
@@ -29,3 +31,9 @@ checkFileExistence filePath errorMsg =
     lift (lift (try (doesFileExist filePath))) >>= \case
         Right bool -> return bool
         Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+readFileBS :: FilePath -> String -> AppStateIO BS.ByteString
+readFileBS filePath errorMsg =
+    lift (lift (try (BS.readFile filePath))) >>= \case
+        Right byteStr -> return byteStr
+        Left ioErr    -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
