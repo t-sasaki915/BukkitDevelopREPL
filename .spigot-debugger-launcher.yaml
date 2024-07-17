@@ -25,7 +25,7 @@ server:
     staticPlugins: []
 
 client:
-    defaultVersion: "1.20.1"
+    defaultVersion: "1.21"
 
     jvmOptions:
         [ "-Xms2G"
