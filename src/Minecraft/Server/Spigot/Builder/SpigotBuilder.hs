@@ -1,9 +1,9 @@
-module Spigot.Builder.SpigotBuilder (buildSpigot) where
+module Minecraft.Server.Spigot.Builder.SpigotBuilder (buildSpigot) where
 
 import           AppState
 import           FileIO
+import           Minecraft.Server.Spigot.Builder.Resource (buildToolsUrl)
 import           ProcessIO
-import           Spigot.Builder.Resource (buildToolsUrl)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do

@@ -27,6 +27,9 @@ library
       Config.Resource
       Minecraft.Client.ClientJsonAnalyser
       Minecraft.Client.MinecraftClient
+      Minecraft.Server.Spigot.Builder.Resource
+      Minecraft.Server.Spigot.Builder.SpigotBuilder
+      Minecraft.Server.Spigot.SpigotServer
       Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
@@ -36,9 +39,6 @@ library
       Repl.Command.TerminateClientCommand
       Repl.Repl
       Repl.Util
-      Spigot.Builder.Resource
-      Spigot.Builder.SpigotBuilder
-      Spigot.Server.SpigotServer
       AppState
       CrossPlatform
       FileIO

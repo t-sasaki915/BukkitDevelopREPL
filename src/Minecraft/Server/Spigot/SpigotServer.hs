@@ -1,4 +1,4 @@
-module Spigot.Server.SpigotServer (runSpigotServer) where
+module Minecraft.Server.Spigot.SpigotServer (runSpigotServer) where
 
 import           AppState
 import           ProcessIO
