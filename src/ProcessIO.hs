@@ -1,6 +1,7 @@
 module ProcessIO
     ( execProcess
     , execProcessQuiet
+    , execProcessAndGetOutput
     , execProcessNewWindow
     , expectExitSuccess
     ) where
@@ -31,6 +32,12 @@ execProcessQuiet execName procArgs procWorkDir errorMsg =
                 createProcess_ "runProcess" (proc execName procArgs)
                     {cwd = Just procWorkDir, std_in = NoStream, std_out = NoStream, std_err = NoStream}
             return handle
+
+execProcessAndGetOutput :: FilePath -> [String] -> String -> AppStateIO String
+execProcessAndGetOutput execName procArgs errorMsg =
+    lift (lift (try (readProcess execName procArgs []))) >>= \case
+        Right output -> return output
+        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
 execProcessNewWindow :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
 execProcessNewWindow execName procArgs procWorkDir errorMsg = do
