@@ -7,6 +7,7 @@ import           CLIOptions.Parser                (parseCLIOptions)
 import           Config.Config
 import           Config.Loader                    (loadConfig)
 import           Minecraft.MinecraftVersion       (MinecraftVersion)
+import           Minecraft.Server.ServerBrand     (ServerBrand)
 
 import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT)
@@ -64,9 +65,6 @@ getClientWorkingDir = getWorkingDir <&> (</> "client")
 getBuildDir :: AppStateIO FilePath
 getBuildDir = getWorkingDir <&> (</> "build")
 
-getBuildToolsPath :: AppStateIO FilePath
-getBuildToolsPath = getBuildDir <&> (</> "BuildTools.jar")
-
 getMinecraftDir :: AppStateIO FilePath
 getMinecraftDir = lift get >>=
     absolutePath . minecraftDir . cliOptions_
@@ -92,13 +90,8 @@ getClientJvmOptions = lift get <&> (clientJvmOptions . clientConfig . config_)
 getServerVersion :: AppStateIO MinecraftVersion
 getServerVersion = lift get <&> (serverVersion . serverConfig . config_)
 
-getServerJarPath :: AppStateIO FilePath
-getServerJarPath = getServerVersion >>= \ver ->
-    getWorkingDir <&> (</> "spigot-" ++ show ver ++ ".jar")
-
-getTemporaryServerJarPath :: AppStateIO FilePath
-getTemporaryServerJarPath = getServerVersion >>= \ver ->
-    getBuildDir <&> (</> "spigot-" ++ show ver ++ ".jar")
+getServerBrand :: AppStateIO ServerBrand
+getServerBrand = lift get <&> (serverBrand . serverConfig . config_)
 
 getServerJvmOptions :: AppStateIO [String]
 getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . config_)

@@ -1,17 +1,21 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Minecraft.Server.Paper.Setup.PaperSetup (downloadLatestPaper) where
+module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 
 import           AppState
-import           Minecraft.MinecraftVersion ()
+import           FileIO
+import           Minecraft.MinecraftVersion   ()
+import           Minecraft.Server.ServerBrand (ServerBrand (Paper),
+                                               getServerExecutableName)
 import           ProcessIO
 
-import           Control.Monad.Trans.Except (throwE)
-import           Data.Aeson                 (FromJSON (parseJSON),
-                                             Value (Object), eitherDecode, (.:))
-import           Data.ByteString.Internal   (c2w)
-import           Data.ByteString.Lazy       (pack)
-import           System.FilePath            ((</>))
+import           Control.Monad.Trans.Except   (throwE)
+import           Data.Aeson                   (FromJSON (parseJSON),
+                                               Value (Object), eitherDecode,
+                                               (.:))
+import           Data.ByteString.Internal     (c2w)
+import           Data.ByteString.Lazy         (pack)
+import           System.FilePath              ((</>))
 
 newtype PaperBuilds = PaperBuilds
     { builds :: [Int]
@@ -24,6 +28,13 @@ instance FromJSON PaperBuilds where
             <$> (m .: "builds")
 
     parseJSON _ = fail "Unrecognisable Paper Downloads API"
+
+makeNecessaryDirectories :: AppStateIO ()
+makeNecessaryDirectories = do
+    workingDir <- getWorkingDir
+
+    makeDirectory workingDir $
+        "Failed to make a directory '" ++ workingDir ++ "'"
 
 fetchPaperBuilds :: AppStateIO PaperBuilds
 fetchPaperBuilds = do
@@ -46,7 +57,7 @@ downloadLatestPaper = do
 
     let latest   = show $ last (builds paperBuilds)
         jarName  = "paper-" ++ show ver ++ "-" ++ latest ++ ".jar"
-        jarName' = "paper-" ++ show ver ++ ".jar"
+        jarName' = getServerExecutableName Paper ver
         jarUrl   = "https://api.papermc.io/v2/projects/paper/versions/" ++ show ver ++ "/builds/" ++ latest ++ "/downloads/" ++ jarName
         jarPath  = workingDir </> jarName'
 
@@ -56,3 +67,8 @@ downloadLatestPaper = do
         "Failed to execute curl.exe that was to download a Paper Server" >>=
             expectExitSuccess
                 "Failed to download a Paper server"
+
+setupPaper :: AppStateIO ()
+setupPaper = do
+    makeNecessaryDirectories
+    downloadLatestPaper

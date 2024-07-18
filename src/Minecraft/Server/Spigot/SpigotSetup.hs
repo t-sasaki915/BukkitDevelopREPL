@@ -1,9 +1,12 @@
-module Minecraft.Server.Spigot.Builder.SpigotBuilder (buildSpigot) where
+module Minecraft.Server.Spigot.SpigotSetup (setupSpigot) where
 
 import           AppState
 import           FileIO
-import           Minecraft.Server.Spigot.Builder.Resource (buildToolsUrl)
+import           Minecraft.Server.ServerBrand (ServerBrand (Spigot),
+                                               getServerExecutableName)
 import           ProcessIO
+
+import           System.FilePath              ((</>))
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
@@ -14,8 +17,10 @@ makeNecessaryDirectories = do
 
 downloadBuildTools :: AppStateIO ()
 downloadBuildTools = do
-    downloadPath <- getBuildToolsPath
-    buildDir     <- getBuildDir
+    buildDir <- getBuildDir
+
+    let buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
+        downloadPath  = buildDir </> "BuildTools.jar"
 
     execProcess "curl.exe" ["-L", "-o", downloadPath, buildToolsUrl] buildDir
         "Failed to execute curl.exe that was to download BuildTools" >>=
@@ -24,9 +29,10 @@ downloadBuildTools = do
 
 useBuildTools :: AppStateIO ()
 useBuildTools = do
-    buildToolsPath <- getBuildToolsPath
     serverVersion  <- getServerVersion
     buildDir       <- getBuildDir
+
+    let buildToolsPath = buildDir </> "BuildTools.jar"
 
     execProcess "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
         "Failed to execute java.exe that was to build a Spigot server" >>=
@@ -35,14 +41,18 @@ useBuildTools = do
 
 adoptServerJar :: AppStateIO ()
 adoptServerJar = do
-    copyPath      <- getServerJarPath
-    serverJarPath <- getTemporaryServerJarPath
+    workingDir    <- getWorkingDir
+    buildDir      <- getBuildDir
+    serverVersion <- getServerVersion
+
+    let copyPath      = workingDir </> getServerExecutableName Spigot serverVersion
+        serverJarPath = buildDir </> ("spigot-" ++ show serverVersion ++ ".jar")
 
     copyFile' serverJarPath copyPath $
         "Failed to copy '" ++ serverJarPath ++ "' to '" ++ copyPath ++ "'"
 
-buildSpigot :: AppStateIO ()
-buildSpigot = do
+setupSpigot :: AppStateIO ()
+setupSpigot = do
     makeNecessaryDirectories
     downloadBuildTools
     useBuildTools

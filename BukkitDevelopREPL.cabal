@@ -27,10 +27,10 @@ library
       Config.Resource
       Minecraft.Client.ClientJsonAnalyser
       Minecraft.Client.MinecraftClient
-      Minecraft.Server.Paper.Setup.PaperSetup
-      Minecraft.Server.Spigot.Builder.Resource
-      Minecraft.Server.Spigot.Builder.SpigotBuilder
-      Minecraft.Server.Spigot.SpigotServer
+      Minecraft.Server.Paper.PaperSetup
+      Minecraft.Server.Spigot.SpigotSetup
+      Minecraft.Server.MinecraftServer
+      Minecraft.Server.MinecraftServerSetup
       Minecraft.Server.ServerBrand
       Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
