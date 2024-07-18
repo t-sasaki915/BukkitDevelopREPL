@@ -2,7 +2,8 @@ application:
     workingDir: ".\\BukkitDevelopREPL"
 
     autoexec:
-        [ "newClient DEV"
+        [ "startServer"
+        , "newClient DEV"
         ]
 
 server:
