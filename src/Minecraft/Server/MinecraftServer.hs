@@ -10,11 +10,16 @@ import           System.Process               (ProcessHandle)
 runMinecraftServer :: AppStateIO ProcessHandle
 runMinecraftServer = do
     workingDir    <- getWorkingDir
-    serverOpts    <- getServerJvmOptions
+    jvmOptions    <- getServerJvmOptions
     serverVersion <- getServerVersion
     serverBrand   <- getServerBrand
 
     let serverJar = workingDir </> getServerExecutableName serverBrand serverVersion
+        serverOpts =
+            [ "-jar"
+            , serverJar
+            , "nogui"
+            ]
 
-    execProcessNewWindow "java.exe" ("-jar" : serverJar : serverOpts) workingDir
+    execProcessNewWindow "java.exe" (jvmOptions ++ serverOpts) workingDir
         "Failed to execute java.exe that was to run a Minecraft server"

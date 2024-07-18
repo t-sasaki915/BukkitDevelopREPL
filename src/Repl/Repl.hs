@@ -6,6 +6,7 @@ import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
 import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
 import           Repl.Command.ReplCommand            (ReplCommand (..))
+import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
 import           Repl.Command.TerminateClientCommand (TerminateClientCommand (TerminateClientCommand))
 
 import           Control.Monad                       (foldM)
@@ -26,6 +27,7 @@ execReplCommand cmdName cmdArgs =
         "newClient"       -> execute NewClientCommand
         "listClient"      -> execute ListClientCommand
         "terminateClient" -> execute TerminateClientCommand
+        "startServer"     -> execute StartServerCommand
         _                 -> putStrLn' ("Command '" ++ cmdName ++ "' is undefined.")
     where
         execute :: ReplCommand c => c -> AppStateIO ()

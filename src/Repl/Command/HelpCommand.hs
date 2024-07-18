@@ -32,5 +32,6 @@ reference =
     , "newClient"       ~> "Create a new Minecraft client."
     , "listClient"      ~> "Show a list of Minecraft clients that are currently running."
     , "terminateClient" ~> "Terminate a Minecraft client."
+    , "startServer"     ~> "Start the Minecraft server."
     ]
     where (~>) a b = (a, b)

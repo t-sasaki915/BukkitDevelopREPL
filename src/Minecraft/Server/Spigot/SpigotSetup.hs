@@ -19,6 +19,8 @@ downloadBuildTools :: AppStateIO ()
 downloadBuildTools = do
     buildDir <- getBuildDir
 
+    putStrLn' "Downloading BuildTools..."
+
     let buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
         downloadPath  = buildDir </> "BuildTools.jar"
 
@@ -32,9 +34,11 @@ useBuildTools = do
     serverVersion  <- getServerVersion
     buildDir       <- getBuildDir
 
+    putStrLn' "Building a Spigot Server... This will take some minutes."
+
     let buildToolsPath = buildDir </> "BuildTools.jar"
 
-    execProcess "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
+    execProcessNewWindow "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
         "Failed to execute java.exe that was to build a Spigot server" >>=
             expectExitSuccess
                 "Failed to build a Spigot server"
