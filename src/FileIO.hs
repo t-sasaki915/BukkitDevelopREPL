@@ -3,6 +3,8 @@ module FileIO
     , copyFile'
     , checkFileExistence
     , readFileBS
+    , readFile'
+    , writeFile'
     , directoryContents
     ) where
 
@@ -39,6 +41,18 @@ readFileBS filePath errorMsg =
     lift (lift (try (BS.readFile filePath))) >>= \case
         Right byteStr -> return byteStr
         Left ioErr    -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+readFile' :: FilePath -> String -> AppStateIO String
+readFile' filePath errorMsg =
+    lift (lift (try (readFile filePath))) >>= \case
+        Right str  -> return str
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+
+writeFile' :: FilePath -> String -> String -> AppStateIO ()
+writeFile' filePath content errorMsg =
+    lift (lift (try (writeFile filePath content))) >>= \case
+        Right ()   -> return ()
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
 directoryContents :: FilePath -> String -> AppStateIO [FilePath]
 directoryContents dirName errorMsg =

@@ -32,6 +32,7 @@ library
       Minecraft.Server.MinecraftServer
       Minecraft.Server.MinecraftServerSetup
       Minecraft.Server.ServerBrand
+      Minecraft.MinecraftPropertyAnalyser
       Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand

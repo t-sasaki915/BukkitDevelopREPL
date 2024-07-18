@@ -7,7 +7,7 @@ application:
 
 server:
     # Supported brands: Spigot, Paper
-    brand: "Spigot"
+    brand: "Paper"
 
     version: "1.20.1"
 

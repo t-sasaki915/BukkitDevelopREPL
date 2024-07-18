@@ -56,6 +56,7 @@ terminateClientCommandProcedure opts = do
         Just clientProcess -> do
             putStrLn' ("You are going to terminate a Minecraft client '" ++ clientToTerminate ++ "'.")
             putStrLn' "Unsaved changes will be discarded if you are playing Single Player mode."
+            putStrLn' ""
             confirmContinue >>= \case
                 True -> do
                     lift $ lift $ terminateProcess clientProcess
