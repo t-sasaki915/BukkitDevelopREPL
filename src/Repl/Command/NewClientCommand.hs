@@ -8,6 +8,7 @@ import           Minecraft.MinecraftVersion       (MinecraftVersion,
                                                    minecraftVersionParser)
 import           Repl.Command.ReplCommand         (ReplCommand (..))
 
+import           Control.Monad.Trans.Except       (throwE)
 import           Data.Bifunctor                   (first)
 import           Options.Applicative
 
@@ -54,8 +55,7 @@ newClientCommandProcedure opts = do
     clients <- getClients
     case lookup username (map (first runningClientName) clients) of
         Just _ -> do
-            putStrLn' ("A Minecraft client whose name is '" ++ username ++ "' is existing.")
-            putStrLn' "Please use '--username' option to avoid confliction."
+            throwE ("A Minecraft client whose name is '" ++ username ++ "' is existing.")
 
         Nothing -> do
             clientProcess <- spawnMinecraftClient version username

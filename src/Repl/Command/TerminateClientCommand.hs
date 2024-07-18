@@ -3,13 +3,14 @@
 module Repl.Command.TerminateClientCommand (TerminateClientCommand(TerminateClientCommand)) where
 
 import           AppState
-import           Repl.Command.ReplCommand  (ReplCommand (..))
-import           Repl.Util                 (confirmContinue)
+import           Repl.Command.ReplCommand   (ReplCommand (..))
+import           Repl.Util                  (confirmContinue)
 
-import           Control.Monad.Trans.Class (lift)
-import           Data.Bifunctor            (first)
+import           Control.Monad.Trans.Class  (lift)
+import           Control.Monad.Trans.Except (throwE)
+import           Data.Bifunctor             (first)
 import           Options.Applicative
-import           System.Process            (terminateProcess)
+import           System.Process             (terminateProcess)
 
 data TerminateClientCommand = TerminateClientCommand
                             | TerminateClientCommandOptions
@@ -63,7 +64,7 @@ terminateClientCommandProcedure opts = do
                     putStrLn' ("Successfully terminated a Minecraft client '" ++ clientToTerminate ++ "'.")
 
                 False -> do
-                    putStrLn' "The operation has cancelled."
+                    throwE "The operation has cancelled."
 
         Nothing ->
-            putStrLn' ("There is no Minecraft client whose name is '" ++ clientToTerminate ++ "'.")
+            throwE ("There is no Minecraft client whose name is '" ++ clientToTerminate ++ "'.")
