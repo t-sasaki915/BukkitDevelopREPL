@@ -29,7 +29,6 @@ data ServerConfig = ServerConfig
     { serverBrand         :: ServerBrand
     , serverVersion       :: MinecraftVersion
     , serverJvmOptions    :: [String]
-    , serverOnlineMode    :: Bool
     , serverStaticPlugins :: [FilePath]
     }
     deriving Show
@@ -54,7 +53,6 @@ instance FromJSON ServerConfig where
             <$> m .: "brand"
             <*> m .: "version"
             <*> m .: "jvmOptions"
-            <*> m .: "onlineMode"
             <*> m .: "staticPlugins"
 
     parseJSON _ = fail "Unrecognisable server config"

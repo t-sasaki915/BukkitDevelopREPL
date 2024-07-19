@@ -16,9 +16,6 @@ server:
         [ "-Xms2G"
         , "-Xmx2G"
         ]
-    
-    # Using online mode will make dev clients unusable.
-    onlineMode: false
 
     # The dependencies of your plugin should be put in here.
     # However, your plugin itself should be specified as a command line argument.
