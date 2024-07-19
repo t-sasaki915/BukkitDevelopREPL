@@ -1,6 +1,7 @@
 module Minecraft.Server.MinecraftServer (runMinecraftServer) where
 
 import           AppState
+import           CrossPlatform                (javaExecName)
 import           Minecraft.Server.ServerBrand (getServerExecutableName)
 import           ProcessIO
 
@@ -16,5 +17,5 @@ runMinecraftServer = do
 
     let serverJar = workingDir </> getServerExecutableName serverBrand serverVersion
 
-    execProcessQuiet "java.exe" (jvmOptions ++ ["-jar", serverJar]) workingDir
-        "Failed to execute java.exe that was to run a Minecraft server"
+    execProcessQuiet javaExecName (jvmOptions ++ ["-jar", serverJar]) workingDir
+        "Failed to execute java that was to run a Minecraft server"

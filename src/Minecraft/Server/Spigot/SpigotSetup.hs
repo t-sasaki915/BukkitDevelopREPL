@@ -1,6 +1,7 @@
 module Minecraft.Server.Spigot.SpigotSetup (setupSpigot) where
 
 import           AppState
+import           CrossPlatform                (curlExecName, javaExecName)
 import           FileIO
 import           Minecraft.Server.ServerBrand (ServerBrand (Spigot),
                                                getServerExecutableName)
@@ -24,8 +25,8 @@ downloadBuildTools = do
     let buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
         downloadPath  = buildDir </> "BuildTools.jar"
 
-    execProcess "curl.exe" ["-L", "-o", downloadPath, buildToolsUrl] buildDir
-        "Failed to execute curl.exe that was to download BuildTools" >>=
+    execProcess curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir
+        "Failed to execute curl that was to download BuildTools" >>=
             expectExitSuccess
                 "Failed to download BuildTools"
 
@@ -38,8 +39,8 @@ useBuildTools = do
 
     let buildToolsPath = buildDir </> "BuildTools.jar"
 
-    execProcess "java.exe" ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
-        "Failed to execute java.exe that was to build a Spigot server" >>=
+    execProcess javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
+        "Failed to execute java that was to build a Spigot server" >>=
             expectExitSuccess
                 "Failed to build a Spigot server"
 

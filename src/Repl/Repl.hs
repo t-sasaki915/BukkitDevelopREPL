@@ -1,6 +1,7 @@
 module Repl.Repl (startRepl) where
 
 import           AppState
+import           CrossPlatform                       (currentOSType)
 import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
 import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
@@ -85,7 +86,7 @@ startRepl :: IO ()
 startRepl = do
     initState <- initialState
 
-    putStrLn ("BukkitDevelopREPL " ++ showVersion version ++ " by TSasaki")
+    putStrLn ("BukkitDevelopREPL " ++ showVersion version ++ " (" ++ show currentOSType ++ ") by TSasaki")
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
     putStrLn ""

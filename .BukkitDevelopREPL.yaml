@@ -1,5 +1,5 @@
 application:
-    workingDir: ".\\BukkitDevelopREPL"
+    workingDir: "./BukkitDevelopREPL"
 
     autoexec:
         [ "startServer"
@@ -23,8 +23,8 @@ server:
     # Both urls and paths are acceptable.
     #
     # staticPlugins:
-    #     [ ".\\dependencies\\coreprotect.jar"
-    #     , ".\\dependencies\\placeholderapi.jar"
+    #     [ "./dependencies/coreprotect.jar"
+    #     , "./dependencies/placeholderapi.jar"
     #     , "https://example.com/luckperms.jar"
     #     ]
     staticPlugins: []

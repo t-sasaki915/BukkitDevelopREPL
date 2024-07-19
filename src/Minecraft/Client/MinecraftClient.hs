@@ -1,6 +1,8 @@
 module Minecraft.Client.MinecraftClient (spawnMinecraftClient) where
 
 import           AppState
+import           CrossPlatform                       (javaExecName,
+                                                      javaLibrarySeparator)
 import           FileIO
 import           Minecraft.Client.ClientJsonAnalyser as ClientJson
 import           Minecraft.MinecraftVersion          (MinecraftVersion)
@@ -33,12 +35,12 @@ createClientProcess clientVersion clientUsername = do
     nativeDirs  <- directoryContents binDir $
         "Failed to enumerate the contents of '" ++ binDir ++ "'"
 
-    let nativeOption = "-Djava.library.path=" ++ intercalate ";" nativeDirs
+    let nativeOption = "-Djava.library.path=" ++ intercalate javaLibrarySeparator nativeDirs
         clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
         libs = map (libsDir </>) libraries ++ [clientJar]
         clientOptions =
             [ "-cp"
-            , intercalate ";" libs
+            , intercalate javaLibrarySeparator libs
             , mainClass
             , "--username"
             , clientUsername
@@ -56,8 +58,8 @@ createClientProcess clientVersion clientUsername = do
             , assetIndex
             ]
 
-    execProcessQuiet "java.exe" (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
-        "Failed to execute java.exe that was to run a Minecraft client"
+    execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
+        "Failed to execute java that was to run a Minecraft client"
 
 spawnMinecraftClient :: MinecraftVersion -> String -> AppStateIO ProcessHandle
 spawnMinecraftClient clientVersion clientUsername = do

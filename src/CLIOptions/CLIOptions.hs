@@ -1,5 +1,7 @@
 module CLIOptions.CLIOptions (CLIOptions(..), cliOptionsParser) where
 
+import           CrossPlatform       (defaultMinecraftDir)
+
 import           Options.Applicative
 import           System.Directory    (getCurrentDirectory, getHomeDirectory)
 import           System.FilePath     ((</>))
@@ -14,18 +16,22 @@ cliOptionsParser :: IO (Parser CLIOptions)
 cliOptionsParser = do
     currentDir <- getCurrentDirectory
     homeDir    <- getHomeDirectory
+
+    let defaultMCDir    = defaultMinecraftDir homeDir
+        defaultConfPath = currentDir </> ".BukkitDevelopREPL.yaml"
+
     return $
         CLIOptions
             <$> strOption
                 ( long "minecraft-dir"
                <> metavar "FilePath"
-               <> value (homeDir </> "AppData" </> "Roaming" </> ".minecraft")
-               <> help "Specifies Minecraft directory expressly. The default value is '~\\AppData\\Roaming\\.minecraft'."
+               <> value defaultMCDir
+               <> help ("Specifies Minecraft directory expressly. The default is '" ++ defaultMCDir ++ "'.")
                 )
             <*> strOption
                 ( long "config"
                <> metavar "FilePath"
-               <> value (currentDir </> ".BukkitDevelopREPL.yaml")
-               <> help "Specifies config file expressly. The default is '.\\.BukkitDevelopREPL.yaml'."
+               <> value defaultConfPath
+               <> help ("Specifies config file expressly. The default is '" ++ defaultConfPath ++ "'.")
                 )
 

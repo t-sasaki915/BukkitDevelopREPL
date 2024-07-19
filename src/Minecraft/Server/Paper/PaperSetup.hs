@@ -3,6 +3,7 @@
 module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 
 import           AppState
+import           CrossPlatform                (curlExecName)
 import           FileIO
 import           Minecraft.MinecraftVersion   ()
 import           Minecraft.Server.ServerBrand (ServerBrand (Paper),
@@ -44,8 +45,8 @@ fetchPaperBuilds = do
     putStrLn' "Fetching Paper Downloads API..."
 
     let apiUrl = "https://api.papermc.io/v2/projects/paper/versions/" ++ show serverVersion
-    execProcessAndGetOutput "curl.exe" ["-s", apiUrl] workingDir
-        "Failed to execute curl.exe that was to fetch Paper Downloads API" >>=
+    execProcessAndGetOutput curlExecName ["-s", apiUrl] workingDir
+        "Failed to execute curl that was to fetch Paper Downloads API" >>=
             \rawJson -> case eitherDecode (pack (map c2w rawJson)) of
                 Right paperBuilds -> return paperBuilds
                 Left err          -> throwE err
@@ -64,8 +65,8 @@ downloadLatestPaper = do
 
     putStrLn' ("Downloading Paper " ++ show ver ++ " Build " ++ latest ++ "...")
 
-    execProcess "curl.exe" ["-L", "-o", jarPath, jarUrl] workingDir
-        "Failed to execute curl.exe that was to download a Paper Server" >>=
+    execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir
+        "Failed to execute curl that was to download a Paper Server" >>=
             expectExitSuccess
                 "Failed to download a Paper server"
 
