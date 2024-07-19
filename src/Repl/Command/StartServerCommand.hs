@@ -70,7 +70,7 @@ startServerCommandProcedure opts = do
             serverHandle <- runMinecraftServer
             registerServer serverHandle
 
-            putStrLn' "Successfully started the Minecraft server."
+            putStrLn' "Successfully started the Minecraft server. The console will be appeared soon."
 
 
 checkEula :: Bool -> AppStateIO ()

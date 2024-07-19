@@ -2,7 +2,6 @@ module ProcessIO
     ( execProcess
     , execProcessQuiet
     , execProcessAndGetOutput
-    , execProcessNewWindow
     , expectExitSuccess
     ) where
 
@@ -38,15 +37,6 @@ execProcessAndGetOutput execName procArgs procWorkDir = appStateIOTry $
         { cwd = Just procWorkDir
         }
         []
-
-execProcessNewWindow :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcessNewWindow execName procArgs procWorkDir = appStateIOTry $ do
-    (_, _, _, handle) <-
-        createProcess (proc execName procArgs)
-            { cwd = Just procWorkDir
-            , create_new_console = True
-            }
-    return handle
 
 expectExitSuccess :: String -> ProcessHandle -> AppStateIO ()
 expectExitSuccess errorMsg handle =

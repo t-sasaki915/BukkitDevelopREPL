@@ -15,11 +15,6 @@ runMinecraftServer = do
     serverBrand   <- getServerBrand
 
     let serverJar = workingDir </> getServerExecutableName serverBrand serverVersion
-        serverOpts =
-            [ "-jar"
-            , serverJar
-            , "nogui"
-            ]
 
-    execProcessNewWindow "java.exe" (jvmOptions ++ serverOpts) workingDir
+    execProcessQuiet "java.exe" (jvmOptions ++ ["-jar", serverJar]) workingDir
         "Failed to execute java.exe that was to run a Minecraft server"

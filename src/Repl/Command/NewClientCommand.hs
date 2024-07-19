@@ -61,4 +61,5 @@ newClientCommandProcedure opts = do
             clientProcess <- spawnMinecraftClient version username
             registerNewClient (ClientInfo username version) clientProcess
 
-            putStrLn' ("Successfully created a new Minecraft client with a name of '" ++ username ++ "'.")
+            putStrLn' $
+                "Successfully created a new Minecraft client with a name of '" ++ username ++ "'. The game screen will be appeared soon."
