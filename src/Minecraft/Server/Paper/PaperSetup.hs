@@ -39,11 +39,12 @@ makeNecessaryDirectories = do
 fetchPaperBuilds :: AppStateIO PaperBuilds
 fetchPaperBuilds = do
     serverVersion <- getServerVersion
+    workingDir    <- getWorkingDir
 
     putStrLn' "Fetching Paper Downloads API..."
 
     let apiUrl = "https://api.papermc.io/v2/projects/paper/versions/" ++ show serverVersion
-    execProcessAndGetOutput "curl.exe" ["-s", apiUrl]
+    execProcessAndGetOutput "curl.exe" ["-s", apiUrl] workingDir
         "Failed to execute curl.exe that was to fetch Paper Downloads API" >>=
             \rawJson -> case eitherDecode (pack (map c2w rawJson)) of
                 Right paperBuilds -> return paperBuilds

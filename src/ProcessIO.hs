@@ -8,48 +8,45 @@ module ProcessIO
 
 import           AppState
 
-import           Control.Exception          (try)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (throwE)
 import           System.Exit                (ExitCode (..))
-import           System.IO.Error            (ioeGetErrorString)
 import           System.Process
 
 execProcess :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcess execName procArgs procWorkDir errorMsg =
-    lift (lift (try (runProcess execName procArgs (Just procWorkDir) Nothing Nothing Nothing Nothing))) >>= \case
-        Right handle -> return handle
-        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+execProcess execName procArgs procWorkDir = appStateIOTry $ do
+    (_, _, _, handle) <-
+        createProcess (proc execName procArgs)
+            { cwd = Just procWorkDir
+            }
+    return handle
 
 execProcessQuiet :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcessQuiet execName procArgs procWorkDir errorMsg =
-    lift (lift (try program)) >>= \case
-        Right handle -> return handle
-        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
-    where
-        program = do
-            (_, _, _, handle) <-
-                createProcess_ "runProcess" (proc execName procArgs)
-                    {cwd = Just procWorkDir, std_in = NoStream, std_out = NoStream, std_err = NoStream}
-            return handle
+execProcessQuiet execName procArgs procWorkDir = appStateIOTry $ do
+    (_, _, _, handle) <-
+        createProcess (proc execName procArgs)
+            { cwd = Just procWorkDir
+            , std_in = NoStream
+            , std_out = NoStream
+            , std_err = NoStream
+            }
+    return handle
 
-execProcessAndGetOutput :: FilePath -> [String] -> String -> AppStateIO String
-execProcessAndGetOutput execName procArgs errorMsg =
-    lift (lift (try (readProcess execName procArgs []))) >>= \case
-        Right output -> return output
-        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+execProcessAndGetOutput :: FilePath -> [String] -> FilePath -> String -> AppStateIO String
+execProcessAndGetOutput execName procArgs procWorkDir = appStateIOTry $
+    readCreateProcess (proc execName procArgs)
+        { cwd = Just procWorkDir
+        }
+        []
 
 execProcessNewWindow :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcessNewWindow execName procArgs procWorkDir errorMsg = do
-    lift (lift (try program)) >>= \case
-        Right handle -> return handle
-        Left ioErr   -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
-    where
-        program = do
-            (_, _, _, handle) <-
-                createProcess_ "runProcess" (proc execName procArgs)
-                    {create_new_console = True, cwd = Just procWorkDir}
-            return handle
+execProcessNewWindow execName procArgs procWorkDir = appStateIOTry $ do
+    (_, _, _, handle) <-
+        createProcess (proc execName procArgs)
+            { cwd = Just procWorkDir
+            , create_new_console = True
+            }
+    return handle
 
 expectExitSuccess :: String -> ProcessHandle -> AppStateIO ()
 expectExitSuccess errorMsg handle =

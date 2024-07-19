@@ -10,14 +10,16 @@ import           Config.Loader                    (loadConfig)
 import           Minecraft.MinecraftVersion       (MinecraftVersion)
 import           Minecraft.Server.ServerBrand     (ServerBrand)
 
+import           Control.Exception                (try)
 import           Control.Lens                     (makeLenses, over, set)
 import           Control.Monad.Trans.Class        (lift)
-import           Control.Monad.Trans.Except       (ExceptT)
+import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
 import           Data.Functor                     ((<&>))
 import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
 import           System.IO                        (hFlush, stdout)
+import           System.IO.Error                  (ioeGetErrorString)
 import           System.Process                   (ProcessHandle,
                                                    getProcessExitCode)
 
@@ -45,6 +47,12 @@ initialState = do
 
     let constructor = AppState [] Nothing
     return (constructor cliOpts conf)
+
+appStateIOTry :: IO a -> String -> AppStateIO a
+appStateIOTry program errorMsg =
+    lift (lift (try program)) >>= \case
+        Right v    -> return v
+        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
 
 getAutoexecCommands :: AppState -> [String]
 getAutoexecCommands = autoexecCommands . applicationConfig . _config
