@@ -17,6 +17,10 @@ instance Show MinecraftVersion where
     show (MinecraftVersion major minor patch) =
         show major ++ "." ++ show minor ++ "." ++ show patch
 
+instance Ord MinecraftVersion where
+    (<=) (MinecraftVersion major1 minor1 patch1) (MinecraftVersion major2 minor2 patch2) =
+        major1 <= major2 && minor1 <= minor2 && patch1 <= patch2
+
 instance FromJSON MinecraftVersion where
     parseJSON (String txt) =
         case parseMinecraftVersion (unpack txt) of

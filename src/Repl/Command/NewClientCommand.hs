@@ -4,10 +4,11 @@ module Repl.Command.NewClientCommand (NewClientCommand(NewClientCommand)) where
 
 import           AppState
 import           Minecraft.Client.MinecraftClient (spawnMinecraftClient)
-import           Minecraft.MinecraftVersion       (MinecraftVersion,
+import           Minecraft.MinecraftVersion       (MinecraftVersion (..),
                                                    minecraftVersionParser)
 import           Repl.Command.ReplCommand         (ReplCommand (..))
 
+import           Control.Monad                    (when)
 import           Control.Monad.Trans.Except       (throwE)
 import           Data.Bifunctor                   (first)
 import           Options.Applicative
@@ -49,6 +50,9 @@ newClientCommandProcedure :: NewClientCommand -> AppStateIO ()
 newClientCommandProcedure opts = do
     let version  = clientVersion opts
         username = clientUsername opts
+
+    when (version < MinecraftVersion 1 6 1) $
+        throwE "Minecraft versions older than 1.6.1 are not supported."
 
     updateClientList
 
