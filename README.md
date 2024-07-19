@@ -1,2 +1,6 @@
 # BukkitDevelopREPL
-Minecraft client and server launcher for Spigot plugin debugging
+A CLI Tool for Debugging Bukkit Plugins
+
+## Features
+* Build and setup a Paper or Spigot server automatically.
+* Launch debugging purpose Minecraft clients without Minecraft Launcher.
