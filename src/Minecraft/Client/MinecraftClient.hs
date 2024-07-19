@@ -5,7 +5,7 @@ import           CrossPlatform                       (javaExecName,
                                                       javaLibrarySeparator)
 import           FileIO
 import           Minecraft.Client.ClientJsonAnalyser as ClientJson
-import           Minecraft.MinecraftVersion          (MinecraftVersion)
+import           Minecraft.MinecraftVersion          (MinecraftVersion (..))
 import           ProcessIO
 
 import           Data.List                           (intercalate)
@@ -38,6 +38,17 @@ createClientProcess clientVersion clientUsername = do
     let nativeOption = "-Djava.library.path=" ++ intercalate javaLibrarySeparator nativeDirs
         clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
         libs = map (libsDir </>) libraries ++ [clientJar]
+        assetsOptions
+            | clientVersion < MinecraftVersion 1 7 3 =
+                [ "--assetsDir"
+                , assetsDir </> "virtual" </> "legacy"
+                ]
+            | otherwise =
+                [ "--assetsDir"
+                , assetsDir
+                , "--assetIndex"
+                , assetIndex
+                ]
         clientOptions =
             [ "-cp"
             , intercalate javaLibrarySeparator libs
@@ -52,11 +63,7 @@ createClientProcess clientVersion clientUsername = do
             , "{}"
             , "--gameDir"
             , workDir
-            , "--assetsDir"
-            , assetsDir
-            , "--assetIndex"
-            , assetIndex
-            ]
+            ] ++ assetsOptions
 
     execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
         "Failed to execute java that was to run a Minecraft client"

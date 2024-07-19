@@ -18,8 +18,13 @@ instance Show MinecraftVersion where
         show major ++ "." ++ show minor ++ "." ++ show patch
 
 instance Ord MinecraftVersion where
-    (<=) (MinecraftVersion major1 minor1 patch1) (MinecraftVersion major2 minor2 patch2) =
-        major1 <= major2 && minor1 <= minor2 && patch1 <= patch2
+    (<=) v1 v2 = v1 == v2 || v1 < v2
+
+    (<) (MinecraftVersion major1 minor1 patch1) (MinecraftVersion major2 minor2 patch2)
+        | major1 < major2                                         = True
+        | major1 == major2 && minor1 < minor2                     = True
+        | major1 == major2 && minor1 == minor2 && patch1 < patch2 = True
+        | otherwise                                               = False
 
 instance FromJSON MinecraftVersion where
     parseJSON (String txt) =
