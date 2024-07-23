@@ -2,17 +2,16 @@
 
 module Repl.Command.NewClientCommand (NewClientCommand(NewClientCommand)) where
 
+import           Imports
+
 import           AppState
 import           Minecraft.Client.MinecraftClient (spawnMinecraftClient)
 import           Repl.ReplCommand                 (ReplCommand (..))
 
-import           Control.Monad                    (when)
-import           Control.Monad.Trans.Except       (throwE)
 import           Data.Bifunctor                   (first)
 import           Data.Minecraft.MCVersion         (MCVersion (..),
                                                    mcVersionParser)
 import           Options.Applicative
-import           Text.Printf                      (printf)
 
 data NewClientCommand = NewClientCommand
                       | NewClientCommandOptions
@@ -52,10 +51,10 @@ newClientCommandProcedure opts = do
     when serverOnlineMode $
         throwE "The Minecraft server is using online mode. DEV clients are unusable."
 
-    let version  = clientVersion opts
+    let cVersion  = clientVersion opts
         username = clientUsername opts
 
-    when (version < MCVersion 1 6 1) $
+    when (cVersion < MCVersion 1 6 1) $
         throwE "Minecraft versions older than 1.6.1 are not supported."
 
     updateClientList
@@ -66,8 +65,8 @@ newClientCommandProcedure opts = do
             throwE (printf "A Minecraft client whose name is '%s' is existing." username)
 
         Nothing -> do
-            clientProcess <- spawnMinecraftClient version username
-            registerNewClient (ClientInfo username version) clientProcess
+            clientProcess <- spawnMinecraftClient cVersion username
+            registerNewClient (ClientInfo username cVersion) clientProcess
 
             putStrLn' $
                 printf "Successfully created a new Minecraft client with a name of '%s'. The game screen will be appeared soon." username

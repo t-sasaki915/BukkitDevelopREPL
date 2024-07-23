@@ -1,10 +1,11 @@
 module CLIOptions.CLIOptions (CLIOptions(..), cliOptionsParser) where
 
+import           Imports
+
 import           CrossPlatform       (defaultMinecraftDir)
 
 import           Options.Applicative
 import           System.Directory    (getCurrentDirectory, getHomeDirectory)
-import           System.FilePath     ((</>))
 
 data CLIOptions = CLIOptions
     { minecraftDir   :: FilePath

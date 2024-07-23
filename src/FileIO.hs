@@ -10,11 +10,12 @@ module FileIO
     , directoryContents
     ) where
 
+import           Imports
+
 import           AppState
 
 import qualified Data.ByteString  as BS
 import           System.Directory
-import           System.FilePath  ((</>))
 
 makeDirectory :: FilePath -> String -> AppStateIO ()
 makeDirectory = appStateIOTry . createDirectoryIfMissing True

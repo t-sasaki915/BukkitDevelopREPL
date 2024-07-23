@@ -6,14 +6,13 @@ module Network.Url
     , getFileNameFromUrl
     ) where
 
+import           Imports
+
 import           AppState
-import           CrossPlatform              (curlExecName)
+import           CrossPlatform   (curlExecName)
 import           ProcessIO
 
-import           Control.Monad.Trans.Except (throwE)
-import           Data.List.Extra            (splitOn, stripInfix)
-import           Text.Printf                (printf)
-import           Text.Regex.Posix           ((=~))
+import           Data.List.Extra (splitOn, stripInfix)
 
 type Url = String
 

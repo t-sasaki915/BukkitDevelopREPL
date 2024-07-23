@@ -1,16 +1,15 @@
 module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass, getLibraries) where
 
+import           Imports
+
 import           AppState
-import           CrossPlatform              (OSType (..), currentOSType)
+import           CrossPlatform            (OSType (..), currentOSType)
 import           FileIO
 
-import           Control.Monad.Trans.Except (throwE)
 import           Data.Aeson
-import           Data.ByteString            (fromStrict)
-import           Data.Maybe                 (maybeToList)
-import           Data.Minecraft.MCVersion   (MCVersion (..))
-import           System.FilePath            ((</>))
-import           Text.Printf                (printf)
+import           Data.ByteString          (fromStrict)
+import           Data.Maybe               (maybeToList)
+import           Data.Minecraft.MCVersion (MCVersion (..))
 
 data RuleAction = Allow | Disallow deriving (Show, Eq)
 

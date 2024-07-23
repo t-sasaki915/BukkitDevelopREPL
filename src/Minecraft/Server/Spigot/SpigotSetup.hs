@@ -1,5 +1,7 @@
 module Minecraft.Server.Spigot.SpigotSetup (setupSpigot) where
 
+import           Imports
+
 import           AppState
 import           CrossPlatform                (curlExecName, javaExecName)
 import           FileIO
@@ -7,8 +9,6 @@ import           ProcessIO
 
 import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
                                                getMCServerExecutableName)
-import           System.FilePath              ((</>))
-import           Text.Printf                  (printf)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do

@@ -1,10 +1,9 @@
 module Repl.Command.ListClientCommand (ListClientCommand(ListClientCommand)) where
 
+import           Imports
+
 import           AppState
 import           Repl.ReplCommand (ReplCommand (..))
-
-import           Control.Monad    (forM_)
-import           Text.Printf      (printf)
 
 data ListClientCommand = ListClientCommand
                        | ListClientCommandOptions

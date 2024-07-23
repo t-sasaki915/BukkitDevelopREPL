@@ -1,5 +1,7 @@
 module Repl.Repl (startRepl) where
 
+import           Imports
+
 import           AppState
 import           CrossPlatform                       (currentOSType)
 import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
@@ -13,15 +15,11 @@ import           Repl.Command.TerminateClientCommand (TerminateClientCommand (Te
 import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
 import           Repl.ReplCommand                    (ReplCommand (..))
 
-import           Control.Monad                       (foldM)
 import           Control.Monad.Trans.Except          (runExceptT)
 import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Extra                     (splitOn)
 import           Data.Version                        (showVersion)
 import           System.IO                           (hFlush, stdout)
-import           Text.Printf                         (printf)
-
-import           Paths_BukkitDevelopREPL             (version)
 
 execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =

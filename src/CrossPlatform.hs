@@ -9,9 +9,9 @@ module CrossPlatform
     , curlExecName
     ) where
 
-import           Data.Aeson      (FromJSON (parseJSON), Value (String))
-import           System.FilePath ((</>))
-import           Text.Printf     (printf)
+import           Imports
+
+import           Data.Aeson (FromJSON (parseJSON), Value (String))
 
 data OSType = Linux | OSX | Windows deriving (Show, Eq)
 

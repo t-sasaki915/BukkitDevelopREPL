@@ -1,9 +1,9 @@
 module Repl.Command.HelpCommand (HelpCommand(HelpCommand)) where
 
+import           Imports
+
 import           AppState
 import           Repl.ReplCommand (ReplCommand (..))
-
-import           Text.Printf      (printf)
 
 data HelpCommand = HelpCommand
                  | HelpCommandOptions

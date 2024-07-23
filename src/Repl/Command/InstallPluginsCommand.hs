@@ -2,14 +2,14 @@
 
 module Repl.Command.InstallPluginsCommand (InstallPluginsCommand(InstallPluginsCommand)) where
 
+import           Imports
+
 import           AppState
 import           Minecraft.Server.PluginInstaller
 import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
 import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
 import           Repl.ReplCommand                    (ReplCommand (..))
 
-import           Control.Monad                       (unless, when)
-import           Control.Monad.Trans.Except          (throwE)
 import           Options.Applicative
 
 data InstallPluginsCommand = InstallPluginsCommand

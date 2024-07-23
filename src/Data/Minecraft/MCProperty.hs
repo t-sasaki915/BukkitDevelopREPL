@@ -17,16 +17,14 @@ module Data.Minecraft.MCProperty
     , getProperty
     ) where
 
-import           Control.Monad                    (foldM)
-import           Control.Monad.Trans.Except       (Except, runExcept, throwE)
+import           Imports
+
+import           Control.Monad.Trans.Except       (Except, runExcept)
 import           Control.Monad.Trans.State.Strict (State, evalState, get, put)
 import           Data.Bifunctor                   (second)
-import           Data.Functor                     ((<&>))
 import           Data.Maybe                       (maybeToList)
 import           Data.Minecraft.MCGameMode        (MCGameMode (..))
-import           Text.Printf                      (printf)
 import           Text.Read                        (readMaybe)
-import           Text.Regex.Posix                 ((=~))
 
 type MCProperties = [MCProperty]
 

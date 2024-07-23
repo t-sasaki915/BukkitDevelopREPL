@@ -1,11 +1,12 @@
 module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 
+import           Imports
+
 import           AppState
 import           CrossPlatform                (curlExecName)
 import           FileIO
 import           ProcessIO
 
-import           Control.Monad.Trans.Except   (throwE)
 import           Data.Aeson                   (FromJSON (parseJSON),
                                                Value (Object), eitherDecode,
                                                (.:))
@@ -14,8 +15,6 @@ import           Data.ByteString.Lazy         (pack)
 import           Data.Minecraft.MCServerBrand (MCServerBrand (Paper),
                                                getMCServerExecutableName)
 import           Data.Minecraft.MCVersion     ()
-import           System.FilePath              ((</>))
-import           Text.Printf                  (printf)
 
 newtype PaperBuilds = PaperBuilds
     { builds :: [Int]

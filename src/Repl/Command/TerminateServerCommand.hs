@@ -2,13 +2,13 @@
 
 module Repl.Command.TerminateServerCommand (TerminateServerCommand(TerminateServerCommand)) where
 
-import           AppState
-import           Repl.ReplCommand           (ReplCommand (..), confirmContinue)
+import           Imports
 
-import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Trans.Except (throwE)
+import           AppState
+import           Repl.ReplCommand    (ReplCommand (..), confirmContinue)
+
 import           Options.Applicative
-import           System.Process             (terminateProcess)
+import           System.Process      (terminateProcess)
 
 data TerminateServerCommand = TerminateServerCommand
                             | TerminateServerCommandOptions

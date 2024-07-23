@@ -1,7 +1,8 @@
 module Data.Minecraft.MCGameMode (MCGameMode(..)) where
 
-import           Data.Yaml   (FromJSON (..), ToJSON (..), Value (..))
-import           Text.Printf (printf)
+import           Imports
+
+import           Data.Yaml (FromJSON (..), ToJSON (..), Value (..))
 
 data MCGameMode = Survival | Creative | Adventure | Spectator
 

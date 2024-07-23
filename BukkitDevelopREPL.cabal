@@ -51,6 +51,7 @@ library
       AppState
       CrossPlatform
       FileIO
+      Imports
       ProcessIO
   other-modules:
       Paths_BukkitDevelopREPL

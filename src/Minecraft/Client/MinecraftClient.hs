@@ -1,5 +1,7 @@
 module Minecraft.Client.MinecraftClient (spawnMinecraftClient) where
 
+import           Imports
+
 import           AppState
 import           CrossPlatform                       (javaExecName,
                                                       javaLibrarySeparator)
@@ -9,9 +11,7 @@ import           ProcessIO
 
 import           Data.List                           (intercalate)
 import           Data.Minecraft.MCVersion            (MCVersion (..))
-import           System.FilePath                     ((</>))
 import           System.Process                      (ProcessHandle)
-import           Text.Printf                         (printf)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do

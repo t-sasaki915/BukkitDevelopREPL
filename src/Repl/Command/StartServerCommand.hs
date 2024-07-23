@@ -2,6 +2,8 @@
 
 module Repl.Command.StartServerCommand (StartServerCommand(StartServerCommand)) where
 
+import           Imports
+
 import           AppState
 import           FileIO
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
@@ -10,12 +12,9 @@ import           Minecraft.Server.MinecraftServerSetup (editServerProperties,
 import           Repl.ReplCommand                      (ReplCommand (..),
                                                         confirmContinue)
 
-import           Control.Monad.Trans.Except            (throwE)
 import           Data.Minecraft.MCProperty
 import           Data.Minecraft.MCServerBrand          (getMCServerExecutableName)
 import           Options.Applicative
-import           System.FilePath                       ((</>))
-import           Text.Printf                           (printf)
 
 data StartServerCommand = StartServerCommand
                         | StartServerCommandOptions

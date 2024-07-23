@@ -1,12 +1,11 @@
 module CLIOptions.Parser (parseCLIOptions) where
 
-import           CLIOptions.CLIOptions   (CLIOptions, cliOptionsParser)
+import           Imports
 
-import           Data.Version            (showVersion)
+import           CLIOptions.CLIOptions (CLIOptions, cliOptionsParser)
+
+import           Data.Version          (showVersion)
 import           Options.Applicative
-import           Text.Printf             (printf)
-
-import           Paths_BukkitDevelopREPL (version)
 
 parseCLIOptions :: IO CLIOptions
 parseCLIOptions = do

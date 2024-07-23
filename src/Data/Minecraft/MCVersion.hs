@@ -4,11 +4,11 @@ module Data.Minecraft.MCVersion
     , mcVersionParser
     ) where
 
+import           Imports
+
 import           Data.Text           (pack, unpack)
 import           Data.Yaml           (FromJSON (..), ToJSON (..), Value (..))
 import           Options.Applicative (ReadM, eitherReader)
-import           Text.Printf         (printf)
-import           Text.Regex.Posix    ((=~))
 
 data MCVersion = MCVersion Int Int Int deriving Eq
 

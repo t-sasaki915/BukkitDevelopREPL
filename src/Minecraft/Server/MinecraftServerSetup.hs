@@ -1,15 +1,14 @@
 module Minecraft.Server.MinecraftServerSetup (setupMinecraftServer, editServerProperties) where
 
+import           Imports
+
 import           AppState
 import           FileIO
 import           Minecraft.Server.Paper.PaperSetup   (setupPaper)
 import           Minecraft.Server.Spigot.SpigotSetup (setupSpigot)
 
-import           Control.Monad.Trans.Except          (throwE)
 import           Data.Minecraft.MCProperty
 import           Data.Minecraft.MCServerBrand        (MCServerBrand (..))
-import           System.FilePath                     ((</>))
-import           Text.Printf                         (printf)
 
 editServerProperties :: AppStateIO ()
 editServerProperties = do

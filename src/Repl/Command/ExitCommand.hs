@@ -1,12 +1,12 @@
 module Repl.Command.ExitCommand (ExitCommand(ExitCommand)) where
 
-import           AppState
-import           Repl.ReplCommand          (ReplCommand (..))
+import           Imports
 
-import           Control.Monad.Trans.Class (lift)
-import           Data.Foldable             (forM_)
-import           System.Exit               (exitSuccess)
-import           System.Process            (terminateProcess)
+import           AppState
+import           Repl.ReplCommand (ReplCommand (..))
+
+import           System.Exit      (exitSuccess)
+import           System.Process   (terminateProcess)
 
 data ExitCommand = ExitCommand
                  | ExitCommandOptions

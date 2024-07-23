@@ -2,15 +2,14 @@
 
 module Repl.Command.TerminateClientCommand (TerminateClientCommand(TerminateClientCommand)) where
 
-import           AppState
-import           Repl.ReplCommand           (ReplCommand (..), confirmContinue)
+import           Imports
 
-import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Trans.Except (throwE)
-import           Data.Bifunctor             (first)
+import           AppState
+import           Repl.ReplCommand    (ReplCommand (..), confirmContinue)
+
+import           Data.Bifunctor      (first)
 import           Options.Applicative
-import           System.Process             (terminateProcess)
-import           Text.Printf                (printf)
+import           System.Process      (terminateProcess)
 
 data TerminateClientCommand = TerminateClientCommand
                             | TerminateClientCommandOptions

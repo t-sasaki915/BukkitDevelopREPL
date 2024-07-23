@@ -5,19 +5,15 @@ module Minecraft.Server.PluginInstaller
     , installStaticPlugins
     ) where
 
+import           Imports
+
 import           AppState
-import           CrossPlatform              (curlExecName)
+import           CrossPlatform   (curlExecName)
 import           FileIO
 import           ProcessIO
 
-import           Control.Monad              (filterM, forM, forM_)
-import           Control.Monad.Extra        (unlessM)
-import           Control.Monad.Trans.Except (throwE)
-import           Data.Functor               ((<&>))
 import           Network.Url
-import           System.FilePath            (takeFileName, (</>))
-import           Text.Printf                (printf)
-import           Text.Regex.Posix           ((=~))
+import           System.FilePath (takeFileName)
 
 initialisePluginFileNameMap :: AppStateIO ()
 initialisePluginFileNameMap = do

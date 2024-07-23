@@ -3,6 +3,8 @@
 
 module AppState where
 
+import           Imports
+
 import           CLIOptions.CLIOptions            (CLIOptions (..))
 import           CLIOptions.Parser                (parseCLIOptions)
 import           Config.Config
@@ -10,22 +12,17 @@ import           Config.Loader                    (loadConfig)
 
 import           Control.Exception                (try)
 import           Control.Lens                     (makeLenses, over, set)
-import           Control.Monad                    (forM_)
-import           Control.Monad.Trans.Class        (lift)
-import           Control.Monad.Trans.Except       (ExceptT, throwE)
+import           Control.Monad.Trans.Except       (ExceptT)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
-import           Data.Functor                     ((<&>))
 import           Data.Maybe                       (fromMaybe)
 import           Data.Minecraft.MCGameMode        (MCGameMode)
 import           Data.Minecraft.MCServerBrand     (MCServerBrand)
 import           Data.Minecraft.MCVersion         (MCVersion)
 import           System.Directory                 (makeAbsolute)
-import           System.FilePath                  ((</>))
 import           System.IO                        (hFlush, stdout)
 import           System.IO.Error                  (ioeGetErrorString)
 import           System.Process                   (ProcessHandle,
                                                    getProcessExitCode)
-import           Text.Printf                      (printf)
 
 type AppStateIO = ExceptT String (StateT AppState IO)
 

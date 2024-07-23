@@ -1,12 +1,12 @@
 module Repl.ReplCommand (ReplCommand(..), confirmContinue) where
 
+import           Imports
+
 import           AppState
 
-import           Control.Monad.Trans.Class (lift)
-import           Data.Char                 (toLower)
+import           Data.Char           (toLower)
 import           Options.Applicative
-import           System.IO                 (hFlush, stdout)
-import           Text.Regex.Posix          ((=~))
+import           System.IO           (hFlush, stdout)
 
 class ReplCommand a where
     cmdDescription :: a -> String

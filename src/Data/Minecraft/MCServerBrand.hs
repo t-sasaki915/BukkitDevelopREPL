@@ -1,9 +1,10 @@
 module Data.Minecraft.MCServerBrand (MCServerBrand(..), getMCServerExecutableName) where
 
+import           Imports
+
 import           Data.Minecraft.MCVersion (MCVersion)
 import           Data.Yaml                (FromJSON (..), ToJSON (..),
                                            Value (..))
-import           Text.Printf              (printf)
 
 data MCServerBrand = Spigot | Paper deriving Show
 
@@ -17,5 +18,5 @@ instance ToJSON MCServerBrand where
     toJSON Paper  = String "Paper"
 
 getMCServerExecutableName :: MCServerBrand -> MCVersion -> String
-getMCServerExecutableName brand version =
-    printf "%s-%s.jar" (show brand) (show version)
+getMCServerExecutableName brand mcVersion =
+    printf "%s-%s.jar" (show brand) (show mcVersion)

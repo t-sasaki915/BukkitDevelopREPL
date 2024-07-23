@@ -5,13 +5,12 @@ module ProcessIO
     , expectExitSuccess
     ) where
 
+import           Imports
+
 import           AppState
 
-import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Trans.Except (throwE)
-import           System.Exit                (ExitCode (..))
+import           System.Exit    (ExitCode (..))
 import           System.Process
-import           Text.Printf                (printf)
 
 execProcess :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
 execProcess execName procArgs procWorkDir = appStateIOTry $ do
