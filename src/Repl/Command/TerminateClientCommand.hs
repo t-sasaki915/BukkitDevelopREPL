@@ -3,8 +3,7 @@
 module Repl.Command.TerminateClientCommand (TerminateClientCommand(TerminateClientCommand)) where
 
 import           AppState
-import           Repl.Command.ReplCommand   (ReplCommand (..))
-import           Repl.Util                  (confirmContinue)
+import           Repl.ReplCommand           (ReplCommand (..), confirmContinue)
 
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (throwE)

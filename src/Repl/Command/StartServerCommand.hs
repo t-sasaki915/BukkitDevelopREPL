@@ -6,8 +6,8 @@ import           AppState
 import           FileIO
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
 import           Minecraft.Server.MinecraftServerSetup (setupMinecraftServer)
-import           Repl.Command.ReplCommand              (ReplCommand (..))
-import           Repl.Util                             (confirmContinue)
+import           Repl.ReplCommand                      (ReplCommand (..),
+                                                        confirmContinue)
 
 import           Control.Monad.Trans.Except            (throwE)
 import           Data.Minecraft.MCProperty

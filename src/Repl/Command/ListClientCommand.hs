@@ -1,10 +1,10 @@
 module Repl.Command.ListClientCommand (ListClientCommand(ListClientCommand)) where
 
 import           AppState
-import           Repl.Command.ReplCommand (ReplCommand (..))
-import           Util                     (fillWithSpace)
+import           Repl.ReplCommand (ReplCommand (..))
+import           Util             (fillWithSpace)
 
-import           Control.Monad            (forM_)
+import           Control.Monad    (forM_)
 
 data ListClientCommand = ListClientCommand
                        | ListClientCommandOptions

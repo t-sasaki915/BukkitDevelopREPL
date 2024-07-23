@@ -1,11 +1,18 @@
-module Repl.Util (confirmContinue) where
+module Repl.ReplCommand (ReplCommand(..), confirmContinue) where
 
 import           AppState
 
 import           Control.Monad.Trans.Class (lift)
 import           Data.Char                 (toLower)
+import           Options.Applicative       (Parser)
 import           System.IO                 (hFlush, stdout)
 import           Text.Regex.Posix          ((=~))
+
+class ReplCommand a where
+    cmdLabel :: a -> String
+    cmdDescription :: a -> String
+    cmdArgParser :: a -> AppStateIO (Parser a)
+    cmdProcedure :: a -> AppStateIO ()
 
 confirmContinue :: AppStateIO Bool
 confirmContinue = do
@@ -21,3 +28,4 @@ confirmContinue = do
         return False
     else
         confirmContinue
+

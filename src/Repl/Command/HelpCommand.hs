@@ -1,8 +1,8 @@
 module Repl.Command.HelpCommand (HelpCommand(HelpCommand)) where
 
 import           AppState
-import           Repl.Command.ReplCommand (ReplCommand (..))
-import           Util                     (fillWithSpace)
+import           Repl.ReplCommand (ReplCommand (..))
+import           Util             (fillWithSpace)
 
 data HelpCommand = HelpCommand
                  | HelpCommandOptions

@@ -38,11 +38,10 @@ library
       Repl.Command.HelpCommand
       Repl.Command.ListClientCommand
       Repl.Command.NewClientCommand
-      Repl.Command.ReplCommand
       Repl.Command.StartServerCommand
       Repl.Command.TerminateClientCommand
       Repl.Repl
-      Repl.Util
+      Repl.ReplCommand
       AppState
       CrossPlatform
       FileIO

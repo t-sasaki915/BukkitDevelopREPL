@@ -4,7 +4,7 @@ module Repl.Command.NewClientCommand (NewClientCommand(NewClientCommand)) where
 
 import           AppState
 import           Minecraft.Client.MinecraftClient (spawnMinecraftClient)
-import           Repl.Command.ReplCommand         (ReplCommand (..))
+import           Repl.ReplCommand                 (ReplCommand (..))
 
 import           Control.Monad                    (when)
 import           Control.Monad.Trans.Except       (throwE)

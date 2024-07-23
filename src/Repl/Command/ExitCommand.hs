@@ -1,7 +1,7 @@
 module Repl.Command.ExitCommand (ExitCommand(ExitCommand)) where
 
 import           AppState
-import           Repl.Command.ReplCommand  (ReplCommand (..))
+import           Repl.ReplCommand          (ReplCommand (..))
 
 import           Control.Monad.Trans.Class (lift)
 import           Data.Foldable             (forM_)
