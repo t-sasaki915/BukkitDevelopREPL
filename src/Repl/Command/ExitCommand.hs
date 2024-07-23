@@ -37,4 +37,4 @@ terminateServer :: AppStateIO ()
 terminateServer = do
     updateServerProc
     serverHandle <- getServerProc
-    forM_ serverHandle (lift . lift . terminateProcess)
+    whenJust serverHandle (lift . lift . terminateProcess)
