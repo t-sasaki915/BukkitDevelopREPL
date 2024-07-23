@@ -9,6 +9,7 @@ import           Control.Monad.Trans.Except          (throwE)
 import           Data.Minecraft.MCProperty
 import           Data.Minecraft.MCServerBrand        (MCServerBrand (..))
 import           System.FilePath                     ((</>))
+import           Text.Printf                         (printf)
 
 editServerProperties :: AppStateIO ()
 editServerProperties = do
@@ -32,22 +33,22 @@ editServerProperties = do
         serverPropertiesFile = workingDir </> "server.properties"
 
     checkFileExistence serverPropertiesFile
-        ("Failed to check the existence of '" ++ serverPropertiesFile ++ "'") >>= \case
+        (printf "Failed to check the existence of '%s': %%s." serverPropertiesFile) >>= \case
             True  -> do
                 rawProperties <- readFile' serverPropertiesFile $
-                    "Failed to read a file '" ++ serverPropertiesFile ++ "'"
+                    printf "Failed to read a file '%s': %%s." serverPropertiesFile
 
                 case decodeMCProperties rawProperties of
                     Right currentProperties ->
                         writeFile' serverPropertiesFile (encodeMCProperties (edit currentProperties))
-                            "Failed to edit server.properties"
+                            "Failed to edit server.properties: %s."
 
                     Left err ->
-                        throwE ("Failed to decode server.properties: " ++ err)
+                        throwE (printf "Failed to decode server.properties: %s." err)
 
             False -> do
                 writeFile' serverPropertiesFile (encodeMCProperties (edit []))
-                    "Failed to generate server.properties"
+                    "Failed to generate server.properties: %s."
 
 setupMinecraftServer :: AppStateIO ()
 setupMinecraftServer = do

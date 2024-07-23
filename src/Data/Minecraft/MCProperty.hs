@@ -24,6 +24,7 @@ import           Data.Bifunctor                   (second)
 import           Data.Functor                     ((<&>))
 import           Data.Maybe                       (maybeToList)
 import           Data.Minecraft.MCGameMode        (MCGameMode (..))
+import           Text.Printf                      (printf)
 import           Text.Read                        (readMaybe)
 import           Text.Regex.Posix                 ((=~))
 
@@ -32,7 +33,7 @@ type MCProperties = [MCProperty]
 data MCProperty = MCProperty String MCPropertyValue
 
 instance Show MCProperty where
-    show (MCProperty key value) = key ++ "=" ++ show value
+    show (MCProperty key value) = printf "%s=%s" key (show value)
 
 data MCPropertyValue = MCString String
                      | MCInt Int
@@ -76,7 +77,7 @@ decodeLine str
                             _           -> MCString value
 
     | otherwise =
-        throwE ("Unrecognisable property '" ++ str ++ "'")
+        throwE (printf "Unrecognisable property '%s'." str)
 
 decodeLines :: [String] -> Except String MCProperties
 decodeLines = flip foldM [] $ \properties line -> do

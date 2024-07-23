@@ -2,9 +2,9 @@ module Repl.Command.ListClientCommand (ListClientCommand(ListClientCommand)) whe
 
 import           AppState
 import           Repl.ReplCommand (ReplCommand (..))
-import           Util             (fillWithSpace)
 
 import           Control.Monad    (forM_)
+import           Text.Printf      (printf)
 
 data ListClientCommand = ListClientCommand
                        | ListClientCommandOptions
@@ -23,6 +23,6 @@ listClientCommandProcedure _ = do
 
     putStrLn' "These are Minecraft clients that are currently running:"
     forM_ (map fst clients) $ \ci ->
-        let cVersion = runningClientVersion ci
-            cName    = runningClientName ci in
-            putStrLn' ("  - " ++ fillWithSpace 6 (show cVersion) ++ " " ++ cName)
+        let cVersion  = runningClientVersion ci
+            cName     = runningClientName ci in
+            putStrLn' (printf "  - %-6s %s" (show cVersion) cName)

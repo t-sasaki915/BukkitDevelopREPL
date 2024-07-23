@@ -1,6 +1,7 @@
 module Data.Minecraft.MCGameMode (MCGameMode(..)) where
 
-import           Data.Yaml (FromJSON (..), ToJSON (..), Value (..))
+import           Data.Yaml   (FromJSON (..), ToJSON (..), Value (..))
+import           Text.Printf (printf)
 
 data MCGameMode = Survival | Creative | Adventure | Spectator
 
@@ -19,7 +20,7 @@ instance FromJSON MCGameMode where
     parseJSON (Number 1)           = pure Creative
     parseJSON (Number 2)           = pure Adventure
     parseJSON (Number 3)           = pure Spectator
-    parseJSON _                    = fail "Unrecognisable gamemode"
+    parseJSON x                    = fail (printf "Unrecognisable gamemode '%s'." (show x))
 
 instance ToJSON MCGameMode where
     toJSON Survival  = String "survival"

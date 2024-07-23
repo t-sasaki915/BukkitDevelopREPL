@@ -12,6 +12,7 @@ import           Data.Bifunctor                   (first)
 import           Data.Minecraft.MCVersion         (MCVersion (..),
                                                    mcVersionParser)
 import           Options.Applicative
+import           Text.Printf                      (printf)
 
 data NewClientCommand = NewClientCommand
                       | NewClientCommandOptions
@@ -62,11 +63,11 @@ newClientCommandProcedure opts = do
     clients <- getClients
     case lookup username (map (first runningClientName) clients) of
         Just _ -> do
-            throwE ("A Minecraft client whose name is '" ++ username ++ "' is existing.")
+            throwE (printf "A Minecraft client whose name is '%s' is existing." username)
 
         Nothing -> do
             clientProcess <- spawnMinecraftClient version username
             registerNewClient (ClientInfo username version) clientProcess
 
             putStrLn' $
-                "Successfully created a new Minecraft client with a name of '" ++ username ++ "'. The game screen will be appeared soon."
+                printf "Successfully created a new Minecraft client with a name of '%s'. The game screen will be appeared soon." username

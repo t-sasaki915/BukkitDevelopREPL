@@ -12,6 +12,7 @@ import           ProcessIO
 
 import           Control.Monad.Trans.Except (throwE)
 import           Data.List.Extra            (splitOn, stripInfix)
+import           Text.Printf                (printf)
 import           Text.Regex.Posix           ((=~))
 
 type Url = String
@@ -25,7 +26,7 @@ isUrl :: String -> Bool
 isUrl = (=~ ("^(https?:\\/\\/|ftp:\\/\\/|file:\\/\\/\\/)?[A-Za-z0-9_\\-]+(\\.[A-Za-z0-9_\\-]+)+((\\?|\\/).*)?$" :: String))
 
 isDirectLinkOf :: FileExtension -> Url -> Bool
-isDirectLinkOf ext = (=~ ("\\/.+\\." ++ show ext ++ "$" :: String))
+isDirectLinkOf ext = (=~ (printf "\\/.+\\.%s$" (show ext) :: String))
 
 getFileNameFromUrl :: FileExtension -> Url -> AppStateIO String
 getFileNameFromUrl ext url | isDirectLinkOf ext url =
@@ -34,25 +35,25 @@ getFileNameFromUrl ext url | isDirectLinkOf ext url =
 getFileNameFromUrl ext url = do
     workingDir <- getWorkingDir
 
-    putStrLn' ("Checking the filename of '" ++ url ++ "' ...")
+    putStrLn' (printf "Checking the filename of '%s': %%s." url)
 
     curlOutput <- execProcessAndGetOutput curlExecName ["-L", "-I", "-s", url] workingDir $
-        "Failed to execute curl that was to check the file name of '" ++ url ++ "'"
+        printf "Failed to execute curl that was to check the filename of '%s': %%s." url
 
     case lookup "Content-Disposition" (splitHeader (lines curlOutput)) of
         Just headerValue ->
             case lookup "filename" (splitProperty (splitSemicolon headerValue)) of
-                Just fileName | fileName =~ (".+\\." ++ show ext ++ "$" :: String) ->
+                Just fileName | fileName =~ (printf ".+\\.%s$" (show ext) :: String) ->
                     return fileName
 
                 Just fileName ->
-                    throwE ("'" ++ fileName ++ "' is not a " ++ show ext ++ " file.")
+                    throwE (printf "'%s' is not a '%s' file." fileName (show ext))
 
                 Nothing ->
-                    throwE ("Could not find the filename of '" ++ url ++ "'.")
+                    throwE (printf "Could not find the filename of '%s'." url)
 
         Nothing ->
-            throwE ("Could not find the Content-Disposition of '" ++ url ++ "'.")
+            throwE (printf "Could not find the Content-Disposition of '%s'." url)
     where
         splitHeader :: [String] -> [(String, String)]
         splitHeader = flip foldl [] $ \headers line ->

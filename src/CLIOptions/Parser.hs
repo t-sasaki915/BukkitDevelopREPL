@@ -4,6 +4,7 @@ import           CLIOptions.CLIOptions   (CLIOptions, cliOptionsParser)
 
 import           Data.Version            (showVersion)
 import           Options.Applicative
+import           Text.Printf             (printf)
 
 import           Paths_BukkitDevelopREPL (version)
 
@@ -14,5 +15,5 @@ parseCLIOptions = do
         (prefs disambiguate)
             (info (helper <*> parser)
                 (fullDesc <> header
-                    ("BukkitDevelopREPL " ++ showVersion version ++ " by TSasaki")))
+                    (printf "BukkitDevelopREPL %s by TSasaki" (showVersion version))))
 

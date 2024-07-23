@@ -7,6 +7,7 @@ import qualified Data.ByteString  as BS
 import           Data.Yaml        (decodeEither', prettyPrintParseException)
 import           System.Directory (doesFileExist)
 import           System.Exit      (exitFailure)
+import           Text.Printf      (printf)
 
 writeDefaultConfigFile :: FilePath -> IO ()
 writeDefaultConfigFile filePath =
@@ -17,7 +18,7 @@ readConfigFile filePath =
     doesFileExist filePath >>= \case
         True -> BS.readFile filePath
         False -> do
-            putStrLn ("Could not find '" ++ filePath ++ "'. Using default configs.")
+            putStrLn $ printf "Could not find '%s'. Using default configs." filePath
             writeDefaultConfigFile filePath
             return defaultConfigFile
 

@@ -7,15 +7,16 @@ module Data.Minecraft.MCVersion
 import           Data.Text           (pack, unpack)
 import           Data.Yaml           (FromJSON (..), ToJSON (..), Value (..))
 import           Options.Applicative (ReadM, eitherReader)
+import           Text.Printf         (printf)
 import           Text.Regex.Posix    ((=~))
 
 data MCVersion = MCVersion Int Int Int deriving Eq
 
 instance Show MCVersion where
     show (MCVersion major minor 0) =
-        show major ++ "." ++ show minor
+        printf "%d.%d" major minor
     show (MCVersion major minor patch) =
-        show major ++ "." ++ show minor ++ "." ++ show patch
+        printf "%d.%d.%d" major minor patch
 
 instance Ord MCVersion where
     (<=) v1 v2 = v1 == v2 || v1 < v2
@@ -30,9 +31,9 @@ instance FromJSON MCVersion where
     parseJSON (String txt) =
         case parseMCVersion (unpack txt) of
             Just v  -> return v
-            Nothing -> fail "Unrecognisable minecraft version"
+            Nothing -> fail (printf "Unrecognisable minecraft version '%s'." txt)
 
-    parseJSON _ = fail "Unrecognisable minecraft version"
+    parseJSON x = fail (printf "Unrecognisable minecraft version '%s'." (show x))
 
 instance ToJSON MCVersion where
     toJSON mcVersion = String (pack $ show mcVersion)
@@ -57,4 +58,4 @@ mcVersionParser :: ReadM MCVersion
 mcVersionParser = eitherReader $ \str ->
     case parseMCVersion str of
         Just v  -> Right v
-        Nothing -> Left "Unrecognisable minecraft version"
+        Nothing -> Left (printf "Unrecognisable minecraft version '%s'." str)

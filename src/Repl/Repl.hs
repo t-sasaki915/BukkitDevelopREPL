@@ -19,6 +19,7 @@ import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Extra                     (splitOn)
 import           Data.Version                        (showVersion)
 import           System.IO                           (hFlush, stdout)
+import           Text.Printf                         (printf)
 
 import           Paths_BukkitDevelopREPL             (version)
 
@@ -38,7 +39,7 @@ execReplCommand cmdName cmdArgs =
         "startServer"     -> execute StartServerCommand
         "terminateServer" -> execute TerminateServerCommand
         "installPlugins"  -> execute InstallPluginsCommand
-        _                 -> putStrLn' ("Command '" ++ cmdName ++ "' is undefined.")
+        _                 -> putStrLn' (printf "Command '%s' is undefined." cmdName)
         where execute c = executeReplCommand c cmdName cmdArgs
 
 repLoop :: AppState -> IO ()
@@ -62,7 +63,7 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
     where
         program :: AppState -> String -> IO AppState
         program appState' cmd = do
-            putStrLn ("> " ++ cmd ++ " (autoexec)")
+            putStrLn (printf "> %s (autoexec)" cmd)
 
             let cmdName = head (splitOn " " cmd)
                 cmdArgs = drop 1 (splitOn " " cmd)
@@ -77,7 +78,7 @@ startRepl :: IO ()
 startRepl = do
     initState <- initialState
 
-    putStrLn ("BukkitDevelopREPL " ++ showVersion version ++ " (" ++ show currentOSType ++ ") by TSasaki")
+    putStrLn (printf "BukkitDevelopREPL %s (%s) by TSasaki" (showVersion version) (show currentOSType))
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
     putStrLn ""

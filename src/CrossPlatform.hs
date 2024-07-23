@@ -11,6 +11,7 @@ module CrossPlatform
 
 import           Data.Aeson      (FromJSON (parseJSON), Value (String))
 import           System.FilePath ((</>))
+import           Text.Printf     (printf)
 
 data OSType = Linux | OSX | Windows deriving (Show, Eq)
 
@@ -29,7 +30,7 @@ instance FromJSON OSType where
     parseJSON (String "linux")   = pure Linux
     parseJSON (String "osx")     = pure OSX
     parseJSON (String "windows") = pure Windows
-    parseJSON x                  = fail ("Unrecognisable os type: " ++ show x)
+    parseJSON x                  = fail (printf "Unrecognisable os type '%s'." (show x))
 
 javaLibrarySeparator :: String
 javaLibrarySeparator = case currentOSType of

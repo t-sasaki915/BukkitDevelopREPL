@@ -15,6 +15,7 @@ import           Data.Minecraft.MCProperty
 import           Data.Minecraft.MCServerBrand          (getMCServerExecutableName)
 import           Options.Applicative
 import           System.FilePath                       ((</>))
+import           Text.Printf                           (printf)
 
 data StartServerCommand = StartServerCommand
                         | StartServerCommandOptions
@@ -54,10 +55,10 @@ startServerCommandProcedure opts = do
             let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
             checkFileExistence serverJarPath
-                ("Failed to check the existence of '" ++ serverJarPath ++ "'") >>= \case
+                (printf "Failed to check the existence of '%s': %%s." serverJarPath) >>= \case
                     True -> return ()
                     False -> do
-                        putStrLn' ("Could not find '" ++ serverJarPath ++ "'. Need to download.")
+                        putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
 
                         setupMinecraftServer
 
@@ -80,10 +81,10 @@ checkEula skip = do
 
     let accepted = newMCProperties $ addProperty "eula" (MCBool True)
         isAccepted = checkFileExistence eulaFilePath
-            ("Failed to check the existence of '" ++ eulaFilePath ++ "'") >>= \case
+            (printf "Failed to check the existence of '%s': %%s." eulaFilePath) >>= \case
                 True -> do
                     eulaFileContent <- readFile' eulaFilePath $
-                        "Failed to read a file '" ++ eulaFilePath ++ "'"
+                        printf "Failed to read a file '%s': %%s." eulaFilePath
 
                     case decodeMCProperties eulaFileContent of
                         Right properties ->
@@ -92,7 +93,7 @@ checkEula skip = do
                                 _                  -> return False
 
                         Left err ->
-                            throwE ("Failed to parse eula.txt: " ++ err)
+                            throwE (printf "Failed to parse eula.txt: %s." err)
 
                 False ->
                     return False
@@ -100,7 +101,7 @@ checkEula skip = do
     isAccepted >>= \case
         False | skip ->
             writeFile' eulaFilePath (encodeMCProperties accepted) $
-                "Failed to write a file '" ++ eulaFilePath ++ "'"
+                printf "Failed to write a file '%s': %%s." eulaFilePath
 
         False -> do
             putStrLn' "To continue, you have to accept the Minecraft Eula:"
@@ -109,7 +110,7 @@ checkEula skip = do
             confirmContinue >>= \case
                 True ->
                     writeFile' eulaFilePath (encodeMCProperties accepted) $
-                        "Failed to write a file '" ++ eulaFilePath ++ "'"
+                        printf "Failed to write a file '%s': %%s." eulaFilePath
 
                 False ->
                     throwE "The operation has cancelled."

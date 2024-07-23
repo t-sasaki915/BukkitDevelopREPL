@@ -16,6 +16,7 @@ import           Control.Monad.Trans.Except (throwE)
 import           Data.Functor               ((<&>))
 import           Network.Url
 import           System.FilePath            (takeFileName, (</>))
+import           Text.Printf                (printf)
 import           Text.Regex.Posix           ((=~))
 
 initialisePluginFileNameMap :: AppStateIO ()
@@ -47,17 +48,17 @@ removeUnusedPlugins = do
     staticPlugins  <- getStaticPlugins
 
     checkDirectoryExistence pluginsDir
-        ("Failed to check the existence of a directory '" ++ pluginsDir ++ "'") >>= \case
+        (printf "Failed to check the existence of a directory '%s': %%s." pluginsDir) >>= \case
             True  -> return ()
             False ->
                 makeDirectory pluginsDir $
-                    "Failed to create a directory '" ++ pluginsDir ++ "'"
+                    printf "Failed to create a directory '%s': %%s." pluginsDir
 
     dirContents <- directoryContents pluginsDir $
-        "Failed to enumerate the contents of '" ++ pluginsDir ++ "'"
+        printf "Failed to enumerate the contents of '%s': %%s." pluginsDir
     files <- flip filterM dirContents $ \content ->
         checkFileExistence content $
-            "Failed to check the existence of '" ++ content ++ "'"
+            printf "Failed to check the existence of '%s': %%s." content
 
     let jarFiles = filter (=~ (".+\\.jar$" :: String)) files
 
@@ -67,9 +68,9 @@ removeUnusedPlugins = do
     forM_ jarFiles $ \case
         jarFile | takeFileName jarFile `notElem` (dynamicPluginNames ++ staticPluginNames) -> do
             removeFile' jarFile $
-                "Failed to remove an unused plugin '" ++ takeFileName jarFile ++ "'"
+                printf "Failed to remove and unused plugin '%s': %%s." jarFile
 
-            putStrLn' ("Removed an unused plugin '" ++ takeFileName jarFile ++ "'.")
+            putStrLn' (printf "Removed an unused plugin '%s'." (takeFileName jarFile))
 
         _ ->
             return ()
@@ -83,12 +84,12 @@ installDynamicPlugins = do
         pluginName <- getDynamicPluginFileName plugin
 
         checkFileExistence (pluginsDir </> pluginName)
-            ("Failed to check the existence of '" ++ (pluginsDir </> pluginName) ++ "'") >>= \case
+            (printf "Failed to check the existence of '%s': %%s." (pluginsDir </> pluginName)) >>= \case
                 True -> do
                     removeFile' (pluginsDir </> pluginName) $
-                        "Failed to remove an old plugin '" ++ (pluginsDir </> pluginName) ++ "'"
+                        printf "Failed to remove an old plugin '%s': %%s." (pluginsDir </> pluginName)
 
-                    putStrLn' ("Removed an old plugin '" ++ pluginName ++ "'.")
+                    putStrLn' (printf "Removed an old plugin '%s'." pluginName)
 
                 False ->
                     return ()
@@ -96,26 +97,26 @@ installDynamicPlugins = do
     forM_ dynamicPlugins $ \case
         pluginPath | not (isUrl pluginPath) ->
             checkFileExistence pluginPath
-                ("Failed to check the existence of '" ++ pluginPath ++ "'") >>= \case
+                (printf "Failed to check the existence of '%s': %%s." pluginPath) >>= \case
                     True -> do
                         copyFile' pluginPath (pluginsDir </> takeFileName pluginPath) $
-                            "Failed to copy a plugin '" ++ pluginPath ++ "'"
+                            printf "Failed to copy a plugin '%s' to '%s': %%s." pluginPath (pluginsDir </> takeFileName pluginPath)
 
-                        putStrLn' ("Installed a plugin '" ++ takeFileName pluginPath ++ "'.")
+                        putStrLn' (printf "Installed a plugin '%s'." (takeFileName pluginPath))
 
                     False ->
-                        throwE ("Could not find a plugin '" ++ pluginPath ++ "'.")
+                        throwE (printf "Could not find a plugin '%s'." pluginPath)
 
         pluginUrl -> do
             pluginName <- getDynamicPluginFileName pluginUrl
             let downloadPath = pluginsDir </> pluginName
 
             execProcess curlExecName ["-L", "-o", downloadPath, pluginUrl] pluginsDir
-                ("Failed to execute curl that was to download a plugin '" ++ pluginUrl ++ "'") >>=
+                (printf "Failed to execute curl that was to download a plugin '%s': %%s." pluginUrl) >>=
                     expectExitSuccess
-                        ("Failed to download a plugin '" ++ pluginUrl ++ "'")
+                        (printf "Failed to download a plugin '%s': %%s." pluginUrl)
 
-            putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
+            putStrLn' (printf "Installed a plugin '%s'." pluginName)
 
 installStaticPlugins :: AppStateIO ()
 installStaticPlugins = do
@@ -126,28 +127,28 @@ installStaticPlugins = do
         pluginName <- getStaticPluginFileName plugin
 
         checkFileExistence (pluginsDir </> pluginName)
-            ("Failed to check the existence of '" ++ (pluginsDir </> pluginName) ++ "'") >>= \case
+            (printf "Failed to check the existence of '%s': %%s." (pluginsDir </> pluginName)) >>= \case
                 True ->
-                    putStrLn' ("Skipped a plugin '" ++ pluginName ++ "'.")
+                    putStrLn' (printf "Skipped a plugin '%s'." pluginName)
 
                 False | not (isUrl plugin) ->
                     checkFileExistence plugin
-                        ("Failed to check the existence of '" ++ plugin ++ "'") >>= \case
+                        (printf "Failed to check the existence of '%s': %%s." plugin) >>= \case
                             True -> do
                                 copyFile' plugin (pluginsDir </> pluginName) $
-                                    "Failed to copy a plugin '" ++ plugin ++ "'"
+                                    printf "Failed to copy a plugin '%s' to '%s': %%s." plugin (pluginsDir </> pluginName)
 
-                                putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
+                                putStrLn' (printf "Installed a plugin '%s'." pluginName)
 
                             False ->
-                                throwE ("Could not find a plugin '" ++ plugin ++ "'.")
+                                throwE (printf "Could not find a plugin '%s'." plugin)
 
                 False -> do
                     let downloadPath = pluginsDir </> pluginName
 
                     execProcess curlExecName ["-L", "-o", downloadPath, plugin] pluginsDir
-                        ("Failed to execute curl that was to download a plugin '" ++ plugin ++ "'") >>=
+                        (printf "Failed to execute curl that was to download a plugin '%s': %%s." plugin) >>=
                             expectExitSuccess
-                                ("Failed to download a plugin '" ++ plugin ++ "'")
+                                (printf "Failed to download a plugin '%s': %%s." plugin)
 
-                    putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
+                    putStrLn' (printf "Installed a plugin '%s'." pluginName)

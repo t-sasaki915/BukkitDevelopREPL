@@ -3,13 +3,14 @@ module Data.Minecraft.MCServerBrand (MCServerBrand(..), getMCServerExecutableNam
 import           Data.Minecraft.MCVersion (MCVersion)
 import           Data.Yaml                (FromJSON (..), ToJSON (..),
                                            Value (..))
+import           Text.Printf              (printf)
 
 data MCServerBrand = Spigot | Paper deriving Show
 
 instance FromJSON MCServerBrand where
     parseJSON (String "Spigot") = pure Spigot
     parseJSON (String "Paper")  = pure Paper
-    parseJSON _                 = fail "Unrecognisable server brand"
+    parseJSON x                 = fail (printf "Unrecognisable server brand '%s'." (show x))
 
 instance ToJSON MCServerBrand where
     toJSON Spigot = String "Spigot"
@@ -17,4 +18,4 @@ instance ToJSON MCServerBrand where
 
 getMCServerExecutableName :: MCServerBrand -> MCVersion -> String
 getMCServerExecutableName brand version =
-    show brand ++ "-" ++ show version ++ ".jar"
+    printf "%s-%s.jar" (show brand) (show version)

@@ -11,13 +11,14 @@ import           Data.List                           (intercalate)
 import           Data.Minecraft.MCVersion            (MCVersion (..))
 import           System.FilePath                     ((</>))
 import           System.Process                      (ProcessHandle)
+import           Text.Printf                         (printf)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     workDir <- getClientWorkingDir
 
     makeDirectory workDir $
-        "Failed to make a directory '" ++ workDir ++ "'"
+        printf "Failed to make a directory '%s': %%s." workDir
 
 createClientProcess :: MCVersion -> String -> AppStateIO ProcessHandle
 createClientProcess clientVersion clientUsername = do
@@ -33,10 +34,10 @@ createClientProcess clientVersion clientUsername = do
     mainClass   <- ClientJson.getMainClass clientVersion
 
     nativeDirs  <- directoryContents binDir $
-        "Failed to enumerate the contents of '" ++ binDir ++ "'"
+        printf "Failed to enumerate the contents of '%s': %%s." binDir
 
-    let nativeOption = "-Djava.library.path=" ++ intercalate javaLibrarySeparator nativeDirs
-        clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
+    let nativeOption = printf "-Djava.library.path=%s" (intercalate javaLibrarySeparator nativeDirs)
+        clientJar = versionsDir </> show clientVersion </> printf "%s.jar" (show clientVersion)
         libs = map (libsDir </>) libraries ++ [clientJar]
         assetsOptions
             | clientVersion < MCVersion 1 7 3 =
@@ -66,7 +67,7 @@ createClientProcess clientVersion clientUsername = do
             ] ++ assetsOptions
 
     execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
-        "Failed to execute java that was to run a Minecraft client"
+        "Failed to execute java that was to run a Minecraft client: %s."
 
 spawnMinecraftClient :: MCVersion -> String -> AppStateIO ProcessHandle
 spawnMinecraftClient clientVersion clientUsername = do

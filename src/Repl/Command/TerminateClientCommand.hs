@@ -10,6 +10,7 @@ import           Control.Monad.Trans.Except (throwE)
 import           Data.Bifunctor             (first)
 import           Options.Applicative
 import           System.Process             (terminateProcess)
+import           Text.Printf                (printf)
 
 data TerminateClientCommand = TerminateClientCommand
                             | TerminateClientCommandOptions
@@ -51,7 +52,7 @@ terminateClientCommandProcedure opts = do
             return clientProcess
 
         Just clientProcess -> do
-            putStrLn' ("You are going to terminate a Minecraft client '" ++ clientToTerminate ++ "'.")
+            putStrLn' (printf "You are going to terminate a Minecraft client '%s'." clientToTerminate)
             putStrLn' "Unsaved changes will be discarded if you are playing Single Player mode."
             putStrLn' ""
             confirmContinue >>= \case
@@ -59,9 +60,9 @@ terminateClientCommandProcedure opts = do
                 False -> throwE "The operation has cancelled."
 
         Nothing ->
-            throwE ("There is no Minecraft client whose name is '" ++ clientToTerminate ++ "'.")
+            throwE (printf "There is no Minecraft client whose name is '%s'." clientToTerminate)
 
     lift $ lift $ terminateProcess processToTerminate
     unregisterClient clientToTerminate
 
-    putStrLn' ("Successfully terminated a Minecraft client '" ++ clientToTerminate ++ "'.")
+    putStrLn' (printf "Successfully terminated a Minecraft client '%s'." clientToTerminate)

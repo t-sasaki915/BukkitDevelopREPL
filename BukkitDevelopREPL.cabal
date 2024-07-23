@@ -52,7 +52,6 @@ library
       CrossPlatform
       FileIO
       ProcessIO
-      Util
   other-modules:
       Paths_BukkitDevelopREPL
   autogen-modules:

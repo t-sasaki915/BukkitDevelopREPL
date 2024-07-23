@@ -10,14 +10,14 @@ import           Data.ByteString            (fromStrict)
 import           Data.Maybe                 (maybeToList)
 import           Data.Minecraft.MCVersion   (MCVersion (..))
 import           System.FilePath            ((</>))
+import           Text.Printf                (printf)
 
 data RuleAction = Allow | Disallow deriving (Show, Eq)
 
 instance FromJSON RuleAction where
     parseJSON (String "allow")    = pure Allow
     parseJSON (String "disallow") = pure Disallow
-
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable rule action '%s'." (show x))
 
 newtype DownloadArtifact = DownloadArtifact
     { artifactPath :: String
@@ -29,7 +29,7 @@ instance FromJSON DownloadArtifact where
         DownloadArtifact
             <$> (m .: "path")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable download artifact '%s'." (show x))
 
 data DownloadClassifiers = DownloadClassifiers
     { nativesLinuxClassifier   :: Maybe DownloadArtifact
@@ -45,7 +45,7 @@ instance FromJSON DownloadClassifiers where
             <*> (m .:? "natives-osx")
             <*> (m .:? "natives-windows")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable download classifiers '%s'." (show x))
 
 data LibraryDownloads = LibraryDownloads
     { downloadArtifact    :: Maybe DownloadArtifact
@@ -59,7 +59,7 @@ instance FromJSON LibraryDownloads where
             <$> (m .:? "artifact")
             <*> (m .:? "classifiers")
 
-    parseJSON x = fail ("Failed to parse client.json" ++ show x)
+    parseJSON x = fail (printf "Unrecognisable library downloads '%s'." (show x))
 
 newtype LibraryRuleOS = LibraryRuleOS
     { libraryRuleOSName :: OSType
@@ -71,7 +71,7 @@ instance FromJSON LibraryRuleOS where
         LibraryRuleOS
             <$> (m .: "name")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable library rule os '%s'." (show x))
 
 data LibraryRule = LibraryRule
     { ruleAction :: RuleAction
@@ -85,7 +85,7 @@ instance FromJSON LibraryRule where
             <$> (m .:  "action")
             <*> (m .:? "os")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable library rule '%s'." (show x))
 
 data Library = Library
     { libraryDownloads :: LibraryDownloads
@@ -99,7 +99,7 @@ instance FromJSON Library where
             <$> (m .:  "downloads")
             <*> (m .:? "rules")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable library '%s'." (show x))
 
 newtype AssetIndex = AssetIndex
     { assetIndexId :: String
@@ -111,7 +111,7 @@ instance FromJSON AssetIndex where
         AssetIndex
             <$> (m .: "id")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable asset index '%s'." (show x))
 
 data ClientJson = ClientJson
     { assetIndex :: AssetIndex
@@ -127,7 +127,7 @@ instance FromJSON ClientJson where
             <*> (m .: "libraries")
             <*> (m .: "mainClass")
 
-    parseJSON x = fail ("Failed to parse client.json: " ++ show x)
+    parseJSON x = fail (printf "Unrecognisable client.json '%s'." (show x))
 
 parseClientJson :: MCVersion -> AppStateIO ClientJson
 parseClientJson mcVersion = do
@@ -135,10 +135,10 @@ parseClientJson mcVersion = do
     let clientJsonPath = versionsDir </> show mcVersion </> (show mcVersion ++ ".json")
 
     jsonContent <- readFileBS clientJsonPath $
-        "Failed to read '" ++ clientJsonPath ++ "'"
+        printf "Failed to read '%s': %%s." clientJsonPath
     case eitherDecode (fromStrict jsonContent) :: Either String ClientJson of
         Right clientJson -> return clientJson
-        Left err         -> throwE ("Failed to parse client.json: " ++ err)
+        Left err         -> throwE (printf "Failed to decode client.json: %s" err)
 
 getAssetIndex :: MCVersion -> AppStateIO String
 getAssetIndex mcVersion = do

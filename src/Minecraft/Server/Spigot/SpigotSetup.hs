@@ -8,13 +8,14 @@ import           ProcessIO
 import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
                                                getMCServerExecutableName)
 import           System.FilePath              ((</>))
+import           Text.Printf                  (printf)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     buildDir <- getBuildDir
 
     makeDirectory buildDir $
-        "Failed to make a directory '" ++ buildDir ++ "'"
+        printf "Failed to make a directory '%s': %%s." buildDir
 
 downloadBuildTools :: AppStateIO ()
 downloadBuildTools = do
@@ -26,9 +27,9 @@ downloadBuildTools = do
         downloadPath  = buildDir </> "BuildTools.jar"
 
     execProcess curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir
-        "Failed to execute curl that was to download BuildTools" >>=
+        (printf "Failed to execute curl that was to download BuildTools '%s': %%s." buildToolsUrl) >>=
             expectExitSuccess
-                "Failed to download BuildTools"
+                (printf "Failed to download BuildTools '%s': %%s." buildToolsUrl)
 
 useBuildTools :: AppStateIO ()
 useBuildTools = do
@@ -40,9 +41,9 @@ useBuildTools = do
     let buildToolsPath = buildDir </> "BuildTools.jar"
 
     execProcess javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
-        "Failed to execute java that was to build a Spigot server" >>=
+        "Failed to execute java that was to build a Spigot server: %s." >>=
             expectExitSuccess
-                "Failed to build a Spigot server"
+                "Failed to build a Spigot server: %s."
 
 adoptServerJar :: AppStateIO ()
 adoptServerJar = do
@@ -51,10 +52,10 @@ adoptServerJar = do
     serverVersion <- getServerVersion
 
     let copyPath      = workingDir </> getMCServerExecutableName Spigot serverVersion
-        serverJarPath = buildDir </> ("spigot-" ++ show serverVersion ++ ".jar")
+        serverJarPath = buildDir </> printf "spigot-%s.jar" (show serverVersion)
 
     copyFile' serverJarPath copyPath $
-        "Failed to copy '" ++ serverJarPath ++ "' to '" ++ copyPath ++ "'"
+        printf "Failed to copy a file '%s' to '%s': %%s" serverJarPath copyPath
 
 setupSpigot :: AppStateIO ()
 setupSpigot = do

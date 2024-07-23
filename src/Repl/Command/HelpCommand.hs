@@ -2,7 +2,8 @@ module Repl.Command.HelpCommand (HelpCommand(HelpCommand)) where
 
 import           AppState
 import           Repl.ReplCommand (ReplCommand (..))
-import           Util             (fillWithSpace)
+
+import           Text.Printf      (printf)
 
 data HelpCommand = HelpCommand
                  | HelpCommandOptions
@@ -21,7 +22,8 @@ helpCommandProcedure _ = do
     putStrLn' ""
 
     let maxCmdSize = maximum $ map (length . fst) reference
-    mapM_ (\(c, d) -> putStrLn' (fillWithSpace maxCmdSize c ++ " : " ++ d)) reference
+        formatter = printf "%%-%ds : %%s" maxCmdSize
+    mapM_ (putStrLn' . uncurry (printf formatter)) reference
 
 reference :: [(String, String)]
 reference =

@@ -15,6 +15,7 @@ import           Data.Minecraft.MCServerBrand (MCServerBrand (Paper),
                                                getMCServerExecutableName)
 import           Data.Minecraft.MCVersion     ()
 import           System.FilePath              ((</>))
+import           Text.Printf                  (printf)
 
 newtype PaperBuilds = PaperBuilds
     { builds :: [Int]
@@ -26,14 +27,14 @@ instance FromJSON PaperBuilds where
         PaperBuilds
             <$> (m .: "builds")
 
-    parseJSON _ = fail "Unrecognisable Paper Downloads API"
+    parseJSON x = fail (printf "Unrecognisable Paper builds '%s'." (show x))
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     workingDir <- getWorkingDir
 
     makeDirectory workingDir $
-        "Failed to make a directory '" ++ workingDir ++ "'"
+        printf "Failed to make a directory '%s': %%s." workingDir
 
 fetchPaperBuilds :: AppStateIO PaperBuilds
 fetchPaperBuilds = do
@@ -42,9 +43,9 @@ fetchPaperBuilds = do
 
     putStrLn' "Fetching Paper Downloads API..."
 
-    let apiUrl = "https://api.papermc.io/v2/projects/paper/versions/" ++ show serverVersion
+    let apiUrl = printf "https://api.papermc.io/v2/projects/paper/versions/%s" (show serverVersion)
     execProcessAndGetOutput curlExecName ["-s", apiUrl] workingDir
-        "Failed to execute curl that was to fetch Paper Downloads API" >>=
+        "Failed to execute curl that was to fetch Paper Downloads API: %s" >>=
             \rawJson -> case eitherDecode (pack (map c2w rawJson)) of
                 Right paperBuilds -> return paperBuilds
                 Left err          -> throwE err
@@ -55,18 +56,18 @@ downloadLatestPaper = do
     paperBuilds <- fetchPaperBuilds
     workingDir  <- getWorkingDir
 
-    let latest   = show $ last (builds paperBuilds)
-        jarName  = "paper-" ++ show ver ++ "-" ++ latest ++ ".jar"
+    let latest   = last (builds paperBuilds)
+        jarName  = printf "paper-%s-%d.jar" (show ver) latest :: String
         jarName' = getMCServerExecutableName Paper ver
-        jarUrl   = "https://api.papermc.io/v2/projects/paper/versions/" ++ show ver ++ "/builds/" ++ latest ++ "/downloads/" ++ jarName
+        jarUrl   = printf "https://api.papermc.io/v2/projects/paper/versions/%s/builds/%d/downloads/%s" (show ver) latest jarName
         jarPath  = workingDir </> jarName'
 
-    putStrLn' ("Downloading Paper " ++ show ver ++ " Build " ++ latest ++ "...")
+    putStrLn' (printf "Downloading Paper %s Build %d ..." (show ver) latest ++ "...")
 
     execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir
-        "Failed to execute curl that was to download a Paper Server" >>=
+        (printf "Failed to execute curl that was to download a Paper server '%s': %%s." jarUrl) >>=
             expectExitSuccess
-                "Failed to download a Paper server"
+                (printf "Failed to download a Paper server '%s': %%s." jarUrl)
 
 setupPaper :: AppStateIO ()
 setupPaper = do

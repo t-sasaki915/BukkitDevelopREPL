@@ -25,6 +25,7 @@ import           System.IO                        (hFlush, stdout)
 import           System.IO.Error                  (ioeGetErrorString)
 import           System.Process                   (ProcessHandle,
                                                    getProcessExitCode)
+import           Text.Printf                      (printf)
 
 type AppStateIO = ExceptT String (StateT AppState IO)
 
@@ -57,7 +58,7 @@ appStateIOTry :: IO a -> String -> AppStateIO a
 appStateIOTry program errorMsg =
     lift (lift (try program)) >>= \case
         Right v    -> return v
-        Left ioErr -> throwE (errorMsg ++ ": " ++ ioeGetErrorString ioErr)
+        Left ioErr -> throwE (printf errorMsg (ioeGetErrorString ioErr))
 
 getAutoexecCommands :: AppState -> [String]
 getAutoexecCommands = autoexecCommands . applicationConfig . _config
@@ -210,7 +211,7 @@ getDynamicPluginFileName filePath = do
                     return fileName
 
                 Nothing ->
-                    throwE ("Failed to get the filename of a dynamic plugin '" ++ filePath ++ "'.")
+                    throwE (printf "Failed to get the filename of a dynamic plugin '%s'." filePath)
 
         Nothing ->
             throwE "The dynamicPluginFileNameMap had not been initialised yet."
@@ -226,7 +227,7 @@ getStaticPluginFileName filePath = do
                     return fileName
 
                 Nothing ->
-                    throwE ("Failed to get the filename of a static plugin '" ++ filePath ++ "'.")
+                    throwE (printf "Failed to get the filename of a static plugin '%s'." filePath)
 
         Nothing ->
             throwE "The staticPluginFileNameMap had not been initialised yet."
