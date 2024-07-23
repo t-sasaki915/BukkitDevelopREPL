@@ -38,6 +38,7 @@ library
       Repl.Command.HelpCommand
       Repl.Command.ListClientCommand
       Repl.Command.NewClientCommand
+      Repl.Command.ShowConfigCommand
       Repl.Command.StartServerCommand
       Repl.Command.TerminateClientCommand
       Repl.Repl

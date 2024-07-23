@@ -4,8 +4,8 @@ module Data.Minecraft.MCVersion
     , mcVersionParser
     ) where
 
-import           Data.Text           (unpack)
-import           Data.Yaml           (FromJSON (..), Value (..))
+import           Data.Text           (pack, unpack)
+import           Data.Yaml           (FromJSON (..), ToJSON (..), Value (..))
 import           Options.Applicative (ReadM, eitherReader)
 import           Text.Regex.Posix    ((=~))
 
@@ -33,6 +33,9 @@ instance FromJSON MCVersion where
             Nothing -> fail "Unrecognisable minecraft version"
 
     parseJSON _ = fail "Unrecognisable minecraft version"
+
+instance ToJSON MCVersion where
+    toJSON mcVersion = String (pack $ show mcVersion)
 
 parseMCVersion :: String -> Maybe MCVersion
 parseMCVersion str

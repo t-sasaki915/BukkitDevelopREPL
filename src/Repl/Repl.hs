@@ -6,6 +6,7 @@ import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
 import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
 import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
+import           Repl.Command.ShowConfigCommand      (ShowConfigCommand (ShowConfigCommand))
 import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
 import           Repl.Command.TerminateClientCommand (TerminateClientCommand (TerminateClientCommand))
 import           Repl.ReplCommand                    (ReplCommand (..))
@@ -25,6 +26,7 @@ execReplCommand cmdName cmdArgs =
     case cmdName of
         "help"            -> execute HelpCommand
         "exit"            -> execute ExitCommand
+        "showConfig"      -> execute ShowConfigCommand
         "newClient"       -> execute NewClientCommand
         "listClient"      -> execute ListClientCommand
         "terminateClient" -> execute TerminateClientCommand

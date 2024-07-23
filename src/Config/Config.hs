@@ -9,8 +9,7 @@ import           Config.Resource
 
 import           Data.Minecraft.MCServerBrand (MCServerBrand)
 import           Data.Minecraft.MCVersion     (MCVersion (..))
-import           Data.Yaml                    (FromJSON (..), Value (..), (.!=),
-                                               (.:))
+import           Data.Yaml
 
 data Config = Config
     { applicationConfig :: ApplicationConfig
@@ -28,6 +27,14 @@ instance FromJSON Config where
 
     parseJSON _ = fail "Unrecognisable config"
 
+instance ToJSON Config where
+    toJSON (Config cApplicationConfig cServerConfig cClientConfig) =
+        object
+            [ "application" .= cApplicationConfig
+            , "server"      .= cServerConfig
+            , "client"      .= cClientConfig
+            ]
+
 data ApplicationConfig = ApplicationConfig
     { workingDir       :: FilePath
     , autoexecCommands :: [String]
@@ -41,6 +48,13 @@ instance FromJSON ApplicationConfig where
             <*> m .: "autoexec"   .!= defaultApplicationAutoexec
 
     parseJSON _ = fail "Unrecognisable application config"
+
+instance ToJSON ApplicationConfig where
+    toJSON (ApplicationConfig aWorkingDir aAutoexecCommands) =
+        object
+            [ "workingDir" .= aWorkingDir
+            , "autoexec"   .= aAutoexecCommands
+            ]
 
 defaultApplicationConfig :: ApplicationConfig
 defaultApplicationConfig =
@@ -66,6 +80,15 @@ instance FromJSON ServerConfig where
 
     parseJSON _ = fail "Unrecognisable server config"
 
+instance ToJSON ServerConfig where
+    toJSON (ServerConfig sBrand sVersion sJvmOptions sStaticPlugins) =
+        object
+            [ "brand"         .= sBrand
+            , "version"       .= sVersion
+            , "jvmOptions"    .= sJvmOptions
+            , "staticPlugins" .= sStaticPlugins
+            ]
+
 defaultServerConfig :: ServerConfig
 defaultServerConfig =
     ServerConfig
@@ -87,6 +110,13 @@ instance FromJSON ClientConfig where
             <*> m .: "jvmOptions"     .!= defaultClientJvmOptions
 
     parseJSON _ = fail "Unrecognisable client config"
+
+instance ToJSON ClientConfig where
+    toJSON (ClientConfig cDefaultVersion cJvmOptions) =
+        object
+            [ "defaultVersion" .= cDefaultVersion
+            , "jvmOptions"     .= cJvmOptions
+            ]
 
 defaultClientConfig :: ClientConfig
 defaultClientConfig =

@@ -29,6 +29,7 @@ reference :: [(String, String)]
 reference =
     [ "help"            ~> "Show the command reference of this REPL."
     , "exit"            ~> "Exit the program."
+    , "showConfig"      ~> "Show the current configurations."
     , "newClient"       ~> "Create a new Minecraft client."
     , "listClient"      ~> "Show a list of Minecraft clients that are currently running."
     , "terminateClient" ~> "Terminate a Minecraft client."
