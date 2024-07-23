@@ -1,10 +1,15 @@
 application:
     workingDir: "./BukkitDevelopREPL"
 
-    autoexec:
-        [ "startServer"
-        , "newClient DEV"
-        ]
+    # REPL commands in this setting will have been executed automatically on the startup of this program.
+    #
+    # autoexec:
+    #     [ "installPlugins"
+    #     , "startServer"
+    #     , "newClient DEV"
+    #     , "newClient DEV2 --version 1.12.2"
+    #     ]
+    autoexec: []
 
 server:
     # Supported brands: Spigot, Paper
