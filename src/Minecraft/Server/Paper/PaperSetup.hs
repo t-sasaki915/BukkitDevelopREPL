@@ -62,7 +62,7 @@ downloadLatestPaper = do
         jarUrl   = printf "https://api.papermc.io/v2/projects/paper/versions/%s/builds/%d/downloads/%s" (show ver) latest jarName
         jarPath  = workingDir </> jarName'
 
-    putStrLn' (printf "Downloading Paper %s Build %d ..." (show ver) latest ++ "...")
+    putStrLn' (printf "Downloading Paper %s Build %d ..." (show ver) latest)
 
     execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir
         (printf "Failed to execute curl that was to download a Paper server '%s': %%s." jarUrl) >>=

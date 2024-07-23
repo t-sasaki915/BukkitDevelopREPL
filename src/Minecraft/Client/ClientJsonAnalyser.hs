@@ -132,7 +132,7 @@ instance FromJSON ClientJson where
 parseClientJson :: MCVersion -> AppStateIO ClientJson
 parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir
-    let clientJsonPath = versionsDir </> show mcVersion </> (show mcVersion ++ ".json")
+    let clientJsonPath = versionsDir </> show mcVersion </> printf "%s.json" (show mcVersion)
 
     jsonContent <- readFileBS clientJsonPath $
         printf "Failed to read '%s': %%s." clientJsonPath
