@@ -12,7 +12,7 @@ application:
     autoexec: []
 
 server:
-    # Supported brands: Spigot, Paper
+    # Acceptable values: "Paper" and "Spigot"
     brand: "Paper"
 
     version: "1.20.1"
