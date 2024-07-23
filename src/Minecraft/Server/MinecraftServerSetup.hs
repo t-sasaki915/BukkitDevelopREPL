@@ -6,7 +6,7 @@ import           Minecraft.Server.Paper.PaperSetup   (setupPaper)
 import           Minecraft.Server.ServerBrand        (ServerBrand (..))
 import           Minecraft.Server.Spigot.SpigotSetup (setupSpigot)
 
-import           Data.MCProperty
+import           Data.Minecraft.MCProperty
 import           System.FilePath                     ((</>))
 
 generateInitialServerProperties :: AppStateIO ()

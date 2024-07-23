@@ -11,7 +11,7 @@ import           Repl.Command.ReplCommand              (ReplCommand (..))
 import           Repl.Util                             (confirmContinue)
 
 import           Control.Monad.Trans.Except            (throwE)
-import           Data.MCProperty
+import           Data.Minecraft.MCProperty
 import           Options.Applicative
 import           System.FilePath                       ((</>))
 

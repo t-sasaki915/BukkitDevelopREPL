@@ -25,7 +25,7 @@ library
       Config.Config
       Config.Loader
       Config.Resource
-      Data.MCProperty
+      Data.Minecraft.MCProperty
       Minecraft.Client.ClientJsonAnalyser
       Minecraft.Client.MinecraftClient
       Minecraft.Server.Paper.PaperSetup

@@ -1,4 +1,4 @@
-module Data.MCProperty
+module Data.Minecraft.MCProperty
     ( MCProperties
     , MCProperty(..)
     , MCPropertyValue(..)
