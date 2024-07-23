@@ -27,7 +27,7 @@ helpCommandProcedure _ = do
 
 reference :: [(String, String)]
 reference =
-    [ "help"            ~> "Show the command reference of this REPL."
+    [ "help"            ~> "Show the command reference of this REPL. You can use '?' or 'commandList' instead."
     , "exit"            ~> "Exit the program. You can use 'quit' or 'stop' instead."
     , "showConfig"      ~> "Show the current configurations."
     , "newClient"       ~> "Create a new Minecraft client."

@@ -25,6 +25,8 @@ execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =
     case cmdName of
         "help"            -> execute HelpCommand
+        "?"               -> execute HelpCommand
+        "commandList"     -> execute HelpCommand
         "exit"            -> execute ExitCommand
         "quit"            -> execute ExitCommand
         "stop"            -> execute ExitCommand
@@ -48,7 +50,7 @@ execReplCommand cmdName cmdArgs =
                     cmdProcedure parsedArgs
 
                 Failure err ->
-                    let (helpMsg, _, _) = execFailure err (cmdLabel cmd) in
+                    let (helpMsg, _, _) = execFailure err cmdName in
                         putStrLn' (show helpMsg)
 
                 _ ->
