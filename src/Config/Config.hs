@@ -21,9 +21,11 @@ data Config = Config
 instance FromJSON Config where
     parseJSON (Object m) =
         Config
-            <$> m .: "application" .!= defaultApplicationConfig
-            <*> m .: "server"      .!= defaultServerConfig
-            <*> m .: "client"      .!= defaultClientConfig
+            <$> m .:? "application" .!= defaultApplicationConfig
+            <*> m .:? "server"      .!= defaultServerConfig
+            <*> m .:? "client"      .!= defaultClientConfig
+
+    parseJSON Null = return defaultConfig
 
     parseJSON _ = fail "Unrecognisable config"
 
@@ -35,6 +37,13 @@ instance ToJSON Config where
             , "client"      .= cClientConfig
             ]
 
+defaultConfig :: Config
+defaultConfig =
+    Config
+        defaultApplicationConfig
+        defaultServerConfig
+        defaultClientConfig
+
 data ApplicationConfig = ApplicationConfig
     { workingDir       :: FilePath
     , autoexecCommands :: [String]
@@ -44,8 +53,8 @@ data ApplicationConfig = ApplicationConfig
 instance FromJSON ApplicationConfig where
     parseJSON (Object m) =
         ApplicationConfig
-            <$> m .: "workingDir" .!= defaultApplicationWorkingDir
-            <*> m .: "autoexec"   .!= defaultApplicationAutoexec
+            <$> m .:? "workingDir" .!= defaultApplicationWorkingDir
+            <*> m .:? "autoexec"   .!= defaultApplicationAutoexec
 
     parseJSON _ = fail "Unrecognisable application config"
 
@@ -73,10 +82,10 @@ data ServerConfig = ServerConfig
 instance FromJSON ServerConfig where
     parseJSON (Object m) =
         ServerConfig
-            <$> m .: "brand"         .!= defaultServerBrand
-            <*> m .: "version"       .!= defaultServerVersion
-            <*> m .: "jvmOptions"    .!= defaultServerJvmOptions
-            <*> m .: "staticPlugins" .!= defaultServerStaticPlugins
+            <$> m .:? "brand"         .!= defaultServerBrand
+            <*> m .:? "version"       .!= defaultServerVersion
+            <*> m .:? "jvmOptions"    .!= defaultServerJvmOptions
+            <*> m .:? "staticPlugins" .!= defaultServerStaticPlugins
 
     parseJSON _ = fail "Unrecognisable server config"
 
@@ -106,8 +115,8 @@ data ClientConfig = ClientConfig
 instance FromJSON ClientConfig where
     parseJSON (Object m) =
         ClientConfig
-            <$> m .: "defaultVersion" .!= defaultClientDefaultVersion
-            <*> m .: "jvmOptions"     .!= defaultClientJvmOptions
+            <$> m .:? "defaultVersion" .!= defaultClientDefaultVersion
+            <*> m .:? "jvmOptions"     .!= defaultClientJvmOptions
 
     parseJSON _ = fail "Unrecognisable client config"
 

@@ -4,8 +4,9 @@ import           Config.Config    (Config)
 import           Config.Resource  (defaultConfigFile)
 
 import qualified Data.ByteString  as BS
-import           Data.Yaml        (decodeThrow)
+import           Data.Yaml        (decodeEither', prettyPrintParseException)
 import           System.Directory (doesFileExist)
+import           System.Exit      (exitFailure)
 
 writeDefaultConfigFile :: FilePath -> IO ()
 writeDefaultConfigFile filePath =
@@ -23,4 +24,8 @@ readConfigFile filePath =
 loadConfig :: FilePath -> IO Config
 loadConfig filePath = do
     rawConfig <- readConfigFile filePath
-    decodeThrow rawConfig
+    case decodeEither' rawConfig of
+        Right conf -> return conf
+        Left err -> do
+            putStrLn (prettyPrintParseException err)
+            exitFailure
