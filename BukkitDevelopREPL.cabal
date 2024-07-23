@@ -36,6 +36,7 @@ library
       Minecraft.Server.MinecraftServer
       Minecraft.Server.MinecraftServerSetup
       Minecraft.Server.PluginInstaller
+      Network.Url
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
       Repl.Command.InstallPluginsCommand
@@ -71,9 +72,9 @@ library
     , file-embed ==0.0.16.0
     , yaml ==0.11.11.2
     , text ==2.0.2
-    , split ==0.2.5
     , aeson ==2.1.2.1
     , lens ==5.2.3
+    , extra ==1.7.14
   default-language: Haskell2010
   default-extensions: LambdaCase, OverloadedStrings
 

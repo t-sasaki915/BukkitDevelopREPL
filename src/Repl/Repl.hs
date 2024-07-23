@@ -16,7 +16,7 @@ import           Repl.ReplCommand                    (ReplCommand (..))
 import           Control.Monad                       (foldM)
 import           Control.Monad.Trans.Except          (runExceptT)
 import           Control.Monad.Trans.State.Strict    (runStateT)
-import           Data.List.Split                     (splitOn)
+import           Data.List.Extra                     (splitOn)
 import           Data.Version                        (showVersion)
 import           System.IO                           (hFlush, stdout)
 
