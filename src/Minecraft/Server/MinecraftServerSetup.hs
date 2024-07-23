@@ -2,11 +2,11 @@ module Minecraft.Server.MinecraftServerSetup (setupMinecraftServer) where
 
 import           AppState
 import           FileIO
-import           Minecraft.MinecraftPropertyAnalyser
 import           Minecraft.Server.Paper.PaperSetup   (setupPaper)
 import           Minecraft.Server.ServerBrand        (ServerBrand (..))
 import           Minecraft.Server.Spigot.SpigotSetup (setupSpigot)
 
+import           Data.MCProperty
 import           System.FilePath                     ((</>))
 
 generateInitialServerProperties :: AppStateIO ()
@@ -19,15 +19,14 @@ generateInitialServerProperties = do
         ("Failed to check the existence of '" ++ serverPropertiesFile ++ "'") >>= \case
             True  -> return ()
             False -> do
-                let initProperties =
-                        [ MCProperty "gamemode"             (MCString "creative")
-                        , MCProperty "motd"                 (MCString "Plugin DEV Server")
-                        , MCProperty "enable-command-block" (MCBool True)
-                        , MCProperty "online-mode"          (MCBool False)
-                        ]
-                    encoded = encodeMinecraftProperty initProperties
+                let
+                    initProperties = newMCProperties $ do
+                        addProperty "gamemode"             (MCString "creative")
+                        addProperty "motd"                 (MCString "Plugin DEV Server")
+                        addProperty "enable-command-block" (MCBool True)
+                        addProperty "online-mode"          (MCBool False)
 
-                writeFile' serverPropertiesFile encoded
+                writeFile' serverPropertiesFile (encodeMCProperties initProperties)
                     "Failed to generate server.properties"
 
 setupMinecraftServer :: AppStateIO ()

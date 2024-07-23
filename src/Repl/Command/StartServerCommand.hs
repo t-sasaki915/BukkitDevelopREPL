@@ -4,9 +4,6 @@ module Repl.Command.StartServerCommand (StartServerCommand(StartServerCommand)) 
 
 import           AppState
 import           FileIO
-import           Minecraft.MinecraftPropertyAnalyser   (MCPropertyValue (..),
-                                                        lookupProperty,
-                                                        parseMinecraftProperty)
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
 import           Minecraft.Server.MinecraftServerSetup (setupMinecraftServer)
 import           Minecraft.Server.ServerBrand          (getServerExecutableName)
@@ -14,6 +11,7 @@ import           Repl.Command.ReplCommand              (ReplCommand (..))
 import           Repl.Util                             (confirmContinue)
 
 import           Control.Monad.Trans.Except            (throwE)
+import           Data.MCProperty
 import           Options.Applicative
 import           System.FilePath                       ((</>))
 
@@ -78,15 +76,16 @@ checkEula skip = do
     workingDir <- getWorkingDir
     let eulaFilePath = workingDir </> "eula.txt"
 
-    let isAccepted = checkFileExistence eulaFilePath
+    let accepted = newMCProperties $ addProperty "eula" (MCBool True)
+        isAccepted = checkFileExistence eulaFilePath
             ("Failed to check the existence of '" ++ eulaFilePath ++ "'") >>= \case
                 True -> do
                     eulaFileContent <- readFile' eulaFilePath $
                         "Failed to read a file '" ++ eulaFilePath ++ "'"
 
-                    case parseMinecraftProperty eulaFileContent of
+                    case decodeMCProperties eulaFileContent of
                         Right properties ->
-                            case lookupProperty "eula" properties of
+                            case mcPropertiesWork (getProperty "eula") properties of
                                 Just (MCBool True) -> return True
                                 _                  -> return False
 
@@ -98,7 +97,7 @@ checkEula skip = do
 
     isAccepted >>= \case
         False | skip ->
-            writeFile' eulaFilePath "eula=true" $
+            writeFile' eulaFilePath (encodeMCProperties accepted) $
                 "Failed to write a file '" ++ eulaFilePath ++ "'"
 
         False -> do
@@ -107,7 +106,7 @@ checkEula skip = do
             putStrLn' ""
             confirmContinue >>= \case
                 True ->
-                    writeFile' eulaFilePath "eula=true" $
+                    writeFile' eulaFilePath (encodeMCProperties accepted) $
                         "Failed to write a file '" ++ eulaFilePath ++ "'"
 
                 False ->

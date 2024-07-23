@@ -1,0 +1,116 @@
+module Data.MCProperty
+    ( MCProperties
+    , MCProperty(..)
+    , MCPropertyValue(..)
+    , decodeMCProperties
+    , encodeMCProperties
+    , toTuple
+    , fromTuple
+    , toList
+    , fromList
+    , mcPropertiesWork
+    , editMCProperties
+    , newMCProperties
+    , getProperties
+    , setProperty
+    , addProperty
+    , getProperty
+    ) where
+
+import           Control.Monad                    (foldM)
+import           Control.Monad.Trans.Except       (Except, runExcept, throwE)
+import           Control.Monad.Trans.State.Strict (State, evalState, get, put)
+import           Data.Bifunctor                   (second)
+import           Data.Functor                     ((<&>))
+import           Data.Maybe                       (maybeToList)
+import           Text.Read                        (readMaybe)
+import           Text.Regex.Posix                 ((=~))
+
+type MCProperties = [MCProperty]
+
+data MCProperty = MCProperty String MCPropertyValue
+
+instance Show MCProperty where
+    show (MCProperty key value) = key ++ "=" ++ show value
+
+data MCPropertyValue = MCString String
+                     | MCInt Int
+                     | MCBool Bool
+
+instance Show MCPropertyValue where
+    show (MCString str) = str
+    show (MCInt x)      = show x
+    show (MCBool True)  = "true"
+    show (MCBool False) = "false"
+
+decodeLine :: String -> Except String (Maybe MCProperty)
+decodeLine ""          = return Nothing
+decodeLine ['#']       = return Nothing
+decodeLine ('#'  : _ ) = return Nothing
+decodeLine (' '  : xs) = decodeLine xs
+decodeLine ('\t' : xs) = decodeLine xs
+decodeLine ('\n' : xs) = decodeLine xs
+decodeLine str
+    | str =~ "^([^=]+=[^=]+)$" =
+        let (key, value) = second tail (span (/= '=') str) in
+            return $ Just $ MCProperty key $
+                case readMaybe value :: Maybe Int of
+                    Just x  -> MCInt x
+                    Nothing ->
+                        case value of
+                            "true"  -> MCBool True
+                            "false" -> MCBool False
+                            _       -> MCString value
+    | otherwise =
+        throwE ("Unrecognisable property '" ++ str ++ "'")
+
+decodeLines :: [String] -> Except String MCProperties
+decodeLines = flip foldM [] $ \properties line -> do
+    property <- decodeLine line
+    return (properties ++ maybeToList property)
+
+decodeMCProperties :: String -> Either String MCProperties
+decodeMCProperties = runExcept . decodeLines . lines
+
+encodeMCProperties :: MCProperties -> String
+encodeMCProperties = unlines . map show
+
+toTuple :: MCProperty -> (String, MCPropertyValue)
+toTuple (MCProperty k v) = (k, v)
+
+fromTuple :: (String, MCPropertyValue) -> MCProperty
+fromTuple (k, v) = MCProperty k v
+
+toList :: MCProperties -> [(String, MCPropertyValue)]
+toList = map toTuple
+
+fromList :: [(String, MCPropertyValue)] -> MCProperties
+fromList = map fromTuple
+
+mcPropertiesWork :: State MCProperties a -> MCProperties -> a
+mcPropertiesWork = evalState
+
+editMCProperties :: State MCProperties () -> MCProperties -> MCProperties
+editMCProperties f = mcPropertiesWork (f >> getProperties)
+
+newMCProperties :: State MCProperties () -> MCProperties
+newMCProperties = flip editMCProperties []
+
+getProperties :: State MCProperties MCProperties
+getProperties = get
+
+setProperty :: String -> MCPropertyValue -> State MCProperties ()
+setProperty key newValue = do
+    current <- getProperties
+    put $ flip map current $
+        \case
+            (MCProperty k _) | k == key -> MCProperty k newValue
+            x                           -> x
+
+addProperty :: String -> MCPropertyValue -> State MCProperties ()
+addProperty key value = do
+    current <- getProperties
+    put (current ++ [MCProperty key value])
+
+getProperty :: String -> State MCProperties (Maybe MCPropertyValue)
+getProperty key = getProperties <&> (lookup key . toList)
