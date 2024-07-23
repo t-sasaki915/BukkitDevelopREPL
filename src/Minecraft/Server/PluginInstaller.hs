@@ -101,7 +101,7 @@ installDynamicPlugins = do
                         copyFile' pluginPath (pluginsDir </> takeFileName pluginPath) $
                             "Failed to copy a plugin '" ++ pluginPath ++ "'"
 
-                        putStrLn' ("Installed a plugin '" ++ pluginPath ++ "'")
+                        putStrLn' ("Installed a plugin '" ++ takeFileName pluginPath ++ "'")
 
                     False ->
                         throwE ("Could not find a plugin '" ++ pluginPath ++ "'.")
@@ -115,7 +115,7 @@ installDynamicPlugins = do
                     expectExitSuccess
                         ("Failed to download a plugin '" ++ pluginUrl ++ "'")
 
-            putStrLn' ("Installed a plugin '" ++ pluginUrl ++ "'")
+            putStrLn' ("Installed a plugin '" ++ pluginName ++ "'")
 
 installStaticPlugins :: AppStateIO ()
 installStaticPlugins = return ()
