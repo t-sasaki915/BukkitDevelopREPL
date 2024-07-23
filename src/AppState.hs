@@ -29,10 +29,12 @@ import           System.Process                   (ProcessHandle,
 type AppStateIO = ExceptT String (StateT AppState IO)
 
 data AppState = AppState
-    { _clientProcs :: [(ClientInfo, ProcessHandle)]
-    , _serverProc  :: Maybe ProcessHandle
-    , _cliOptions  :: CLIOptions
-    , _config      :: Config
+    { _clientProcs              :: [(ClientInfo, ProcessHandle)]
+    , _serverProc               :: Maybe ProcessHandle
+    , _dynamicPluginFileNameMap :: Maybe [(FilePath, String)]
+    , _staticPluginFileNameMap  :: Maybe [(FilePath, String)]
+    , _cliOptions               :: CLIOptions
+    , _config                   :: Config
     }
 
 data ClientInfo = ClientInfo
@@ -48,7 +50,7 @@ initialState = do
     cliOpts <- parseCLIOptions
     conf    <- loadConfig (configFile cliOpts)
 
-    let constructor = AppState [] Nothing
+    let constructor = AppState [] Nothing Nothing Nothing
     return (constructor cliOpts conf)
 
 appStateIOTry :: IO a -> String -> AppStateIO a
@@ -175,6 +177,7 @@ updateClientList = do
 updateServerProc :: AppStateIO ()
 updateServerProc = do
     state <- lift get
+
     case _serverProc state of
         Just sproc ->
             lift (lift (getProcessExitCode sproc)) >>= \case
@@ -183,3 +186,63 @@ updateServerProc = do
 
         Nothing ->
             return ()
+
+setDynamicPluginFileNameMap :: [(FilePath, String)] -> AppStateIO ()
+setDynamicPluginFileNameMap newMap = do
+    state <- lift get
+
+    lift $ put (set dynamicPluginFileNameMap (Just newMap) state)
+
+setStaticPluginFileNameMap :: [(FilePath, String)] -> AppStateIO ()
+setStaticPluginFileNameMap newMap = do
+    state <- lift get
+
+    lift $ put (set staticPluginFileNameMap (Just newMap) state)
+
+getDynamicPluginFileName :: FilePath -> AppStateIO String
+getDynamicPluginFileName filePath = do
+    maybeFileNameMap <- lift get <&> _dynamicPluginFileNameMap
+
+    case maybeFileNameMap of
+        Just fileNameMap ->
+            case lookup filePath fileNameMap of
+                Just fileName ->
+                    return fileName
+
+                Nothing ->
+                    throwE ("Failed to get the filename of a dynamic plugin '" ++ filePath ++ "'.")
+
+        Nothing ->
+            throwE "The dynamicPluginFileNameMap had not been initialised yet."
+
+getStaticPluginFileName :: FilePath -> AppStateIO String
+getStaticPluginFileName filePath = do
+    maybeFileNameMap <- lift get <&> _staticPluginFileNameMap
+
+    case maybeFileNameMap of
+        Just fileNameMap ->
+            case lookup filePath fileNameMap of
+                Just fileName ->
+                    return fileName
+
+                Nothing ->
+                    throwE ("Failed to get the filename of a static plugin '" ++ filePath ++ "'.")
+
+        Nothing ->
+            throwE "The staticPluginFileNameMap had not been initialised yet."
+
+isDynamicPluginFileNameMapInitialised :: AppStateIO Bool
+isDynamicPluginFileNameMapInitialised = do
+    maybeFileNameMap <- lift get <&> _dynamicPluginFileNameMap
+
+    case maybeFileNameMap of
+        Just _  -> return True
+        Nothing -> return False
+
+isStaticPluginFileNameMapInitialised :: AppStateIO Bool
+isStaticPluginFileNameMapInitialised = do
+    maybeFileNameMap <- lift get <&> _staticPluginFileNameMap
+
+    case maybeFileNameMap of
+        Just _  -> return True
+        Nothing -> return False

@@ -73,6 +73,9 @@ installPluginsCommandProcedure opts = do
         Nothing ->
             return ()
 
+    initialisePluginFileNameMap
+    removeUnusedPlugins
+
     unless staticOnly $ do
         installDynamicPlugins
         putStrLn' "Successfully installed dynamic plugins."

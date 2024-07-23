@@ -34,6 +34,8 @@ getFileNameFromUrl ext url | isDirectLinkOf ext url =
 getFileNameFromUrl ext url = do
     workingDir <- getWorkingDir
 
+    putStrLn' ("Checking the filename of '" ++ url ++ "' ...")
+
     curlOutput <- execProcessAndGetOutput curlExecName ["-L", "-I", "-s", url] workingDir $
         "Failed to execute curl that was to check the file name of '" ++ url ++ "'"
 
