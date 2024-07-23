@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass, getLibraries) where
 
 import           AppState

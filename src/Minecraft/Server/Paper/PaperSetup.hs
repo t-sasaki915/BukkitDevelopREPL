@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 
 import           AppState

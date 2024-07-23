@@ -51,7 +51,7 @@ decodeLine (' '  : xs) = decodeLine xs
 decodeLine ('\t' : xs) = decodeLine xs
 decodeLine ('\n' : xs) = decodeLine xs
 decodeLine str
-    | str =~ "^([^=]+=[^=]+)$" =
+    | str =~ ("^([^=]+=[^=]+)$" :: String) =
         let (key, value) = second tail (span (/= '=') str) in
             return $ Just $ MCProperty key $
                 case readMaybe value :: Maybe Int of

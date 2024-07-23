@@ -36,11 +36,11 @@ instance FromJSON MCVersion where
 
 parseMCVersion :: String -> Maybe MCVersion
 parseMCVersion str
-    | str =~ "[0-9]+\\.[0-9]+\\.[0-9]+$" =
+    | str =~ ("[0-9]+\\.[0-9]+\\.[0-9]+$" :: String) =
         let (major, str')  = takeWhileAndRemains (/= '.') str
             (minor, patch) = takeWhileAndRemains (/= '.') str' in
             Just (MCVersion (read major) (read minor) (read patch))
-    | str =~ "[0-9]+\\.[0-9]+$" =
+    | str =~ ("[0-9]+\\.[0-9]+$" :: String) =
         let (major, str') = takeWhileAndRemains (/= '.') str
             (minor, _)    = takeWhileAndRemains (/= '.') str' in
             Just (MCVersion (read major) (read minor) 0)

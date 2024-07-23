@@ -15,9 +15,9 @@ confirmContinue = do
         getLine
 
     let lowerCase = map toLower input
-    if lowerCase =~ "^(y(es)?|aye)$" then
+    if lowerCase =~ ("^(y(es)?|aye)$" :: String) then
         return True
-    else if lowerCase =~ "^no?$" then
+    else if lowerCase =~ ("^no?$" :: String) then
         return False
     else
         confirmContinue

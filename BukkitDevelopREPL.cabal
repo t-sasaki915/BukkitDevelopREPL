@@ -71,7 +71,7 @@ library
     , aeson ==2.1.2.1
     , lens ==5.2.3
   default-language: Haskell2010
-  default-extensions: LambdaCase
+  default-extensions: LambdaCase, OverloadedStrings
 
 executable BukkitDevelopREPL-exe
   main-is: Main.hs

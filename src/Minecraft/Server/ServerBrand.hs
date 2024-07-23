@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Minecraft.Server.ServerBrand (ServerBrand(..), getServerExecutableName) where
 
 import           Data.Minecraft.MCVersion (MCVersion)
