@@ -26,7 +26,7 @@ execReplCommand cmdName cmdArgs =
     case cmdName of
         "help"            -> execute HelpCommand
         "?"               -> execute HelpCommand
-        "commandList"     -> execute HelpCommand
+        "listCommand"     -> execute HelpCommand
         "exit"            -> execute ExitCommand
         "quit"            -> execute ExitCommand
         "stop"            -> execute ExitCommand
