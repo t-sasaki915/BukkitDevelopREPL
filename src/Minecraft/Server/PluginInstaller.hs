@@ -83,10 +83,10 @@ installDynamicPlugins = do
         pluginName <- getDynamicPluginFileName plugin
 
         checkFileExistence (pluginsDir </> pluginName)
-            ("Failed to check the existence of '" ++ plugin ++ "'") >>= \case
+            ("Failed to check the existence of '" ++ (pluginsDir </> pluginName) ++ "'") >>= \case
                 True -> do
                     removeFile' (pluginsDir </> pluginName) $
-                        "Failed to remove an old plugin '" ++ pluginName ++ "'"
+                        "Failed to remove an old plugin '" ++ (pluginsDir </> pluginName) ++ "'"
 
                     putStrLn' ("Removed an old plugin '" ++ pluginName ++ "'.")
 
@@ -101,7 +101,7 @@ installDynamicPlugins = do
                         copyFile' pluginPath (pluginsDir </> takeFileName pluginPath) $
                             "Failed to copy a plugin '" ++ pluginPath ++ "'"
 
-                        putStrLn' ("Installed a plugin '" ++ takeFileName pluginPath ++ "'")
+                        putStrLn' ("Installed a plugin '" ++ takeFileName pluginPath ++ "'.")
 
                     False ->
                         throwE ("Could not find a plugin '" ++ pluginPath ++ "'.")
@@ -115,7 +115,39 @@ installDynamicPlugins = do
                     expectExitSuccess
                         ("Failed to download a plugin '" ++ pluginUrl ++ "'")
 
-            putStrLn' ("Installed a plugin '" ++ pluginName ++ "'")
+            putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
 
 installStaticPlugins :: AppStateIO ()
-installStaticPlugins = return ()
+installStaticPlugins = do
+    pluginsDir    <- getWorkingDir <&> (</> "plugins")
+    staticPlugins <- getStaticPlugins
+
+    forM_ staticPlugins $ \plugin -> do
+        pluginName <- getStaticPluginFileName plugin
+
+        checkFileExistence (pluginsDir </> pluginName)
+            ("Failed to check the existence of '" ++ (pluginsDir </> pluginName) ++ "'") >>= \case
+                True ->
+                    putStrLn' ("Skipped a plugin '" ++ pluginName ++ "'.")
+
+                False | not (isUrl plugin) ->
+                    checkFileExistence plugin
+                        ("Failed to check the existence of '" ++ plugin ++ "'") >>= \case
+                            True -> do
+                                copyFile' plugin (pluginsDir </> pluginName) $
+                                    "Failed to copy a plugin '" ++ plugin ++ "'"
+
+                                putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
+
+                            False ->
+                                throwE ("Could not find a plugin '" ++ plugin ++ "'.")
+
+                False -> do
+                    let downloadPath = pluginsDir </> pluginName
+
+                    execProcess curlExecName ["-L", "-o", downloadPath, plugin] pluginsDir
+                        ("Failed to execute curl that was to download a plugin '" ++ plugin ++ "'") >>=
+                            expectExitSuccess
+                                ("Failed to download a plugin '" ++ plugin ++ "'")
+
+                    putStrLn' ("Installed a plugin '" ++ pluginName ++ "'.")
