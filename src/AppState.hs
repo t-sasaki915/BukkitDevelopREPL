@@ -168,22 +168,16 @@ updateClientList = do
     state <- lift get
 
     forM_ (_clientProcs state) $ \(ClientInfo cName _, handle) ->
-        lift (lift (getProcessExitCode handle)) >>= \case
-            Just _  -> unregisterClient cName
-            Nothing -> return ()
+        whenM (lift (lift (getProcessExitCode handle)) <&> isJust) $
+            unregisterClient cName
 
 updateServerProc :: AppStateIO ()
 updateServerProc = do
     state <- lift get
 
-    case _serverProc state of
-        Just sproc ->
-            lift (lift (getProcessExitCode sproc)) >>= \case
-                Just _  -> unregisterServer
-                Nothing -> return ()
-
-        Nothing ->
-            return ()
+    whenJust (_serverProc state) $ \sproc ->
+        whenM (lift (lift (getProcessExitCode sproc)) <&> isJust)
+            unregisterServer
 
 setDynamicPluginFileNameMap :: [(FilePath, String)] -> AppStateIO ()
 setDynamicPluginFileNameMap newMap = do

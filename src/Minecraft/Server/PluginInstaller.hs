@@ -43,12 +43,9 @@ removeUnusedPlugins = do
     dynamicPlugins <- getDynamicPlugins
     staticPlugins  <- getStaticPlugins
 
-    checkDirectoryExistence pluginsDir
-        (printf "Failed to check the existence of a directory '%s': %%s." pluginsDir) >>= \case
-            True  -> return ()
-            False ->
-                makeDirectory pluginsDir $
-                    printf "Failed to create a directory '%s': %%s." pluginsDir
+    unlessM (checkDirectoryExistence pluginsDir (printf "Failed to check the existence of a directory '%s': %%s." pluginsDir)) $
+        makeDirectory pluginsDir $
+            printf "Failed to create a directory '%s': %%s." pluginsDir
 
     dirContents <- directoryContents pluginsDir $
         printf "Failed to enumerate the contents of '%s': %%s." pluginsDir
@@ -61,15 +58,12 @@ removeUnusedPlugins = do
     dynamicPluginNames <- mapM getDynamicPluginFileName dynamicPlugins
     staticPluginNames  <- mapM getStaticPluginFileName staticPlugins
 
-    forM_ jarFiles $ \case
-        jarFile | takeFileName jarFile `notElem` (dynamicPluginNames ++ staticPluginNames) -> do
+    forM_ jarFiles $ \jarFile ->
+        unless (takeFileName jarFile `elem` (dynamicPluginNames ++ staticPluginNames)) $ do
             removeFile' jarFile $
                 printf "Failed to remove and unused plugin '%s': %%s." jarFile
 
             putStrLn' (printf "Removed an unused plugin '%s'." (takeFileName jarFile))
-
-        _ ->
-            return ()
 
 installDynamicPlugins :: AppStateIO ()
 installDynamicPlugins = do
@@ -78,17 +72,13 @@ installDynamicPlugins = do
 
     forM_ dynamicPlugins $ \plugin -> do
         pluginName <- getDynamicPluginFileName plugin
+        let pluginPath = pluginsDir </> pluginName
 
-        checkFileExistence (pluginsDir </> pluginName)
-            (printf "Failed to check the existence of '%s': %%s." (pluginsDir </> pluginName)) >>= \case
-                True -> do
-                    removeFile' (pluginsDir </> pluginName) $
-                        printf "Failed to remove an old plugin '%s': %%s." (pluginsDir </> pluginName)
+        whenM (checkFileExistence pluginPath (printf "Failed to check the existence of '%s': %%s." pluginPath)) $ do
+            removeFile' pluginPath $
+                printf "Failed to remove an old plugin '%s': %%s." pluginPath
 
-                    putStrLn' (printf "Removed an old plugin '%s'." pluginName)
-
-                False ->
-                    return ()
+            putStrLn' (printf "Removed an old plugin '%s'." pluginName)
 
     forM_ dynamicPlugins $ \case
         pluginPath | not (isUrl pluginPath) ->

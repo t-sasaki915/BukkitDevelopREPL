@@ -53,15 +53,12 @@ startServerCommandProcedure opts = do
 
             let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
-            checkFileExistence serverJarPath
-                (printf "Failed to check the existence of '%s': %%s." serverJarPath) >>= \case
-                    True -> return ()
-                    False -> do
-                        putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
+            unlessM (checkFileExistence serverJarPath (printf "Failed to check the existence of '%s': %%s." serverJarPath)) $ do
+                putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
 
-                        setupMinecraftServer
+                setupMinecraftServer
 
-                        putStrLn' "Successfully downloaded the Minecraft server."
+                putStrLn' "Successfully downloaded the Minecraft server."
 
             checkEula (acceptEula opts)
 
@@ -97,22 +94,14 @@ checkEula skip = do
                 False ->
                     return False
 
-    isAccepted >>= \case
-        False | skip ->
-            writeFile' eulaFilePath (encodeMCProperties accepted) $
-                printf "Failed to write a file '%s': %%s." eulaFilePath
-
-        False -> do
+    unlessM isAccepted $ do
+        unless skip $ do
             putStrLn' "To continue, you have to accept the Minecraft Eula:"
             putStrLn' "https://aka.ms/MinecraftEULA"
             putStrLn' ""
-            confirmContinue >>= \case
-                True ->
-                    writeFile' eulaFilePath (encodeMCProperties accepted) $
-                        printf "Failed to write a file '%s': %%s." eulaFilePath
 
-                False ->
-                    throwE "The operation has cancelled."
+            unlessM confirmContinue $
+                throwE "The operation has cancelled."
 
-        True ->
-            return ()
+        writeFile' eulaFilePath (encodeMCProperties accepted) $
+                printf "Failed to write a file '%s': %%s." eulaFilePath

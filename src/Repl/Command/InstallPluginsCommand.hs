@@ -63,15 +63,12 @@ installPluginsCommandProcedure opts = do
         throwE "Please do not specify both '--dynamicOnly' and '--staticOnly' at the same time."
 
     updateServerProc
-    getServerProc >>= \case
-        Just _ | restart -> do
-            executeReplCommandInternal TerminateServerCommand ["--force" | force]
 
-        Just _ ->
+    whenM (getServerProc <&> isJust) $ do
+        unless restart $
             throwE "The Minecraft server is running. Please stop it first. Or you can use '--restart' option."
 
-        Nothing ->
-            return ()
+        executeReplCommandInternal TerminateServerCommand ["--force" | force]
 
     initialisePluginFileNameMap
     removeUnusedPlugins

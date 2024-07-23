@@ -7,10 +7,13 @@ module Imports
     , unless
     , when
     , unlessM
+    , whenJust
+    , whenJustM
     , whenM
     , lift
     , throwE
     , (<&>)
+    , isJust
     , (</>)
     , printf
     , (=~)
@@ -19,10 +22,12 @@ module Imports
 
 import           Control.Monad              (filterM, foldM, foldM_, forM,
                                              forM_, unless, when)
-import           Control.Monad.Extra        (unlessM, whenM)
+import           Control.Monad.Extra        (unlessM, whenJust, whenJustM,
+                                             whenM)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Except (throwE)
 import           Data.Functor               ((<&>))
+import           Data.Maybe                 (isJust)
 import           System.FilePath            ((</>))
 import           Text.Printf                (printf)
 import           Text.Regex.Posix           ((=~))
