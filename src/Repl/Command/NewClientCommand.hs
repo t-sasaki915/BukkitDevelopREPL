@@ -48,6 +48,10 @@ newClientCommandArgParser = do
 
 newClientCommandProcedure :: NewClientCommand -> AppStateIO ()
 newClientCommandProcedure opts = do
+    serverOnlineMode <- shouldServerUseOnlineMode
+    when serverOnlineMode $
+        throwE "The Minecraft server is using online mode. DEV clients are unusable."
+
     let version  = clientVersion opts
         username = clientUsername opts
 
