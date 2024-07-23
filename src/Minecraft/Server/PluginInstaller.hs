@@ -6,14 +6,17 @@ module Minecraft.Server.PluginInstaller
     ) where
 
 import           AppState
+import           CrossPlatform              (curlExecName)
 import           FileIO
+import           ProcessIO
 
-import           Control.Monad       (filterM, forM, forM_)
-import           Control.Monad.Extra (unlessM)
-import           Data.Functor        ((<&>))
+import           Control.Monad              (filterM, forM, forM_)
+import           Control.Monad.Extra        (unlessM)
+import           Control.Monad.Trans.Except (throwE)
+import           Data.Functor               ((<&>))
 import           Network.Url
-import           System.FilePath     (takeFileName, (</>))
-import           Text.Regex.Posix    ((=~))
+import           System.FilePath            (takeFileName, (</>))
+import           Text.Regex.Posix           ((=~))
 
 initialisePluginFileNameMap :: AppStateIO ()
 initialisePluginFileNameMap = do
@@ -64,15 +67,55 @@ removeUnusedPlugins = do
     forM_ jarFiles $ \case
         jarFile | takeFileName jarFile `notElem` (dynamicPluginNames ++ staticPluginNames) -> do
             removeFile' jarFile $
-                "Failed to remove an unused plugin '" ++ jarFile ++ "'"
+                "Failed to remove an unused plugin '" ++ takeFileName jarFile ++ "'"
 
-            putStrLn' ("Removed an unused plugin '" ++ jarFile ++ "'.")
+            putStrLn' ("Removed an unused plugin '" ++ takeFileName jarFile ++ "'.")
 
         _ ->
             return ()
 
 installDynamicPlugins :: AppStateIO ()
-installDynamicPlugins = return ()
+installDynamicPlugins = do
+    pluginsDir     <- getWorkingDir <&> (</> "plugins")
+    dynamicPlugins <- getDynamicPlugins
+
+    forM_ dynamicPlugins $ \plugin -> do
+        pluginName <- getDynamicPluginFileName plugin
+
+        checkFileExistence (pluginsDir </> pluginName)
+            ("Failed to check the existence of '" ++ plugin ++ "'") >>= \case
+                True -> do
+                    removeFile' (pluginsDir </> pluginName) $
+                        "Failed to remove an old plugin '" ++ pluginName ++ "'"
+
+                    putStrLn' ("Removed an old plugin '" ++ pluginName ++ "'.")
+
+                False ->
+                    return ()
+
+    forM_ dynamicPlugins $ \case
+        pluginPath | not (isUrl pluginPath) ->
+            checkFileExistence pluginPath
+                ("Failed to check the existence of '" ++ pluginPath ++ "'") >>= \case
+                    True -> do
+                        copyFile' pluginPath (pluginsDir </> takeFileName pluginPath) $
+                            "Failed to copy a plugin '" ++ pluginPath ++ "'"
+
+                        putStrLn' ("Installed a plugin '" ++ pluginPath ++ "'")
+
+                    False ->
+                        throwE ("Could not find a plugin '" ++ pluginPath ++ "'.")
+
+        pluginUrl -> do
+            pluginName <- getDynamicPluginFileName pluginUrl
+            let downloadPath = pluginsDir </> pluginName
+
+            execProcess curlExecName ["-L", "-o", downloadPath, pluginUrl] pluginsDir
+                ("Failed to execute curl that was to download a plugin '" ++ pluginUrl ++ "'") >>=
+                    expectExitSuccess
+                        ("Failed to download a plugin '" ++ pluginUrl ++ "'")
+
+            putStrLn' ("Installed a plugin '" ++ pluginUrl ++ "'")
 
 installStaticPlugins :: AppStateIO ()
 installStaticPlugins = return ()
