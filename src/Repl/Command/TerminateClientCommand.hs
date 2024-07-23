@@ -8,6 +8,7 @@ import           AppState
 import           Repl.ReplCommand    (ReplCommand (..), confirmContinue)
 
 import           Data.Bifunctor      (first)
+import           Data.Maybe          (fromJust)
 import           Options.Applicative
 import           System.Process      (terminateProcess)
 
@@ -46,22 +47,20 @@ terminateClientCommandProcedure opts = do
     updateClientList
     clients <- getClients
 
-    processToTerminate <- case lookup clientToTerminate (map (first runningClientName) clients) of
-        Just clientProcess | force ->
-            return clientProcess
+    let maybeProcess = lookup clientToTerminate (map (first runningClientName) clients)
 
-        Just clientProcess -> do
-            putStrLn' (printf "You are going to terminate a Minecraft client '%s'." clientToTerminate)
-            putStrLn' "Unsaved changes will be discarded if you are playing Single Player mode."
-            putStrLn' ""
-            confirmContinue >>= \case
-                True  -> return clientProcess
-                False -> throwE "The operation has cancelled."
+    unless (isJust maybeProcess) $
+        throwE (printf "There is no Minecraft client whose name is '%s'." clientToTerminate)
 
-        Nothing ->
-            throwE (printf "There is no Minecraft client whose name is '%s'." clientToTerminate)
+    unless force $ do
+        putStrLn' (printf "You are going to terminate a Minecraft client '%s'." clientToTerminate)
+        putStrLn' "Unsaved changes will be discarded if you are playing Single Player mode."
+        putStrLn' ""
 
-    lift $ lift $ terminateProcess processToTerminate
+        unlessM confirmContinue $
+            throwE "The operation has cancelled."
+
+    lift $ lift $ terminateProcess (fromJust maybeProcess)
     unregisterClient clientToTerminate
 
     putStrLn' (printf "Successfully terminated a Minecraft client '%s'." clientToTerminate)

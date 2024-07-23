@@ -60,13 +60,12 @@ newClientCommandProcedure opts = do
     updateClientList
 
     clients <- getClients
-    case lookup username (map (first runningClientName) clients) of
-        Just _ -> do
-            throwE (printf "A Minecraft client whose name is '%s' is existing." username)
 
-        Nothing -> do
-            clientProcess <- spawnMinecraftClient cVersion username
-            registerNewClient (ClientInfo username cVersion) clientProcess
+    when (isJust $ lookup username (map (first runningClientName) clients)) $
+        throwE (printf "A Minecraft client whose name is '%s' is existing." username)
 
-            putStrLn' $
-                printf "Successfully created a new Minecraft client with a name of '%s'. The game screen will be appeared soon." username
+    clientProcess <- spawnMinecraftClient cVersion username
+    registerNewClient (ClientInfo username cVersion) clientProcess
+
+    putStrLn' $
+        printf "Successfully created a new Minecraft client with a name of '%s'. The game screen will be appeared soon." username

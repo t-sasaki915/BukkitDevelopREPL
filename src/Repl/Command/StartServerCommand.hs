@@ -42,32 +42,30 @@ startServerCommandProcedure :: StartServerCommand -> AppStateIO ()
 startServerCommandProcedure opts = do
     updateServerProc
 
-    getServerProc >>= \case
-        Just _ ->
-            putStrLn' "The Minecraft server has been started already."
+    whenM (getServerProc <&> isJust) $
+        throwE "The Minecraft server has been started already."
 
-        Nothing -> do
-            workingDir    <- getWorkingDir
-            serverVersion <- getServerVersion
-            serverBrand   <- getMCServerBrand
+    workingDir    <- getWorkingDir
+    serverVersion <- getServerVersion
+    serverBrand   <- getMCServerBrand
 
-            let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
+    let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
-            unlessM (checkFileExistence serverJarPath (printf "Failed to check the existence of '%s': %%s." serverJarPath)) $ do
-                putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
+    unlessM (checkFileExistence serverJarPath (printf "Failed to check the existence of '%s': %%s." serverJarPath)) $ do
+        putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
 
-                setupMinecraftServer
+        setupMinecraftServer
 
-                putStrLn' "Successfully downloaded the Minecraft server."
+        putStrLn' "Successfully downloaded the Minecraft server."
 
-            checkEula (acceptEula opts)
+    checkEula (acceptEula opts)
 
-            editServerProperties
+    editServerProperties
 
-            serverHandle <- runMinecraftServer
-            registerServer serverHandle
+    serverHandle <- runMinecraftServer
+    registerServer serverHandle
 
-            putStrLn' "Successfully started the Minecraft server. The console will be appeared soon."
+    putStrLn' "Successfully started the Minecraft server. The console will be appeared soon."
 
 
 checkEula :: Bool -> AppStateIO ()

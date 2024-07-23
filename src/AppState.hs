@@ -224,17 +224,7 @@ getStaticPluginFileName filePath = do
             throwE "The staticPluginFileNameMap had not been initialised yet."
 
 isDynamicPluginFileNameMapInitialised :: AppStateIO Bool
-isDynamicPluginFileNameMapInitialised = do
-    maybeFileNameMap <- lift get <&> _dynamicPluginFileNameMap
-
-    case maybeFileNameMap of
-        Just _  -> return True
-        Nothing -> return False
+isDynamicPluginFileNameMapInitialised = lift get <&> (isJust . _dynamicPluginFileNameMap)
 
 isStaticPluginFileNameMapInitialised :: AppStateIO Bool
-isStaticPluginFileNameMapInitialised = do
-    maybeFileNameMap <- lift get <&> _staticPluginFileNameMap
-
-    case maybeFileNameMap of
-        Just _  -> return True
-        Nothing -> return False
+isStaticPluginFileNameMapInitialised = lift get <&> (isJust . _staticPluginFileNameMap)
