@@ -4,11 +4,13 @@ import           AppState
 import           CrossPlatform                       (currentOSType)
 import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
 import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
+import           Repl.Command.InstallPluginsCommand  (InstallPluginsCommand (InstallPluginsCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
 import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
 import           Repl.Command.ShowConfigCommand      (ShowConfigCommand (ShowConfigCommand))
 import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
 import           Repl.Command.TerminateClientCommand (TerminateClientCommand (TerminateClientCommand))
+import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
 import           Repl.ReplCommand                    (ReplCommand (..))
 
 import           Control.Monad                       (foldM)
@@ -16,7 +18,6 @@ import           Control.Monad.Trans.Except          (runExceptT)
 import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Split                     (splitOn)
 import           Data.Version                        (showVersion)
-import           Options.Applicative
 import           System.IO                           (hFlush, stdout)
 
 import           Paths_BukkitDevelopREPL             (version)
@@ -35,26 +36,10 @@ execReplCommand cmdName cmdArgs =
         "listClient"      -> execute ListClientCommand
         "terminateClient" -> execute TerminateClientCommand
         "startServer"     -> execute StartServerCommand
+        "terminateServer" -> execute TerminateServerCommand
+        "installPlugins"  -> execute InstallPluginsCommand
         _                 -> putStrLn' ("Command '" ++ cmdName ++ "' is undefined.")
-    where
-        execute :: ReplCommand c => c -> AppStateIO ()
-        execute cmd = do
-            parser <- cmdArgParser cmd
-            let executor =
-                    execParserPure
-                        (prefs disambiguate)
-                            (info (helper <*> parser)
-                                (fullDesc <> progDesc (cmdDescription cmd)))
-            case executor cmdArgs of
-                Success parsedArgs ->
-                    cmdProcedure parsedArgs
-
-                Failure err ->
-                    let (helpMsg, _, _) = execFailure err cmdName in
-                        putStrLn' (show helpMsg)
-
-                CompletionInvoked _ ->
-                    return ()
+        where execute c = executeReplCommand c cmdName cmdArgs
 
 repLoop :: AppState -> IO ()
 repLoop appState = do

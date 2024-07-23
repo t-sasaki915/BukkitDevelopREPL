@@ -4,7 +4,7 @@ import           AppState
 
 import           Control.Monad.Trans.Class (lift)
 import           Data.Char                 (toLower)
-import           Options.Applicative       (Parser)
+import           Options.Applicative
 import           System.IO                 (hFlush, stdout)
 import           Text.Regex.Posix          ((=~))
 
@@ -12,6 +12,28 @@ class ReplCommand a where
     cmdDescription :: a -> String
     cmdArgParser :: a -> AppStateIO (Parser a)
     cmdProcedure :: a -> AppStateIO ()
+
+    executeReplCommand :: a -> String -> [String] -> AppStateIO ()
+    executeReplCommand cmd label args = do
+        parser <- cmdArgParser cmd
+        let executor =
+                execParserPure
+                    (prefs disambiguate)
+                        (info (helper <*> parser)
+                            (fullDesc <> progDesc (cmdDescription cmd)))
+        case executor args of
+            Success parsedArgs ->
+                cmdProcedure parsedArgs
+
+            Failure err ->
+                let (helpMsg, _, _) = execFailure err label in
+                    putStrLn' (show helpMsg)
+
+            CompletionInvoked _ ->
+                return ()
+
+    executeReplCommandInternal :: a -> [String] -> AppStateIO ()
+    executeReplCommandInternal cmd = executeReplCommand cmd "INTERNAL"
 
 confirmContinue :: AppStateIO Bool
 confirmContinue = do

@@ -46,22 +46,22 @@ terminateClientCommandProcedure opts = do
     updateClientList
     clients <- getClients
 
-    case lookup clientToTerminate (map (first runningClientName) clients) of
-        Just clientProcess | force -> do
-            lift $ lift $ terminateProcess clientProcess
-            putStrLn' ("Successfully terminated a Minecraft client '" ++ clientToTerminate ++ "'.")
+    processToTerminate <- case lookup clientToTerminate (map (first runningClientName) clients) of
+        Just clientProcess | force ->
+            return clientProcess
 
         Just clientProcess -> do
             putStrLn' ("You are going to terminate a Minecraft client '" ++ clientToTerminate ++ "'.")
             putStrLn' "Unsaved changes will be discarded if you are playing Single Player mode."
             putStrLn' ""
             confirmContinue >>= \case
-                True -> do
-                    lift $ lift $ terminateProcess clientProcess
-                    putStrLn' ("Successfully terminated a Minecraft client '" ++ clientToTerminate ++ "'.")
-
-                False -> do
-                    throwE "The operation has cancelled."
+                True  -> return clientProcess
+                False -> throwE "The operation has cancelled."
 
         Nothing ->
             throwE ("There is no Minecraft client whose name is '" ++ clientToTerminate ++ "'.")
+
+    lift $ lift $ terminateProcess processToTerminate
+    unregisterClient clientToTerminate
+
+    putStrLn' ("Successfully terminated a Minecraft client '" ++ clientToTerminate ++ "'.")

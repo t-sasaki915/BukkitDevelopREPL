@@ -35,13 +35,16 @@ library
       Minecraft.Server.Spigot.SpigotSetup
       Minecraft.Server.MinecraftServer
       Minecraft.Server.MinecraftServerSetup
+      Minecraft.Server.PluginInstaller
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
+      Repl.Command.InstallPluginsCommand
       Repl.Command.ListClientCommand
       Repl.Command.NewClientCommand
       Repl.Command.ShowConfigCommand
       Repl.Command.StartServerCommand
       Repl.Command.TerminateClientCommand
+      Repl.Command.TerminateServerCommand
       Repl.Repl
       Repl.ReplCommand
       AppState

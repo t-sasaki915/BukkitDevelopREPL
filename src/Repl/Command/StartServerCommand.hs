@@ -34,6 +34,7 @@ startServerCommandArgParser =
         StartServerCommandOptions
             <$> switch
                 ( long "acceptEula"
+               <> short 'a'
                <> help "Accept the Minecraft Eula and skip confirming."
                 )
 

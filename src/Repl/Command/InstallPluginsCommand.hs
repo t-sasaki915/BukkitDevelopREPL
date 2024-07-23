@@ -1,0 +1,85 @@
+{-# OPTIONS_GHC -Wno-partial-fields #-}
+
+module Repl.Command.InstallPluginsCommand (InstallPluginsCommand(InstallPluginsCommand)) where
+
+import           AppState
+import           Minecraft.Server.PluginInstaller
+import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
+import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
+import           Repl.ReplCommand                    (ReplCommand (..))
+
+import           Control.Monad                       (unless, when)
+import           Control.Monad.Trans.Except          (throwE)
+import           Options.Applicative
+
+data InstallPluginsCommand = InstallPluginsCommand
+                           | InstallPluginsCommandOptions
+                                { dynamicPluginsOnly :: Bool
+                                , staticPluginsOnly  :: Bool
+                                , andRestart         :: Bool
+                                , withoutAsk         :: Bool
+                                }
+
+instance ReplCommand InstallPluginsCommand where
+    cmdDescription = const "Install plugins to the server."
+
+    cmdArgParser = const installPluginsCommandArgParser
+
+    cmdProcedure = installPluginsCommandProcedure
+
+installPluginsCommandArgParser :: AppStateIO (Parser InstallPluginsCommand)
+installPluginsCommandArgParser =
+    return $
+        InstallPluginsCommandOptions
+            <$> switch
+                ( long "dynamicOnly"
+               <> short 'd'
+               <> help "Install only dynamic plugins."
+                )
+            <*> switch
+                ( long "staticOnly"
+               <> short 's'
+               <> help "Install only static plugins."
+                )
+            <*> switch
+                ( long "restart"
+               <> short 'r'
+               <> help "Restart the Minecraft server after installation."
+                )
+            <*> switch
+                ( long "force"
+               <> short 'f'
+               <> help "Restart the Minecraft server without confirming."
+                )
+
+installPluginsCommandProcedure :: InstallPluginsCommand -> AppStateIO ()
+installPluginsCommandProcedure opts = do
+    let dynamicOnly = dynamicPluginsOnly opts
+        staticOnly  = staticPluginsOnly opts
+        restart     = andRestart opts
+        force       = withoutAsk opts
+
+    when (dynamicOnly && staticOnly) $
+        throwE "Please do not specify both '--dynamicOnly' and '--staticOnly' at the same time."
+
+    updateServerProc
+    getServerProc >>= \case
+        Just _ | restart -> do
+            executeReplCommandInternal TerminateServerCommand ["--force" | force]
+
+        Just _ ->
+            throwE "The Minecraft server is running. Please stop it first. Or you can use '--restart' option."
+
+        Nothing ->
+            return ()
+
+    unless staticOnly $ do
+        installDynamicPlugins
+        putStrLn' "Successfully installed dynamic plugins."
+
+    unless dynamicOnly $ do
+        installStaticPlugins
+        putStrLn' "Successfully installed static plugins."
+
+    when restart $
+        executeReplCommandInternal StartServerCommand []

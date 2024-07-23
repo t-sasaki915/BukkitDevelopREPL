@@ -10,6 +10,7 @@ import           Config.Loader                    (loadConfig)
 
 import           Control.Exception                (try)
 import           Control.Lens                     (makeLenses, over, set)
+import           Control.Monad                    (forM_)
 import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
@@ -144,23 +145,32 @@ registerNewClient clientInfo clientHandle = do
 
     lift $ put (over clientProcs (++ [(clientInfo, clientHandle)]) state)
 
+unregisterClient :: String -> AppStateIO ()
+unregisterClient clientName = do
+    state <- lift get
+
+    lift $ put (over clientProcs (filter (\(ClientInfo cName _, _) -> cName /= clientName)) state)
+
 registerServer :: ProcessHandle -> AppStateIO ()
 registerServer serverHandle = do
     state <- lift get
 
     lift $ put (set serverProc (Just serverHandle) state)
 
+unregisterServer :: AppStateIO ()
+unregisterServer = do
+    state <- lift get
+
+    lift $ put (set serverProc Nothing state)
+
 updateClientList :: AppStateIO ()
 updateClientList = do
     state <- lift get
-    condMap <- mapM
-        (\(n, p) -> lift $ lift $ getProcessExitCode p <&> maybe (n, False) (const (n, True)))
-            (_clientProcs state)
 
-    let terminatedClients = map fst $ filter snd condMap
-        clientProcs'      = filter (\(n, _) -> n `notElem` terminatedClients) (_clientProcs state)
-
-    lift $ put (set clientProcs clientProcs' state)
+    forM_ (_clientProcs state) $ \(ClientInfo cName _, handle) ->
+        lift (lift (getProcessExitCode handle)) >>= \case
+            Just _  -> unregisterClient cName
+            Nothing -> return ()
 
 updateServerProc :: AppStateIO ()
 updateServerProc = do
@@ -168,7 +178,7 @@ updateServerProc = do
     case _serverProc state of
         Just sproc ->
             lift (lift (getProcessExitCode sproc)) >>= \case
-                Just _  -> lift $ put (set serverProc Nothing state)
+                Just _  -> unregisterServer
                 Nothing -> return ()
 
         Nothing ->
