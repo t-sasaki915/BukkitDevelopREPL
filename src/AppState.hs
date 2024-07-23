@@ -14,6 +14,7 @@ import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
 import           Data.Functor                     ((<&>))
+import           Data.Maybe                       (fromMaybe)
 import           Data.Minecraft.MCGameMode        (MCGameMode)
 import           Data.Minecraft.MCServerBrand     (MCServerBrand)
 import           Data.Minecraft.MCVersion         (MCVersion)
@@ -82,6 +83,9 @@ getClientWorkingDir = getWorkingDir <&> (</> "client")
 getBuildDir :: AppStateIO FilePath
 getBuildDir = getWorkingDir <&> (</> "build")
 
+getDynamicPlugins :: AppStateIO [FilePath]
+getDynamicPlugins = lift get <&> (fromMaybe [] . dynamicPlugins . _cliOptions)
+
 getMinecraftDir :: AppStateIO FilePath
 getMinecraftDir = lift get >>=
     absolutePath . minecraftDir . _cliOptions
@@ -113,8 +117,8 @@ getMCServerBrand = lift get <&> (serverBrand . serverConfig . _config)
 getServerJvmOptions :: AppStateIO [String]
 getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . _config)
 
-getServerStaticPlugins :: AppStateIO [String]
-getServerStaticPlugins = lift get <&> (serverStaticPlugins . serverConfig . _config)
+getStaticPlugins :: AppStateIO [String]
+getStaticPlugins = lift get <&> (serverStaticPlugins . serverConfig . _config)
 
 getServerPort :: AppStateIO Int
 getServerPort = lift get <&> (serverPort . serverConfig . _config)
