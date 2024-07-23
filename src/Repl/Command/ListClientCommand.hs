@@ -10,8 +10,6 @@ data ListClientCommand = ListClientCommand
                        | ListClientCommandOptions
 
 instance ReplCommand ListClientCommand where
-    cmdLabel = const "listClient"
-
     cmdDescription = const "Show a list of Minecraft clients that are currently running."
 
     cmdArgParser = const (pure (pure ListClientCommandOptions))

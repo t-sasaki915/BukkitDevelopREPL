@@ -18,8 +18,6 @@ data TerminateClientCommand = TerminateClientCommand
                                 }
 
 instance ReplCommand TerminateClientCommand where
-    cmdLabel = const "terminateClient"
-
     cmdDescription = const "Terminate a Minecraft client."
 
     cmdArgParser = const terminateClientCommandArgParser

@@ -22,8 +22,6 @@ data StartServerCommand = StartServerCommand
                             }
 
 instance ReplCommand StartServerCommand where
-    cmdLabel = const "startServer"
-
     cmdDescription = const "Start the Minecraft server."
 
     cmdArgParser = const startServerCommandArgParser

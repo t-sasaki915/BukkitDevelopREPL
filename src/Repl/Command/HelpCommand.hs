@@ -8,8 +8,6 @@ data HelpCommand = HelpCommand
                  | HelpCommandOptions
 
 instance ReplCommand HelpCommand where
-    cmdLabel = const "help"
-
     cmdDescription = const "Show the command reference of this REPL."
 
     cmdArgParser = const (pure (pure HelpCommandOptions))

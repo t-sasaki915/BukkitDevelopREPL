@@ -14,8 +14,6 @@ data ShowConfigCommand = ShowConfigCommand
                        | ShowConfigCommandOptions
 
 instance ReplCommand ShowConfigCommand where
-    cmdLabel = const "showConfig"
-
     cmdDescription = const "Show the current configurations."
 
     cmdArgParser = const (pure (pure ShowConfigCommandOptions))

@@ -9,7 +9,6 @@ import           System.IO                 (hFlush, stdout)
 import           Text.Regex.Posix          ((=~))
 
 class ReplCommand a where
-    cmdLabel :: a -> String
     cmdDescription :: a -> String
     cmdArgParser :: a -> AppStateIO (Parser a)
     cmdProcedure :: a -> AppStateIO ()

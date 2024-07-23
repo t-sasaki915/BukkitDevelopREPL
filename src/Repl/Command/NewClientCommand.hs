@@ -20,8 +20,6 @@ data NewClientCommand = NewClientCommand
                             }
 
 instance ReplCommand NewClientCommand where
-    cmdLabel = const "newClient"
-
     cmdDescription = const "Create a new Minecraft client."
 
     cmdArgParser = const newClientCommandArgParser

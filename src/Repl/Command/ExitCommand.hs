@@ -12,8 +12,6 @@ data ExitCommand = ExitCommand
                  | ExitCommandOptions
 
 instance ReplCommand ExitCommand where
-    cmdLabel = const "exit"
-
     cmdDescription = const "Exit the program."
 
     cmdArgParser = const (pure (pure ExitCommandOptions))
