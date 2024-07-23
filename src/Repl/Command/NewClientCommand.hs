@@ -37,7 +37,8 @@ newClientCommandArgParser = do
                <> short 'v'
                <> metavar "MinecraftVersion"
                <> value defaultVersion
-               <> help ("Specifies Minecraft client version. The default is " ++ show defaultVersion)
+               <> showDefault
+               <> help "Specifies Minecraft client version."
                 )
             <*> argument str
                 ( metavar "Username"

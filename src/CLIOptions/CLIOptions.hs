@@ -26,12 +26,14 @@ cliOptionsParser = do
                 ( long "minecraft-dir"
                <> metavar "FilePath"
                <> value defaultMCDir
-               <> help ("Specifies Minecraft directory expressly. The default is '" ++ defaultMCDir ++ "'.")
+               <> showDefault
+               <> help "Specifies Minecraft directory expressly."
                 )
             <*> strOption
                 ( long "config"
                <> metavar "FilePath"
                <> value defaultConfPath
-               <> help ("Specifies config file expressly. The default is '" ++ defaultConfPath ++ "'.")
+               <> showDefault
+               <> help "Specifies config file expressly."
                 )
 
