@@ -8,7 +8,7 @@ module Config.Config
 import           Config.Resource
 
 import           Data.Minecraft.MCServerBrand (MCServerBrand)
-import           Data.Minecraft.MCVersion     (MCVersion (..))
+import           Data.Minecraft.MCVersion     (MCVersion)
 import           Data.Yaml
 
 data Config = Config
