@@ -14,8 +14,14 @@ runMinecraftServer = do
     jvmOptions    <- getServerJvmOptions
     serverVersion <- getServerVersion
     serverBrand   <- getMCServerBrand
+    serverPort    <- getServerPort
 
     let serverJar = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
-    execProcessQuiet javaExecName (jvmOptions ++ ["-jar", serverJar]) workingDir
-        "Failed to execute java that was to run a Minecraft server"
+    handle <- execProcessQuiet javaExecName (jvmOptions ++ ["-jar", serverJar]) workingDir
+        "Failed to execute java that was to run the Minecraft server"
+
+    putStrLn' $
+        show serverBrand ++ " server is listening to the port " ++ show serverPort ++ " of localhost."
+
+    return handle
