@@ -7,8 +7,9 @@ import           System.Directory    (getCurrentDirectory, getHomeDirectory)
 import           System.FilePath     ((</>))
 
 data CLIOptions = CLIOptions
-    { minecraftDir :: FilePath
-    , configFile   :: FilePath
+    { minecraftDir   :: FilePath
+    , configFile     :: FilePath
+    , dynamicPlugins :: Maybe [FilePath]
     }
     deriving Show
 
@@ -35,5 +36,13 @@ cliOptionsParser = do
                <> value defaultConfPath
                <> showDefault
                <> help "Specifies config file expressly."
+                )
+            <*> optional
+                ( some
+                    ( argument str
+                        ( metavar "Plugins..."
+                       <> help "Specifies paths to dynamic plugins."
+                        )
+                    )
                 )
 
