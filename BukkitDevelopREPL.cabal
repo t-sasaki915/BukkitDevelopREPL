@@ -26,6 +26,7 @@ library
       Config.Loader
       Config.Resource
       Data.Minecraft.MCProperty
+      Data.Minecraft.MCVersion
       Minecraft.Client.ClientJsonAnalyser
       Minecraft.Client.MinecraftClient
       Minecraft.Server.Paper.PaperSetup
@@ -33,7 +34,6 @@ library
       Minecraft.Server.MinecraftServer
       Minecraft.Server.MinecraftServerSetup
       Minecraft.Server.ServerBrand
-      Minecraft.MinecraftVersion
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
       Repl.Command.ListClientCommand

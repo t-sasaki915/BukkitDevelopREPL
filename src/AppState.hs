@@ -7,7 +7,6 @@ import           CLIOptions.CLIOptions            (CLIOptions (..))
 import           CLIOptions.Parser                (parseCLIOptions)
 import           Config.Config
 import           Config.Loader                    (loadConfig)
-import           Minecraft.MinecraftVersion       (MinecraftVersion)
 import           Minecraft.Server.ServerBrand     (ServerBrand)
 
 import           Control.Exception                (try)
@@ -16,6 +15,7 @@ import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
 import           Data.Functor                     ((<&>))
+import           Data.Minecraft.MCVersion         (MCVersion)
 import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
 import           System.IO                        (hFlush, stdout)
@@ -34,7 +34,7 @@ data AppState = AppState
 
 data ClientInfo = ClientInfo
     { runningClientName    :: String
-    , runningClientVersion :: MinecraftVersion
+    , runningClientVersion :: MCVersion
     }
     deriving Eq
 
@@ -97,13 +97,13 @@ getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
 getMinecraftBinDir :: AppStateIO FilePath
 getMinecraftBinDir = getMinecraftDir <&> (</> "bin")
 
-getClientDefaultVersion :: AppStateIO MinecraftVersion
+getClientDefaultVersion :: AppStateIO MCVersion
 getClientDefaultVersion = lift get <&> (clientDefaultVersion . clientConfig . _config)
 
 getClientJvmOptions :: AppStateIO [String]
 getClientJvmOptions = lift get <&> (clientJvmOptions . clientConfig . _config)
 
-getServerVersion :: AppStateIO MinecraftVersion
+getServerVersion :: AppStateIO MCVersion
 getServerVersion = lift get <&> (serverVersion . serverConfig . _config)
 
 getServerBrand :: AppStateIO ServerBrand

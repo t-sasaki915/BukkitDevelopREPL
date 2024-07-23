@@ -5,10 +5,10 @@ import           CrossPlatform                       (javaExecName,
                                                       javaLibrarySeparator)
 import           FileIO
 import           Minecraft.Client.ClientJsonAnalyser as ClientJson
-import           Minecraft.MinecraftVersion          (MinecraftVersion (..))
 import           ProcessIO
 
 import           Data.List                           (intercalate)
+import           Data.Minecraft.MCVersion            (MCVersion (..))
 import           System.FilePath                     ((</>))
 import           System.Process                      (ProcessHandle)
 
@@ -19,7 +19,7 @@ makeNecessaryDirectories = do
     makeDirectory workDir $
         "Failed to make a directory '" ++ workDir ++ "'"
 
-createClientProcess :: MinecraftVersion -> String -> AppStateIO ProcessHandle
+createClientProcess :: MCVersion -> String -> AppStateIO ProcessHandle
 createClientProcess clientVersion clientUsername = do
     workDir     <- getClientWorkingDir
     jvmOptions  <- getClientJvmOptions
@@ -39,7 +39,7 @@ createClientProcess clientVersion clientUsername = do
         clientJar = versionsDir </> show clientVersion </> (show clientVersion ++ ".jar")
         libs = map (libsDir </>) libraries ++ [clientJar]
         assetsOptions
-            | clientVersion < MinecraftVersion 1 7 3 =
+            | clientVersion < MCVersion 1 7 3 =
                 [ "--assetsDir"
                 , assetsDir </> "virtual" </> "legacy"
                 ]
@@ -68,7 +68,7 @@ createClientProcess clientVersion clientUsername = do
     execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
         "Failed to execute java that was to run a Minecraft client"
 
-spawnMinecraftClient :: MinecraftVersion -> String -> AppStateIO ProcessHandle
+spawnMinecraftClient :: MCVersion -> String -> AppStateIO ProcessHandle
 spawnMinecraftClient clientVersion clientUsername = do
     makeNecessaryDirectories
     createClientProcess clientVersion clientUsername

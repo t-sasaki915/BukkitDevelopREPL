@@ -5,7 +5,6 @@ module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 import           AppState
 import           CrossPlatform                (curlExecName)
 import           FileIO
-import           Minecraft.MinecraftVersion   ()
 import           Minecraft.Server.ServerBrand (ServerBrand (Paper),
                                                getServerExecutableName)
 import           ProcessIO
@@ -16,6 +15,7 @@ import           Data.Aeson                   (FromJSON (parseJSON),
                                                (.:))
 import           Data.ByteString.Internal     (c2w)
 import           Data.ByteString.Lazy         (pack)
+import           Data.Minecraft.MCVersion     ()
 import           System.FilePath              ((</>))
 
 newtype PaperBuilds = PaperBuilds

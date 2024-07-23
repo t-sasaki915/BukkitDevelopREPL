@@ -5,12 +5,12 @@ module Minecraft.Client.ClientJsonAnalyser (getAssetIndex, getMainClass, getLibr
 import           AppState
 import           CrossPlatform              (OSType (..), currentOSType)
 import           FileIO
-import           Minecraft.MinecraftVersion (MinecraftVersion (..))
 
 import           Control.Monad.Trans.Except (throwE)
 import           Data.Aeson
 import           Data.ByteString            (fromStrict)
 import           Data.Maybe                 (maybeToList)
+import           Data.Minecraft.MCVersion   (MCVersion (..))
 import           System.FilePath            ((</>))
 
 data RuleAction = Allow | Disallow deriving (Show, Eq)
@@ -131,7 +131,7 @@ instance FromJSON ClientJson where
 
     parseJSON x = fail ("Failed to parse client.json: " ++ show x)
 
-parseClientJson :: MinecraftVersion -> AppStateIO ClientJson
+parseClientJson :: MCVersion -> AppStateIO ClientJson
 parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir
     let clientJsonPath = versionsDir </> show mcVersion </> (show mcVersion ++ ".json")
@@ -142,17 +142,17 @@ parseClientJson mcVersion = do
         Right clientJson -> return clientJson
         Left err         -> throwE ("Failed to parse client.json: " ++ err)
 
-getAssetIndex :: MinecraftVersion -> AppStateIO String
+getAssetIndex :: MCVersion -> AppStateIO String
 getAssetIndex mcVersion = do
     clientJson <- parseClientJson mcVersion
     return (assetIndexId (assetIndex clientJson))
 
-getMainClass :: MinecraftVersion -> AppStateIO String
+getMainClass :: MCVersion -> AppStateIO String
 getMainClass mcVersion = do
     clientJson <- parseClientJson mcVersion
     return (mainClass clientJson)
 
-getLibraries :: MinecraftVersion -> AppStateIO [String]
+getLibraries :: MCVersion -> AppStateIO [String]
 getLibraries mcVersion = do
     clientJson <- parseClientJson mcVersion
     return (foldl gatherLibraries [] (libraries clientJson))
