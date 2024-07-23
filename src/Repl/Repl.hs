@@ -53,8 +53,8 @@ execReplCommand cmdName cmdArgs =
                     let (helpMsg, _, _) = execFailure err cmdName in
                         putStrLn' (show helpMsg)
 
-                CompletionInvoked x ->
-                    putStrLn' (show x)
+                CompletionInvoked _ ->
+                    return ()
 
 repLoop :: AppState -> IO ()
 repLoop appState = do
