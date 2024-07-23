@@ -34,6 +34,20 @@ server:
     #     ]
     staticPlugins: []
 
+    port: 25565
+
+    # Using online mode will make dev clients unusable.
+    onlineMode: false
+
+    motd: "Plugin DEV Server"
+
+    maxPlayers: 5
+
+    enableCommandBlocks: true
+
+    # Acceptable values: "survival", "creative", "adventure", "spectator" and 0-3
+    defaultGameMode: "creative"
+
 client:
     defaultVersion: "1.20.1"
 

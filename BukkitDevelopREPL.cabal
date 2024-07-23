@@ -25,6 +25,7 @@ library
       Config.Config
       Config.Loader
       Config.Resource
+      Data.Minecraft.MCGameMode
       Data.Minecraft.MCProperty
       Data.Minecraft.MCServerBrand
       Data.Minecraft.MCVersion

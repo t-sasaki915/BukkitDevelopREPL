@@ -14,6 +14,7 @@ import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
 import           Data.Functor                     ((<&>))
+import           Data.Minecraft.MCGameMode        (MCGameMode)
 import           Data.Minecraft.MCServerBrand     (MCServerBrand)
 import           Data.Minecraft.MCVersion         (MCVersion)
 import           System.Directory                 (makeAbsolute)
@@ -111,6 +112,27 @@ getMCServerBrand = lift get <&> (serverBrand . serverConfig . _config)
 
 getServerJvmOptions :: AppStateIO [String]
 getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . _config)
+
+getServerStaticPlugins :: AppStateIO [String]
+getServerStaticPlugins = lift get <&> (serverStaticPlugins . serverConfig . _config)
+
+getServerPort :: AppStateIO Int
+getServerPort = lift get <&> (serverPort . serverConfig . _config)
+
+shouldServerUseOnlineMode :: AppStateIO Bool
+shouldServerUseOnlineMode = lift get <&> (serverOnlineMode . serverConfig . _config)
+
+getServerMotd :: AppStateIO String
+getServerMotd = lift get <&> (serverMotd . serverConfig . _config)
+
+getServerMaxPlayers :: AppStateIO Int
+getServerMaxPlayers = lift get <&> (serverMaxPlayers . serverConfig . _config)
+
+shouldServerEnableCommandBlocks :: AppStateIO Bool
+shouldServerEnableCommandBlocks = lift get <&> (serverEnableCommandBlocks . serverConfig . _config)
+
+getServerDefaultGameMode :: AppStateIO MCGameMode
+getServerDefaultGameMode = lift get <&> (serverDefaultGameMode . serverConfig . _config)
 
 registerNewClient :: ClientInfo -> ProcessHandle -> AppStateIO ()
 registerNewClient clientInfo clientHandle = do

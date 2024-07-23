@@ -23,6 +23,7 @@ import           Control.Monad.Trans.State.Strict (State, evalState, get, put)
 import           Data.Bifunctor                   (second)
 import           Data.Functor                     ((<&>))
 import           Data.Maybe                       (maybeToList)
+import           Data.Minecraft.MCGameMode        (MCGameMode (..))
 import           Text.Read                        (readMaybe)
 import           Text.Regex.Posix                 ((=~))
 
@@ -36,12 +37,16 @@ instance Show MCProperty where
 data MCPropertyValue = MCString String
                      | MCInt Int
                      | MCBool Bool
+                     | MCGameMode MCGameMode
+                     | MCNull
 
 instance Show MCPropertyValue where
-    show (MCString str) = str
-    show (MCInt x)      = show x
-    show (MCBool True)  = "true"
-    show (MCBool False) = "false"
+    show (MCString str)  = str
+    show (MCInt x)       = show x
+    show (MCBool True)   = "true"
+    show (MCBool False)  = "false"
+    show (MCGameMode gm) = show gm
+    show MCNull          = ""
 
 decodeLine :: String -> Except String (Maybe MCProperty)
 decodeLine ""          = return Nothing
@@ -51,16 +56,25 @@ decodeLine (' '  : xs) = decodeLine xs
 decodeLine ('\t' : xs) = decodeLine xs
 decodeLine ('\n' : xs) = decodeLine xs
 decodeLine str
-    | str =~ ("^([^=]+=[^=]+)$" :: String) =
+    | str =~ ("^[^=]+=[ \t]*$" :: String) =
+        let (key, _) = span (/= '=') str in
+            return $ Just (MCProperty key MCNull)
+
+    | str =~ ("^[^=]+=.+$" :: String) =
         let (key, value) = second tail (span (/= '=') str) in
             return $ Just $ MCProperty key $
                 case readMaybe value :: Maybe Int of
                     Just x  -> MCInt x
                     Nothing ->
                         case value of
-                            "true"  -> MCBool True
-                            "false" -> MCBool False
-                            _       -> MCString value
+                            "true"      -> MCBool True
+                            "false"     -> MCBool False
+                            "survival"  -> MCGameMode Survival
+                            "creative"  -> MCGameMode Creative
+                            "adventure" -> MCGameMode Adventure
+                            "spectator" -> MCGameMode Spectator
+                            _           -> MCString value
+
     | otherwise =
         throwE ("Unrecognisable property '" ++ str ++ "'")
 
@@ -101,11 +115,15 @@ getProperties = get
 
 setProperty :: String -> MCPropertyValue -> State MCProperties ()
 setProperty key newValue = do
-    current <- getProperties
-    put $ flip map current $
-        \case
-            (MCProperty k _) | k == key -> MCProperty k newValue
-            x                           -> x
+    getProperty key >>= \case
+        Just _ -> do
+            current <- getProperties
+            put $ flip map current $
+                \case
+                    (MCProperty k _) | k == key -> MCProperty k newValue
+                    x                           -> x
+        Nothing ->
+            addProperty key newValue
 
 addProperty :: String -> MCPropertyValue -> State MCProperties ()
 addProperty key value = do

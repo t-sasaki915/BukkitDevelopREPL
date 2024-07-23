@@ -5,7 +5,8 @@ module Repl.Command.StartServerCommand (StartServerCommand(StartServerCommand)) 
 import           AppState
 import           FileIO
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
-import           Minecraft.Server.MinecraftServerSetup (setupMinecraftServer)
+import           Minecraft.Server.MinecraftServerSetup (editServerProperties,
+                                                        setupMinecraftServer)
 import           Repl.ReplCommand                      (ReplCommand (..),
                                                         confirmContinue)
 
@@ -57,13 +58,15 @@ startServerCommandProcedure opts = do
                 ("Failed to check the existence of '" ++ serverJarPath ++ "'") >>= \case
                     True -> return ()
                     False -> do
-                        putStrLn' ("Could not find '" ++ serverJarPath ++ "'. Need to setup.")
+                        putStrLn' ("Could not find '" ++ serverJarPath ++ "'. Need to download.")
 
                         setupMinecraftServer
 
-                        putStrLn' "Successfully setup-ed the Minecraft server."
+                        putStrLn' "Successfully downloaded the Minecraft server."
 
             checkEula (acceptEula opts)
+
+            editServerProperties
 
             serverHandle <- runMinecraftServer
             registerServer serverHandle

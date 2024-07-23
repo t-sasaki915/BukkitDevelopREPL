@@ -7,6 +7,7 @@ module Config.Config
 
 import           Config.Resource
 
+import           Data.Minecraft.MCGameMode    (MCGameMode)
 import           Data.Minecraft.MCServerBrand (MCServerBrand)
 import           Data.Minecraft.MCVersion     (MCVersion)
 import           Data.Yaml
@@ -30,11 +31,11 @@ instance FromJSON Config where
     parseJSON _ = fail "Unrecognisable config"
 
 instance ToJSON Config where
-    toJSON (Config cApplicationConfig cServerConfig cClientConfig) =
+    toJSON conf =
         object
-            [ "application" .= cApplicationConfig
-            , "server"      .= cServerConfig
-            , "client"      .= cClientConfig
+            [ "application" .= applicationConfig conf
+            , "server"      .= serverConfig conf
+            , "client"      .= clientConfig conf
             ]
 
 defaultConfig :: Config
@@ -59,10 +60,10 @@ instance FromJSON ApplicationConfig where
     parseJSON _ = fail "Unrecognisable application config"
 
 instance ToJSON ApplicationConfig where
-    toJSON (ApplicationConfig aWorkingDir aAutoexecCommands) =
+    toJSON conf =
         object
-            [ "workingDir" .= aWorkingDir
-            , "autoexec"   .= aAutoexecCommands
+            [ "workingDir" .= workingDir conf
+            , "autoexec"   .= autoexecCommands conf
             ]
 
 defaultApplicationConfig :: ApplicationConfig
@@ -72,30 +73,42 @@ defaultApplicationConfig =
         defaultApplicationAutoexec
 
 data ServerConfig = ServerConfig
-    { serverBrand         :: MCServerBrand
-    , serverVersion       :: MCVersion
-    , serverJvmOptions    :: [String]
-    , serverStaticPlugins :: [FilePath]
+    { serverBrand               :: MCServerBrand
+    , serverVersion             :: MCVersion
+    , serverJvmOptions          :: [String]
+    , serverStaticPlugins       :: [FilePath]
+    , serverPort                :: Int
+    , serverOnlineMode          :: Bool
+    , serverMotd                :: String
+    , serverMaxPlayers          :: Int
+    , serverEnableCommandBlocks :: Bool
+    , serverDefaultGameMode     :: MCGameMode
     }
     deriving Show
 
 instance FromJSON ServerConfig where
     parseJSON (Object m) =
         ServerConfig
-            <$> m .:? "brand"         .!= defaultServerBrand
-            <*> m .:? "version"       .!= defaultServerVersion
-            <*> m .:? "jvmOptions"    .!= defaultServerJvmOptions
-            <*> m .:? "staticPlugins" .!= defaultServerStaticPlugins
+            <$> m .:? "brand"               .!= defaultServerBrand
+            <*> m .:? "version"             .!= defaultServerVersion
+            <*> m .:? "jvmOptions"          .!= defaultServerJvmOptions
+            <*> m .:? "staticPlugins"       .!= defaultServerStaticPlugins
+            <*> m .:? "port"                .!= defaultServerPort
+            <*> m .:? "onlineMode"          .!= defaultServerOnlineMode
+            <*> m .:? "motd"                .!= defaultServerMotd
+            <*> m .:? "maxPlayers"          .!= defaultServerMaxPlayers
+            <*> m .:? "enableCommandBlocks" .!= defaultServerEnableCommandBlocks
+            <*> m .:? "defaultGameMode"     .!= defaultServerDefaultGameMode
 
     parseJSON _ = fail "Unrecognisable server config"
 
 instance ToJSON ServerConfig where
-    toJSON (ServerConfig sBrand sVersion sJvmOptions sStaticPlugins) =
+    toJSON conf =
         object
-            [ "brand"         .= sBrand
-            , "version"       .= sVersion
-            , "jvmOptions"    .= sJvmOptions
-            , "staticPlugins" .= sStaticPlugins
+            [ "brand"         .= serverBrand conf
+            , "version"       .= serverVersion conf
+            , "jvmOptions"    .= serverJvmOptions conf
+            , "staticPlugins" .= serverStaticPlugins conf
             ]
 
 defaultServerConfig :: ServerConfig
@@ -105,6 +118,12 @@ defaultServerConfig =
         defaultServerVersion
         defaultServerJvmOptions
         defaultServerStaticPlugins
+        defaultServerPort
+        defaultServerOnlineMode
+        defaultServerMotd
+        defaultServerMaxPlayers
+        defaultServerEnableCommandBlocks
+        defaultServerDefaultGameMode
 
 data ClientConfig = ClientConfig
     { clientDefaultVersion :: MCVersion
@@ -121,10 +140,10 @@ instance FromJSON ClientConfig where
     parseJSON _ = fail "Unrecognisable client config"
 
 instance ToJSON ClientConfig where
-    toJSON (ClientConfig cDefaultVersion cJvmOptions) =
+    toJSON conf =
         object
-            [ "defaultVersion" .= cDefaultVersion
-            , "jvmOptions"     .= cJvmOptions
+            [ "defaultVersion" .= clientDefaultVersion conf
+            , "jvmOptions"     .= clientJvmOptions conf
             ]
 
 defaultClientConfig :: ClientConfig

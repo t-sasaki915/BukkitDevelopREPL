@@ -8,12 +8,19 @@ module Config.Resource
     , defaultServerVersion
     , defaultServerJvmOptions
     , defaultServerStaticPlugins
+    , defaultServerPort
+    , defaultServerOnlineMode
+    , defaultServerMotd
+    , defaultServerMaxPlayers
+    , defaultServerEnableCommandBlocks
+    , defaultServerDefaultGameMode
     , defaultClientDefaultVersion
     , defaultClientJvmOptions
     ) where
 
 import           Data.ByteString              (ByteString)
 import           Data.FileEmbed               (embedFile)
+import           Data.Minecraft.MCGameMode    (MCGameMode (..))
 import           Data.Minecraft.MCServerBrand (MCServerBrand (..))
 import           Data.Minecraft.MCVersion     (MCVersion (..))
 
@@ -40,6 +47,24 @@ defaultServerJvmOptions =
 
 defaultServerStaticPlugins :: [FilePath]
 defaultServerStaticPlugins = []
+
+defaultServerPort :: Int
+defaultServerPort = 25565
+
+defaultServerOnlineMode :: Bool
+defaultServerOnlineMode = False
+
+defaultServerMotd :: String
+defaultServerMotd = "Plugin DEV Server"
+
+defaultServerMaxPlayers :: Int
+defaultServerMaxPlayers = 5
+
+defaultServerEnableCommandBlocks :: Bool
+defaultServerEnableCommandBlocks = True
+
+defaultServerDefaultGameMode :: MCGameMode
+defaultServerDefaultGameMode = Creative
 
 defaultClientDefaultVersion :: MCVersion
 defaultClientDefaultVersion = MCVersion 1 20 1
