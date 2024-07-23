@@ -13,10 +13,11 @@ license-file:   LICENSE
 build-type:     Simple
 extra-source-files:
     README.md
+    .BukkitDevelopREPL.yaml
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/BukkitDevelopREPL
+  location: https://github.com/t-sasaki915/BukkitDevelopREPL
 
 library
   exposed-modules:
@@ -90,6 +91,5 @@ executable BukkitDevelopREPL-exe
   build-depends:
       base >=4.7 && <5
     , BukkitDevelopREPL
-    , transformers ==0.6.1.0
   default-language: Haskell2010
   default-extensions: LambdaCase
