@@ -7,7 +7,6 @@ import           CLIOptions.CLIOptions            (CLIOptions (..))
 import           CLIOptions.Parser                (parseCLIOptions)
 import           Config.Config
 import           Config.Loader                    (loadConfig)
-import           Minecraft.Server.ServerBrand     (ServerBrand)
 
 import           Control.Exception                (try)
 import           Control.Lens                     (makeLenses, over, set)
@@ -15,6 +14,7 @@ import           Control.Monad.Trans.Class        (lift)
 import           Control.Monad.Trans.Except       (ExceptT, throwE)
 import           Control.Monad.Trans.State.Strict (StateT, get, put)
 import           Data.Functor                     ((<&>))
+import           Data.Minecraft.MCServerBrand     (MCServerBrand)
 import           Data.Minecraft.MCVersion         (MCVersion)
 import           System.Directory                 (makeAbsolute)
 import           System.FilePath                  ((</>))
@@ -106,8 +106,8 @@ getClientJvmOptions = lift get <&> (clientJvmOptions . clientConfig . _config)
 getServerVersion :: AppStateIO MCVersion
 getServerVersion = lift get <&> (serverVersion . serverConfig . _config)
 
-getServerBrand :: AppStateIO ServerBrand
-getServerBrand = lift get <&> (serverBrand . serverConfig . _config)
+getMCServerBrand :: AppStateIO MCServerBrand
+getMCServerBrand = lift get <&> (serverBrand . serverConfig . _config)
 
 getServerJvmOptions :: AppStateIO [String]
 getServerJvmOptions = lift get <&> (serverJvmOptions . serverConfig . _config)

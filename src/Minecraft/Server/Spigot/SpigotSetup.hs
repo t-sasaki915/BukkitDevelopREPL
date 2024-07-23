@@ -3,10 +3,10 @@ module Minecraft.Server.Spigot.SpigotSetup (setupSpigot) where
 import           AppState
 import           CrossPlatform                (curlExecName, javaExecName)
 import           FileIO
-import           Minecraft.Server.ServerBrand (ServerBrand (Spigot),
-                                               getServerExecutableName)
 import           ProcessIO
 
+import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
+                                               getMCServerExecutableName)
 import           System.FilePath              ((</>))
 
 makeNecessaryDirectories :: AppStateIO ()
@@ -50,7 +50,7 @@ adoptServerJar = do
     buildDir      <- getBuildDir
     serverVersion <- getServerVersion
 
-    let copyPath      = workingDir </> getServerExecutableName Spigot serverVersion
+    let copyPath      = workingDir </> getMCServerExecutableName Spigot serverVersion
         serverJarPath = buildDir </> ("spigot-" ++ show serverVersion ++ ".jar")
 
     copyFile' serverJarPath copyPath $

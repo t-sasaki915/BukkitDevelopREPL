@@ -5,8 +5,7 @@ module Config.Config
     , ClientConfig(..)
     ) where
 
-import           Minecraft.Server.ServerBrand (ServerBrand)
-
+import           Data.Minecraft.MCServerBrand (MCServerBrand)
 import           Data.Minecraft.MCVersion     (MCVersion)
 import           Data.Yaml                    (FromJSON (..), Value (..), (.:))
 
@@ -24,7 +23,7 @@ data ApplicationConfig = ApplicationConfig
     deriving Show
 
 data ServerConfig = ServerConfig
-    { serverBrand         :: ServerBrand
+    { serverBrand         :: MCServerBrand
     , serverVersion       :: MCVersion
     , serverJvmOptions    :: [String]
     , serverStaticPlugins :: [FilePath]

@@ -6,12 +6,12 @@ import           AppState
 import           FileIO
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
 import           Minecraft.Server.MinecraftServerSetup (setupMinecraftServer)
-import           Minecraft.Server.ServerBrand          (getServerExecutableName)
 import           Repl.Command.ReplCommand              (ReplCommand (..))
 import           Repl.Util                             (confirmContinue)
 
 import           Control.Monad.Trans.Except            (throwE)
 import           Data.Minecraft.MCProperty
+import           Data.Minecraft.MCServerBrand          (getMCServerExecutableName)
 import           Options.Applicative
 import           System.FilePath                       ((</>))
 
@@ -49,9 +49,9 @@ startServerCommandProcedure opts = do
         Nothing -> do
             workingDir    <- getWorkingDir
             serverVersion <- getServerVersion
-            serverBrand   <- getServerBrand
+            serverBrand   <- getMCServerBrand
 
-            let serverJarPath = workingDir </> getServerExecutableName serverBrand serverVersion
+            let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
             checkFileExistence serverJarPath
                 ("Failed to check the existence of '" ++ serverJarPath ++ "'") >>= \case

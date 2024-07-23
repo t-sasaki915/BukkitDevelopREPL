@@ -3,8 +3,6 @@ module Minecraft.Server.Paper.PaperSetup (setupPaper) where
 import           AppState
 import           CrossPlatform                (curlExecName)
 import           FileIO
-import           Minecraft.Server.ServerBrand (ServerBrand (Paper),
-                                               getServerExecutableName)
 import           ProcessIO
 
 import           Control.Monad.Trans.Except   (throwE)
@@ -13,6 +11,8 @@ import           Data.Aeson                   (FromJSON (parseJSON),
                                                (.:))
 import           Data.ByteString.Internal     (c2w)
 import           Data.ByteString.Lazy         (pack)
+import           Data.Minecraft.MCServerBrand (MCServerBrand (Paper),
+                                               getMCServerExecutableName)
 import           Data.Minecraft.MCVersion     ()
 import           System.FilePath              ((</>))
 
@@ -57,7 +57,7 @@ downloadLatestPaper = do
 
     let latest   = show $ last (builds paperBuilds)
         jarName  = "paper-" ++ show ver ++ "-" ++ latest ++ ".jar"
-        jarName' = getServerExecutableName Paper ver
+        jarName' = getMCServerExecutableName Paper ver
         jarUrl   = "https://api.papermc.io/v2/projects/paper/versions/" ++ show ver ++ "/builds/" ++ latest ++ "/downloads/" ++ jarName
         jarPath  = workingDir </> jarName'
 

@@ -3,10 +3,10 @@ module Minecraft.Server.MinecraftServerSetup (setupMinecraftServer) where
 import           AppState
 import           FileIO
 import           Minecraft.Server.Paper.PaperSetup   (setupPaper)
-import           Minecraft.Server.ServerBrand        (ServerBrand (..))
 import           Minecraft.Server.Spigot.SpigotSetup (setupSpigot)
 
 import           Data.Minecraft.MCProperty
+import           Data.Minecraft.MCServerBrand        (MCServerBrand (..))
 import           System.FilePath                     ((</>))
 
 generateInitialServerProperties :: AppStateIO ()
@@ -31,7 +31,7 @@ generateInitialServerProperties = do
 
 setupMinecraftServer :: AppStateIO ()
 setupMinecraftServer = do
-    serverBrand <- getServerBrand
+    serverBrand <- getMCServerBrand
 
     case serverBrand of
         Spigot -> setupSpigot

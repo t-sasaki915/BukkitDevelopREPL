@@ -26,6 +26,7 @@ library
       Config.Loader
       Config.Resource
       Data.Minecraft.MCProperty
+      Data.Minecraft.MCServerBrand
       Data.Minecraft.MCVersion
       Minecraft.Client.ClientJsonAnalyser
       Minecraft.Client.MinecraftClient
@@ -33,7 +34,6 @@ library
       Minecraft.Server.Spigot.SpigotSetup
       Minecraft.Server.MinecraftServer
       Minecraft.Server.MinecraftServerSetup
-      Minecraft.Server.ServerBrand
       Repl.Command.ExitCommand
       Repl.Command.HelpCommand
       Repl.Command.ListClientCommand
