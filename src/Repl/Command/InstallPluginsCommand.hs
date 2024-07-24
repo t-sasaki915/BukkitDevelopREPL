@@ -72,24 +72,13 @@ installPluginsCommandProcedure opts = do
 
     removeUnusedPlugins
 
-    dynamicPlugins <- getDynamicPlugins
-    staticPlugins  <- getStaticPlugins
+    unless staticOnly
+        installDynamicPlugins
 
-    unless staticOnly $
-        if null dynamicPlugins then
-            putStrLn' "There was no dynamic plugin to install."
+    unless dynamicOnly
+        installStaticPlugins
 
-        else do
-            installDynamicPlugins
-            putStrLn' "Successfully installed dynamic plugins."
-
-    unless dynamicOnly $ do
-        if null staticPlugins then
-            putStrLn' "There was no static plugin to install."
-
-        else do
-            installStaticPlugins
-            putStrLn' "Successfully installed static plugins."
+    putStrLn' "Successfully installed plugins."
 
     when restart $
         executeReplCommandInternal StartServerCommand []
