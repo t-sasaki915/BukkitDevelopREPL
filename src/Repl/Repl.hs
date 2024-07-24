@@ -111,6 +111,4 @@ startRepl = do
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
     putStrLn ""
 
-    newState <- runAutoexec initState
-
-    repLoop newState
+    runAutoexec initState >>= repLoop
