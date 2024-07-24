@@ -90,9 +90,17 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
                 Right ((), newState) ->
                     return newState
 
-                Left err -> do
-                    print err
-                    return appState'
+                Left err ->
+                    case show err of
+                        s | s =~ ("^ExitSuccess$" :: String) ->
+                            exitSuccess
+
+                        s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
+                            exitFailure
+
+                        errorMsg -> do
+                            putStrLn errorMsg
+                            return appState
 
 startRepl :: IO ()
 startRepl = do
