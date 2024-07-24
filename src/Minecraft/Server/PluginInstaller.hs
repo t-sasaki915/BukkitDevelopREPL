@@ -8,12 +8,12 @@ module Minecraft.Server.PluginInstaller
 import           Imports
 
 import           AppState
-import           CrossPlatform   (curlExecName)
-import           FileIO
+import           CrossPlatform    (curlExecName)
 import           ProcessIO
 
 import           Network.Url
-import           System.FilePath (takeFileName)
+import           System.Directory
+import           System.FilePath  (takeFileName)
 
 initialisePluginFileNameMap :: AppStateIO ()
 initialisePluginFileNameMap = do
@@ -34,7 +34,7 @@ initialisePluginFileNameMap = do
         setStaticPluginFileNameMap staticPluginNames
     where
         getFileName :: FilePath -> AppStateIO String
-        getFileName filePath | isUrl filePath = getFileNameFromUrl Jar filePath
+        getFileName filePath | isUrl filePath = lift $ getFileNameFromUrl Jar filePath
         getFileName filePath = return (takeFileName filePath)
 
 removeUnusedPlugins :: AppStateIO ()
@@ -43,15 +43,11 @@ removeUnusedPlugins = do
     dynamicPlugins <- getDynamicPlugins
     staticPlugins  <- getStaticPlugins
 
-    unlessM (checkDirectoryExistence pluginsDir (printf "Failed to check the existence of a directory '%s': %%s." pluginsDir)) $
-        makeDirectory pluginsDir $
-            printf "Failed to create a directory '%s': %%s." pluginsDir
+    unlessM (lift (doesDirectoryExist pluginsDir)) $
+        lift (createDirectoryIfMissing True pluginsDir)
 
-    dirContents <- directoryContents pluginsDir $
-        printf "Failed to enumerate the contents of '%s': %%s." pluginsDir
-    files <- flip filterM dirContents $ \content ->
-        checkFileExistence content $
-            printf "Failed to check the existence of '%s': %%s." content
+    dirContents <- map (pluginsDir </>) <$> lift (listDirectory pluginsDir)
+    files <- filterM (lift . doesFileExist) dirContents
 
     let jarFiles = filter (=~ (".+\\.jar$" :: String)) files
 
@@ -60,8 +56,7 @@ removeUnusedPlugins = do
 
     forM_ jarFiles $ \jarFile ->
         unless (takeFileName jarFile `elem` (dynamicPluginNames ++ staticPluginNames)) $ do
-            removeFile' jarFile $
-                printf "Failed to remove and unused plugin '%s': %%s." jarFile
+            lift (removeFile jarFile)
 
             putStrLn' (printf "Removed an unused plugin '%s'." (takeFileName jarFile))
 
@@ -74,33 +69,28 @@ installDynamicPlugins = do
         pluginName <- getDynamicPluginFileName plugin
         let pluginPath = pluginsDir </> pluginName
 
-        whenM (checkFileExistence pluginPath (printf "Failed to check the existence of '%s': %%s." pluginPath)) $ do
-            removeFile' pluginPath $
-                printf "Failed to remove an old plugin '%s': %%s." pluginPath
+        whenM (lift (doesFileExist pluginPath)) $ do
+            lift (removeFile pluginPath)
 
             putStrLn' (printf "Removed an old plugin '%s'." pluginName)
 
     forM_ dynamicPlugins $ \case
         pluginPath | not (isUrl pluginPath) ->
-            checkFileExistence pluginPath
-                (printf "Failed to check the existence of '%s': %%s." pluginPath) >>= \case
+            lift (doesFileExist pluginPath) >>= \case
                     True -> do
-                        copyFile' pluginPath (pluginsDir </> takeFileName pluginPath) $
-                            printf "Failed to copy a plugin '%s' to '%s': %%s." pluginPath (pluginsDir </> takeFileName pluginPath)
+                        lift (copyFile pluginPath (pluginsDir </> takeFileName pluginPath))
 
                         putStrLn' (printf "Installed a plugin '%s'." (takeFileName pluginPath))
 
                     False ->
-                        throwE (printf "Could not find a plugin '%s'." pluginPath)
+                        error (printf "Could not find a plugin '%s'." pluginPath)
 
         pluginUrl -> do
             pluginName <- getDynamicPluginFileName pluginUrl
             let downloadPath = pluginsDir </> pluginName
 
-            execProcess curlExecName ["-L", "-o", downloadPath, pluginUrl] pluginsDir
-                (printf "Failed to execute curl that was to download a plugin '%s': %%s." pluginUrl) >>=
-                    expectExitSuccess
-                        (printf "Failed to download a plugin '%s': %%s." pluginUrl)
+            execProcess curlExecName ["-L", "-o", downloadPath, pluginUrl] pluginsDir >>=
+                expectExitSuccess (printf "Failed to download a plugin '%s': %%s." pluginUrl)
 
             putStrLn' (printf "Installed a plugin '%s'." pluginName)
 
@@ -112,29 +102,24 @@ installStaticPlugins = do
     forM_ staticPlugins $ \plugin -> do
         pluginName <- getStaticPluginFileName plugin
 
-        checkFileExistence (pluginsDir </> pluginName)
-            (printf "Failed to check the existence of '%s': %%s." (pluginsDir </> pluginName)) >>= \case
-                True ->
-                    putStrLn' (printf "Skipped a plugin '%s'." pluginName)
+        lift (doesFileExist (pluginsDir </> pluginName)) >>= \case
+            True ->
+                putStrLn' (printf "Skipped a plugin '%s'." pluginName)
 
-                False | not (isUrl plugin) ->
-                    checkFileExistence plugin
-                        (printf "Failed to check the existence of '%s': %%s." plugin) >>= \case
-                            True -> do
-                                copyFile' plugin (pluginsDir </> pluginName) $
-                                    printf "Failed to copy a plugin '%s' to '%s': %%s." plugin (pluginsDir </> pluginName)
+            False | not (isUrl plugin) ->
+                lift (doesFileExist plugin) >>= \case
+                        True -> do
+                            lift (copyFile plugin (pluginsDir </> pluginName))
 
-                                putStrLn' (printf "Installed a plugin '%s'." pluginName)
+                            putStrLn' (printf "Installed a plugin '%s'." pluginName)
 
-                            False ->
-                                throwE (printf "Could not find a plugin '%s'." plugin)
+                        False ->
+                            error (printf "Could not find a plugin '%s'." plugin)
 
-                False -> do
-                    let downloadPath = pluginsDir </> pluginName
+            False -> do
+                let downloadPath = pluginsDir </> pluginName
 
-                    execProcess curlExecName ["-L", "-o", downloadPath, plugin] pluginsDir
-                        (printf "Failed to execute curl that was to download a plugin '%s': %%s." plugin) >>=
-                            expectExitSuccess
-                                (printf "Failed to download a plugin '%s': %%s." plugin)
+                execProcess curlExecName ["-L", "-o", downloadPath, plugin] pluginsDir >>=
+                    expectExitSuccess (printf "Failed to download a plugin '%s': %%s." plugin)
 
-                    putStrLn' (printf "Installed a plugin '%s'." pluginName)
+                putStrLn' (printf "Installed a plugin '%s'." pluginName)

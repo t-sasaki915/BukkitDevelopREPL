@@ -4,7 +4,6 @@ import           Imports
 
 import           AppState
 import           CrossPlatform                (curlExecName)
-import           FileIO
 import           ProcessIO
 
 import           Data.Aeson                   (FromJSON (parseJSON),
@@ -31,9 +30,7 @@ instance FromJSON PaperBuilds where
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     workingDir <- getWorkingDir
-
-    makeDirectory workingDir $
-        printf "Failed to make a directory '%s': %%s." workingDir
+    lift (createDirectoryIfMissing True workingDir)
 
 fetchPaperBuilds :: AppStateIO PaperBuilds
 fetchPaperBuilds = do
@@ -43,11 +40,10 @@ fetchPaperBuilds = do
     putStrLn' "Fetching Paper Downloads API..."
 
     let apiUrl = printf "https://api.papermc.io/v2/projects/paper/versions/%s" (show serverVersion)
-    execProcessAndGetOutput curlExecName ["-s", apiUrl] workingDir
-        "Failed to execute curl that was to fetch Paper Downloads API: %s" >>=
-            \rawJson -> case eitherDecode (pack (map c2w rawJson)) of
-                Right paperBuilds -> return paperBuilds
-                Left err          -> throwE err
+    execProcessAndGetOutput curlExecName ["-s", apiUrl] workingDir >>= \rawJson ->
+        case eitherDecode (pack (map c2w rawJson)) of
+            Right paperBuilds -> return paperBuilds
+            Left err          -> error err
 
 downloadLatestPaper :: AppStateIO ()
 downloadLatestPaper = do
@@ -63,10 +59,8 @@ downloadLatestPaper = do
 
     putStrLn' (printf "Downloading Paper %s Build %d ..." (show ver) latest)
 
-    execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir
-        (printf "Failed to execute curl that was to download a Paper server '%s': %%s." jarUrl) >>=
-            expectExitSuccess
-                (printf "Failed to download a Paper server '%s': %%s." jarUrl)
+    execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir >>=
+        expectExitSuccess (printf "Failed to download a Paper server '%s': %%s." jarUrl)
 
 setupPaper :: AppStateIO ()
 setupPaper = do

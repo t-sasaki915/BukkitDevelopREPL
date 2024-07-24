@@ -19,7 +19,7 @@ module Data.Minecraft.MCProperty
 
 import           Imports
 
-import           Control.Monad.Trans.Except       (Except, runExcept)
+import           Control.Monad.Trans.Except       (Except, runExcept, throwE)
 import           Control.Monad.Trans.State.Strict (State, evalState, get, put)
 import           Data.Bifunctor                   (second)
 import           Data.Maybe                       (maybeToList)

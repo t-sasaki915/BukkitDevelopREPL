@@ -49,20 +49,20 @@ newClientCommandProcedure :: NewClientCommand -> AppStateIO ()
 newClientCommandProcedure opts = do
     serverOnlineMode <- shouldServerUseOnlineMode
     when serverOnlineMode $
-        throwE "The Minecraft server is using online mode. DEV clients are unusable."
+        error "The Minecraft server is using online mode. DEV clients are unusable."
 
     let cVersion  = clientVersion opts
         username = clientUsername opts
 
     when (cVersion < MCVersion 1 6 1) $
-        throwE "Minecraft versions older than 1.6.1 are not supported."
+        error "Minecraft versions older than 1.6.1 are not supported."
 
     updateClientList
 
     clients <- getClients
 
     when (isJust $ lookup username (map (first runningClientName) clients)) $
-        throwE (printf "A Minecraft client whose name is '%s' is existing." username)
+        error (printf "A Minecraft client whose name is '%s' is existing." username)
 
     clientProcess <- spawnMinecraftClient cVersion username
     registerNewClient (ClientInfo username cVersion) clientProcess

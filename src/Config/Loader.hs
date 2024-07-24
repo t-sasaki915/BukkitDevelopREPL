@@ -2,13 +2,12 @@ module Config.Loader (loadConfig) where
 
 import           Imports
 
-import           Config.Config    (Config)
-import           Config.Resource  (defaultConfigFile)
+import           Config.Config   (Config)
+import           Config.Resource (defaultConfigFile)
 
-import qualified Data.ByteString  as BS
-import           Data.Yaml        (decodeEither', prettyPrintParseException)
-import           System.Directory (doesFileExist)
-import           System.Exit      (exitFailure)
+import qualified Data.ByteString as BS
+import           Data.Yaml       (decodeEither', prettyPrintParseException)
+import           System.Exit     (exitFailure)
 
 writeDefaultConfigFile :: FilePath -> IO ()
 writeDefaultConfigFile filePath =

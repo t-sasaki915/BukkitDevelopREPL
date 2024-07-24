@@ -10,8 +10,8 @@ import           System.IO           (hFlush, stdout)
 
 class ReplCommand a where
     cmdDescription :: a -> String
-    cmdArgParser :: a -> AppStateIO (Parser a)
-    cmdProcedure :: a -> AppStateIO ()
+    cmdArgParser   :: a -> AppStateIO (Parser a)
+    cmdProcedure   :: a -> AppStateIO ()
 
     executeReplCommand :: a -> String -> [String] -> AppStateIO ()
     executeReplCommand cmd label args = do
@@ -37,7 +37,7 @@ class ReplCommand a where
 
 confirmContinue :: AppStateIO Bool
 confirmContinue = do
-    input <- lift $ lift $ do
+    input <- lift $ do
         putStr "Continue? (Y/N): "
         hFlush stdout
         getLine

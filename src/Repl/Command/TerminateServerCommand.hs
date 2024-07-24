@@ -48,12 +48,12 @@ terminateServerCommandProcedure opts = do
             putStrLn' ""
             confirmContinue >>= \case
                 True  -> return serverHandle
-                False -> throwE "The operation has cancelled."
+                False -> error "The operation has cancelled."
 
         Nothing ->
-            throwE "The Minecraft server is not running."
+            error "The Minecraft server is not running."
 
-    lift $ lift $ terminateProcess processToTerminate
+    lift $ terminateProcess processToTerminate
     unregisterServer
 
     putStrLn' "Successfully terminated the Minecraft server."

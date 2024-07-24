@@ -4,10 +4,9 @@ import           Imports
 
 import           AppState
 import           CrossPlatform            (OSType (..), currentOSType)
-import           FileIO
 
 import           Data.Aeson
-import           Data.ByteString          (fromStrict)
+import qualified Data.ByteString          as BS
 import           Data.Maybe               (maybeToList)
 import           Data.Minecraft.MCVersion (MCVersion (..))
 
@@ -133,11 +132,10 @@ parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir
     let clientJsonPath = versionsDir </> show mcVersion </> printf "%s.json" (show mcVersion)
 
-    jsonContent <- readFileBS clientJsonPath $
-        printf "Failed to read '%s': %%s." clientJsonPath
-    case eitherDecode (fromStrict jsonContent) :: Either String ClientJson of
+    jsonContent <- lift (BS.readFile clientJsonPath)
+    case eitherDecode (BS.fromStrict jsonContent) :: Either String ClientJson of
         Right clientJson -> return clientJson
-        Left err         -> throwE (printf "Failed to decode client.json: %s" err)
+        Left err         -> error (printf "Failed to decode client.json: %s" err)
 
 getAssetIndex :: MCVersion -> AppStateIO String
 getAssetIndex mcVersion = do

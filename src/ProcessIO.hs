@@ -12,16 +12,16 @@ import           AppState
 import           System.Exit    (ExitCode (..))
 import           System.Process
 
-execProcess :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcess execName procArgs procWorkDir = appStateIOTry $ do
+execProcess :: FilePath -> [String] -> FilePath -> AppStateIO ProcessHandle
+execProcess execName procArgs procWorkDir = lift $ do
     (_, _, _, handle) <-
         createProcess (proc execName procArgs)
             { cwd = Just procWorkDir
             }
     return handle
 
-execProcessQuiet :: FilePath -> [String] -> FilePath -> String -> AppStateIO ProcessHandle
-execProcessQuiet execName procArgs procWorkDir = appStateIOTry $ do
+execProcessQuiet :: FilePath -> [String] -> FilePath -> AppStateIO ProcessHandle
+execProcessQuiet execName procArgs procWorkDir = lift $ do
     (_, _, _, handle) <-
         createProcess (proc execName procArgs)
             { cwd = Just procWorkDir
@@ -31,8 +31,8 @@ execProcessQuiet execName procArgs procWorkDir = appStateIOTry $ do
             }
     return handle
 
-execProcessAndGetOutput :: FilePath -> [String] -> FilePath -> String -> AppStateIO String
-execProcessAndGetOutput execName procArgs procWorkDir = appStateIOTry $
+execProcessAndGetOutput :: FilePath -> [String] -> FilePath -> AppStateIO String
+execProcessAndGetOutput execName procArgs procWorkDir = lift $
     readCreateProcess (proc execName procArgs)
         { cwd = Just procWorkDir
         }
@@ -40,6 +40,6 @@ execProcessAndGetOutput execName procArgs procWorkDir = appStateIOTry $
 
 expectExitSuccess :: String -> ProcessHandle -> AppStateIO ()
 expectExitSuccess errorMsg handle =
-    lift (lift (waitForProcess handle)) >>= \case
+    lift (waitForProcess handle) >>= \case
         ExitSuccess     -> return ()
-        (ExitFailure n) -> throwE (printf errorMsg (printf "ExitCode %d" n :: String))
+        (ExitFailure n) -> error (printf errorMsg (printf "ExitCode %d" n :: String))

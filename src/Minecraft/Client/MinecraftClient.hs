@@ -5,20 +5,18 @@ import           Imports
 import           AppState
 import           CrossPlatform                       (javaExecName,
                                                       javaLibrarySeparator)
-import           FileIO
 import           Minecraft.Client.ClientJsonAnalyser as ClientJson
 import           ProcessIO
 
 import           Data.List                           (intercalate)
 import           Data.Minecraft.MCVersion            (MCVersion (..))
+import           System.Directory                    (listDirectory)
 import           System.Process                      (ProcessHandle)
 
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     workDir <- getClientWorkingDir
-
-    makeDirectory workDir $
-        printf "Failed to make a directory '%s': %%s." workDir
+    lift (createDirectoryIfMissing True workDir)
 
 createClientProcess :: MCVersion -> String -> AppStateIO ProcessHandle
 createClientProcess clientVersion clientUsername = do
@@ -33,8 +31,7 @@ createClientProcess clientVersion clientUsername = do
     libraries   <- ClientJson.getLibraries clientVersion
     mainClass   <- ClientJson.getMainClass clientVersion
 
-    nativeDirs  <- directoryContents binDir $
-        printf "Failed to enumerate the contents of '%s': %%s." binDir
+    nativeDirs  <- map (binDir </>) <$> lift (listDirectory binDir)
 
     let nativeOption = printf "-Djava.library.path=%s" (intercalate javaLibrarySeparator nativeDirs)
         clientJar = versionsDir </> show clientVersion </> printf "%s.jar" (show clientVersion)
@@ -67,7 +64,6 @@ createClientProcess clientVersion clientUsername = do
             ] ++ assetsOptions
 
     execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
-        "Failed to execute java that was to run a Minecraft client: %s."
 
 spawnMinecraftClient :: MCVersion -> String -> AppStateIO ProcessHandle
 spawnMinecraftClient clientVersion clientUsername = do

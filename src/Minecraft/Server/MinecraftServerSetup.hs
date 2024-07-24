@@ -3,7 +3,6 @@ module Minecraft.Server.MinecraftServerSetup (setupMinecraftServer, editServerPr
 import           Imports
 
 import           AppState
-import           FileIO
 import           Minecraft.Server.Paper.PaperSetup   (setupPaper)
 import           Minecraft.Server.Spigot.SpigotSetup (setupSpigot)
 
@@ -31,23 +30,19 @@ editServerProperties = do
 
         serverPropertiesFile = workingDir </> "server.properties"
 
-    checkFileExistence serverPropertiesFile
-        (printf "Failed to check the existence of '%s': %%s." serverPropertiesFile) >>= \case
-            True  -> do
-                rawProperties <- readFile' serverPropertiesFile $
-                    printf "Failed to read a file '%s': %%s." serverPropertiesFile
+    lift (doesFileExist serverPropertiesFile) >>= \case
+        True  -> do
+            rawProperties <- lift (readFile serverPropertiesFile)
 
-                case decodeMCProperties rawProperties of
-                    Right currentProperties ->
-                        writeFile' serverPropertiesFile (encodeMCProperties (edit currentProperties))
-                            "Failed to edit server.properties: %s."
+            case decodeMCProperties rawProperties of
+                Right currentProperties ->
+                    lift (writeFile serverPropertiesFile (encodeMCProperties (edit currentProperties)))
 
-                    Left err ->
-                        throwE (printf "Failed to decode server.properties: %s." err)
+                Left err ->
+                    error (printf "Failed to decode server.properties: %s." err)
 
-            False -> do
-                writeFile' serverPropertiesFile (encodeMCProperties (edit []))
-                    "Failed to generate server.properties: %s."
+        False -> do
+            lift (writeFile serverPropertiesFile (encodeMCProperties (edit [])))
 
 setupMinecraftServer :: AppStateIO ()
 setupMinecraftServer = do

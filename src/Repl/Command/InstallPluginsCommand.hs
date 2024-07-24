@@ -60,13 +60,13 @@ installPluginsCommandProcedure opts = do
         force       = withoutAsk opts
 
     when (dynamicOnly && staticOnly) $
-        throwE "Please do not specify both '--dynamicOnly' and '--staticOnly' at the same time."
+        error "Please do not specify both '--dynamicOnly' and '--staticOnly' at the same time."
 
     updateServerProc
 
     whenM (getServerProc <&> isJust) $ do
         unless restart $
-            throwE "The Minecraft server is running. Please stop it first. Or you can use '--restart' option."
+            error "The Minecraft server is running. Please stop it first. Or you can use '--restart' option."
 
         executeReplCommandInternal TerminateServerCommand ["--force" | force]
 

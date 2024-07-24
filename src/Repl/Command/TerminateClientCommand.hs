@@ -50,7 +50,7 @@ terminateClientCommandProcedure opts = do
     let maybeProcess = lookup clientToTerminate (map (first runningClientName) clients)
 
     unless (isJust maybeProcess) $
-        throwE (printf "There is no Minecraft client whose name is '%s'." clientToTerminate)
+        error (printf "There is no Minecraft client whose name is '%s'." clientToTerminate)
 
     unless force $ do
         putStrLn' (printf "You are going to terminate a Minecraft client '%s'." clientToTerminate)
@@ -58,9 +58,9 @@ terminateClientCommandProcedure opts = do
         putStrLn' ""
 
         unlessM confirmContinue $
-            throwE "The operation has cancelled."
+            error "The operation has cancelled."
 
-    lift $ lift $ terminateProcess (fromJust maybeProcess)
+    lift $ terminateProcess (fromJust maybeProcess)
     unregisterClient clientToTerminate
 
     putStrLn' (printf "Successfully terminated a Minecraft client '%s'." clientToTerminate)

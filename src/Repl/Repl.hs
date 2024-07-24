@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module Repl.Repl (startRepl) where
 
 import           Imports
@@ -15,10 +17,11 @@ import           Repl.Command.TerminateClientCommand (TerminateClientCommand (Te
 import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
 import           Repl.ReplCommand                    (ReplCommand (..))
 
-import           Control.Monad.Trans.Except          (runExceptT)
+import           Control.Exception                   (SomeException (..), try)
 import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Extra                     (splitOn)
 import           Data.Version                        (showVersion)
+import           System.Exit                         (exitFailure, exitSuccess)
 import           System.IO                           (hFlush, stdout)
 
 execReplCommand :: String -> [String] -> AppStateIO ()
@@ -37,7 +40,7 @@ execReplCommand cmdName cmdArgs =
         "startServer"     -> execute StartServerCommand
         "terminateServer" -> execute TerminateServerCommand
         "installPlugins"  -> execute InstallPluginsCommand
-        _                 -> putStrLn' (printf "Command '%s' is undefined." cmdName)
+        _                 -> error (printf "Command '%s' is undefined." cmdName)
         where execute c = executeReplCommand c cmdName cmdArgs
 
 repLoop :: AppState -> IO ()
@@ -51,10 +54,24 @@ repLoop appState = do
         cmdArgs = drop 1 (splitOn " " input)
         execution = execReplCommand cmdName cmdArgs
 
-    (result, newState) <- runStateT (runExceptT execution) appState
+    result <- try (runStateT execution appState) :: IO (Either SomeException ((), AppState))
+
     case result of
-        Right () -> repLoop newState
-        Left err -> putStrLn err >> repLoop newState
+        Right ((), newState) ->
+            repLoop newState
+
+        Left err ->
+            case show err of
+                s | s =~ ("^ExitSuccess$" :: String) ->
+                    exitSuccess
+
+                s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
+                    exitFailure
+
+                errorMsg -> do
+                    putStrLn errorMsg
+                    repLoop appState
+
 
 runAutoexec :: AppState -> IO AppState
 runAutoexec appState = foldM program appState (getAutoexecCommands appState)
@@ -67,10 +84,15 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
                 cmdArgs = drop 1 (splitOn " " cmd)
                 execution = execReplCommand cmdName cmdArgs
 
-            (result, newState) <- runStateT (runExceptT execution) appState'
+            result <- try (runStateT execution appState') :: IO (Either SomeException ((), AppState))
+
             case result of
-                Right () -> return newState
-                Left err -> putStrLn err >> return newState
+                Right ((), newState) ->
+                    return newState
+
+                Left err -> do
+                    print err
+                    return appState'
 
 startRepl :: IO ()
 startRepl = do

@@ -8,11 +8,10 @@ module Network.Url
 
 import           Imports
 
-import           AppState
 import           CrossPlatform   (curlExecName)
-import           ProcessIO
 
 import           Data.List.Extra (splitOn, stripInfix)
+import           System.Process  (proc, readCreateProcess)
 
 type Url = String
 
@@ -27,17 +26,14 @@ isUrl = (=~ ("^(https?:\\/\\/|ftp:\\/\\/|file:\\/\\/\\/)?[A-Za-z0-9_\\-]+(\\.[A-
 isDirectLinkOf :: FileExtension -> Url -> Bool
 isDirectLinkOf ext = (=~ (printf "\\/.+\\.%s$" (show ext) :: String))
 
-getFileNameFromUrl :: FileExtension -> Url -> AppStateIO String
+getFileNameFromUrl :: HasCallStack => FileExtension -> Url -> IO String
 getFileNameFromUrl ext url | isDirectLinkOf ext url =
     return $ last (splitOn "/" url)
 
 getFileNameFromUrl ext url = do
-    workingDir <- getWorkingDir
+    putStrLn (printf "Checking the filename of '%s': %%s." url)
 
-    putStrLn' (printf "Checking the filename of '%s': %%s." url)
-
-    curlOutput <- execProcessAndGetOutput curlExecName ["-L", "-I", "-s", url] workingDir $
-        printf "Failed to execute curl that was to check the filename of '%s': %%s." url
+    curlOutput <- readCreateProcess (proc curlExecName ["-L", "-I", "-s", url]) []
 
     case lookup "Content-Disposition" (splitHeader (lines curlOutput)) of
         Just headerValue ->
@@ -46,13 +42,13 @@ getFileNameFromUrl ext url = do
                     return fileName
 
                 Just fileName ->
-                    throwE (printf "'%s' is not a '%s' file." fileName (show ext))
+                    error (printf "'%s' is not a '%s' file." fileName (show ext))
 
                 Nothing ->
-                    throwE (printf "Could not find the filename of '%s'." url)
+                    error (printf "Could not find the filename of '%s'." url)
 
         Nothing ->
-            throwE (printf "Could not find the Content-Disposition of '%s'." url)
+            error (printf "Could not find the Content-Disposition of '%s'." url)
     where
         splitHeader :: [String] -> [(String, String)]
         splitHeader = flip foldl [] $ \headers line ->

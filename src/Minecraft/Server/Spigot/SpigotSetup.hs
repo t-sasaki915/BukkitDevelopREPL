@@ -4,7 +4,6 @@ import           Imports
 
 import           AppState
 import           CrossPlatform                (curlExecName, javaExecName)
-import           FileIO
 import           ProcessIO
 
 import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
@@ -13,9 +12,7 @@ import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     buildDir <- getBuildDir
-
-    makeDirectory buildDir $
-        printf "Failed to make a directory '%s': %%s." buildDir
+    lift (createDirectoryIfMissing True buildDir)
 
 downloadBuildTools :: AppStateIO ()
 downloadBuildTools = do
@@ -26,10 +23,8 @@ downloadBuildTools = do
     let buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
         downloadPath  = buildDir </> "BuildTools.jar"
 
-    execProcess curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir
-        (printf "Failed to execute curl that was to download BuildTools '%s': %%s." buildToolsUrl) >>=
-            expectExitSuccess
-                (printf "Failed to download BuildTools '%s': %%s." buildToolsUrl)
+    execProcess curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir >>=
+        expectExitSuccess (printf "Failed to download BuildTools '%s': %%s." buildToolsUrl)
 
 useBuildTools :: AppStateIO ()
 useBuildTools = do
@@ -40,10 +35,8 @@ useBuildTools = do
 
     let buildToolsPath = buildDir </> "BuildTools.jar"
 
-    execProcess javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir
-        "Failed to execute java that was to build a Spigot server: %s." >>=
-            expectExitSuccess
-                "Failed to build a Spigot server: %s."
+    execProcess javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir >>=
+        expectExitSuccess "Failed to build a Spigot server: %s."
 
 adoptServerJar :: AppStateIO ()
 adoptServerJar = do
@@ -54,8 +47,7 @@ adoptServerJar = do
     let copyPath      = workingDir </> getMCServerExecutableName Spigot serverVersion
         serverJarPath = buildDir </> printf "spigot-%s.jar" (show serverVersion)
 
-    copyFile' serverJarPath copyPath $
-        printf "Failed to copy a file '%s' to '%s': %%s" serverJarPath copyPath
+    lift (copyFile serverJarPath copyPath)
 
 setupSpigot :: AppStateIO ()
 setupSpigot = do

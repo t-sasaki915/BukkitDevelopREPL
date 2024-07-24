@@ -5,7 +5,6 @@ module Repl.Command.StartServerCommand (StartServerCommand(StartServerCommand)) 
 import           Imports
 
 import           AppState
-import           FileIO
 import           Minecraft.Server.MinecraftServer      (runMinecraftServer)
 import           Minecraft.Server.MinecraftServerSetup (editServerProperties,
                                                         setupMinecraftServer)
@@ -43,7 +42,7 @@ startServerCommandProcedure opts = do
     updateServerProc
 
     whenM (getServerProc <&> isJust) $
-        throwE "The Minecraft server has been started already."
+        error "The Minecraft server has been started already."
 
     workingDir    <- getWorkingDir
     serverVersion <- getServerVersion
@@ -51,7 +50,7 @@ startServerCommandProcedure opts = do
 
     let serverJarPath = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
-    unlessM (checkFileExistence serverJarPath (printf "Failed to check the existence of '%s': %%s." serverJarPath)) $ do
+    unlessM (lift (doesFileExist serverJarPath)) $ do
         putStrLn' (printf "Could not find '%s'. Need to download." serverJarPath)
 
         setupMinecraftServer
@@ -74,11 +73,9 @@ checkEula skip = do
     let eulaFilePath = workingDir </> "eula.txt"
 
     let accepted = newMCProperties $ addProperty "eula" (MCBool True)
-        isAccepted = checkFileExistence eulaFilePath
-            (printf "Failed to check the existence of '%s': %%s." eulaFilePath) >>= \case
+        isAccepted = lift (doesFileExist eulaFilePath) >>= \case
                 True -> do
-                    eulaFileContent <- readFile' eulaFilePath $
-                        printf "Failed to read a file '%s': %%s." eulaFilePath
+                    eulaFileContent <- lift (readFile eulaFilePath)
 
                     case decodeMCProperties eulaFileContent of
                         Right properties ->
@@ -87,7 +84,7 @@ checkEula skip = do
                                 _                  -> return False
 
                         Left err ->
-                            throwE (printf "Failed to parse eula.txt: %s." err)
+                            error (printf "Failed to parse eula.txt: %s." err)
 
                 False ->
                     return False
@@ -99,7 +96,6 @@ checkEula skip = do
             putStrLn' ""
 
             unlessM confirmContinue $
-                throwE "The operation has cancelled."
+                error "The operation has cancelled."
 
-        writeFile' eulaFilePath (encodeMCProperties accepted) $
-                printf "Failed to write a file '%s': %%s." eulaFilePath
+        lift (writeFile eulaFilePath (encodeMCProperties accepted))

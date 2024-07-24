@@ -25,16 +25,16 @@ exitCommandProcedure _ = do
     terminateAllClients
     terminateServer
 
-    lift $ lift exitSuccess
+    lift exitSuccess
 
 terminateAllClients :: AppStateIO ()
 terminateAllClients = do
     updateClientList
     clients <- getClients
-    mapM_ (\(_, p) -> lift $ lift $ terminateProcess p) clients
+    mapM_ (\(_, p) -> lift $ terminateProcess p) clients
 
 terminateServer :: AppStateIO ()
 terminateServer = do
     updateServerProc
     serverHandle <- getServerProc
-    whenJust serverHandle (lift . lift . terminateProcess)
+    whenJust serverHandle (lift . terminateProcess)

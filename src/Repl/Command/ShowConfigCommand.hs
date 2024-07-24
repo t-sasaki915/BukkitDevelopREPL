@@ -22,7 +22,7 @@ instance ReplCommand ShowConfigCommand where
 
 showConfigCommandProcedure :: ShowConfigCommand -> AppStateIO ()
 showConfigCommandProcedure _ = do
-    currentConfig <- lift get <&> _config
+    currentConfig <- get <&> _config
 
     let encoded = encode currentConfig
     putStrLn' (map w2c (unpack encoded))

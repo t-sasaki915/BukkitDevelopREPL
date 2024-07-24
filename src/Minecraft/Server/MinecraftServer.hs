@@ -20,9 +20,7 @@ runMinecraftServer = do
     let serverJar = workingDir </> getMCServerExecutableName serverBrand serverVersion
 
     handle <- execProcessQuiet javaExecName (jvmOptions ++ ["-jar", serverJar]) workingDir
-        "Failed to execute java that was to run the Minecraft server: %s."
 
-    putStrLn' $
-        printf "%s server is listening to the port %d of localhost." (show serverBrand) serverPort
+    putStrLn' (printf "%s server is listening to the port %d of localhost." (show serverBrand) serverPort)
 
     return handle
