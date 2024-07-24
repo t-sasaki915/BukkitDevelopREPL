@@ -67,30 +67,12 @@ getWorkingDir :: AppStateIO FilePath
 getWorkingDir = get >>=
     absolutePath . workingDir . applicationConfig . _config
 
-getClientWorkingDir :: AppStateIO FilePath
-getClientWorkingDir = getWorkingDir <&> (</> "client")
-
-getBuildDir :: AppStateIO FilePath
-getBuildDir = getWorkingDir <&> (</> "build")
-
 getDynamicPlugins :: AppStateIO [FilePath]
 getDynamicPlugins = get <&> (fromMaybe [] . dynamicPlugins . _cliOptions)
 
 getMinecraftDir :: AppStateIO FilePath
 getMinecraftDir = get >>=
     absolutePath . minecraftDir . _cliOptions
-
-getMinecraftAssetsDir :: AppStateIO FilePath
-getMinecraftAssetsDir = getMinecraftDir <&> (</> "assets")
-
-getMinecraftLibrariesDir :: AppStateIO FilePath
-getMinecraftLibrariesDir = getMinecraftDir <&> (</> "libraries")
-
-getMinecraftVersionsDir :: AppStateIO FilePath
-getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
-
-getMinecraftBinDir :: AppStateIO FilePath
-getMinecraftBinDir = getMinecraftDir <&> (</> "bin")
 
 getClientDefaultVersion :: AppStateIO MCVersion
 getClientDefaultVersion = get <&> (clientDefaultVersion . clientConfig . _config)

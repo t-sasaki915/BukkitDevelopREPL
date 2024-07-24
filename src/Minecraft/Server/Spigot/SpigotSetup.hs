@@ -9,6 +9,9 @@ import           ProcessIO
 import           Data.Minecraft.MCServerBrand (MCServerBrand (Spigot),
                                                getMCServerExecutableName)
 
+getBuildDir :: AppStateIO FilePath
+getBuildDir = getWorkingDir <&> (</> "build")
+
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     buildDir <- getBuildDir

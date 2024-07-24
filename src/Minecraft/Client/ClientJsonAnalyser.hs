@@ -127,6 +127,9 @@ instance FromJSON ClientJson where
 
     parseJSON x = fail (printf "Unrecognisable client.json '%s'." (show x))
 
+getMinecraftVersionsDir :: AppStateIO FilePath
+getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
+
 parseClientJson :: MCVersion -> AppStateIO ClientJson
 parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir

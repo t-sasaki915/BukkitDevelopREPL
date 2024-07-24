@@ -13,6 +13,21 @@ import           Data.Minecraft.MCVersion            (MCVersion (..))
 import           System.Directory                    (listDirectory)
 import           System.Process                      (ProcessHandle)
 
+getMinecraftAssetsDir :: AppStateIO FilePath
+getMinecraftAssetsDir = getMinecraftDir <&> (</> "assets")
+
+getMinecraftLibrariesDir :: AppStateIO FilePath
+getMinecraftLibrariesDir = getMinecraftDir <&> (</> "libraries")
+
+getMinecraftVersionsDir :: AppStateIO FilePath
+getMinecraftVersionsDir = getMinecraftDir <&> (</> "versions")
+
+getMinecraftBinDir :: AppStateIO FilePath
+getMinecraftBinDir = getMinecraftDir <&> (</> "bin")
+
+getClientWorkingDir :: AppStateIO FilePath
+getClientWorkingDir = getWorkingDir <&> (</> "client")
+
 makeNecessaryDirectories :: AppStateIO ()
 makeNecessaryDirectories = do
     workDir <- getClientWorkingDir
