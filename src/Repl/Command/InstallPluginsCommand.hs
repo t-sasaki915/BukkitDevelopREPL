@@ -70,7 +70,6 @@ installPluginsCommandProcedure opts = do
 
         executeReplCommandInternal TerminateServerCommand ["--force" | force]
 
-    initialisePluginFileNameMap
     removeUnusedPlugins
 
     dynamicPlugins <- getDynamicPlugins
