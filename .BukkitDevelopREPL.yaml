@@ -30,7 +30,7 @@ server:
     # staticPlugins:
     #     [ "./dependencies/coreprotect.jar"
     #     , "./dependencies/placeholderapi.jar"
-    #     , "https://modrinth.com/luckperms.jar"
+    #     , "https://cdn.modrinth.com/coreprotect.jar"
     #     ]
     staticPlugins: []
 

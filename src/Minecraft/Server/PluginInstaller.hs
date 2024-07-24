@@ -92,7 +92,7 @@ installPlugin pluginUrl = do
         installPath = pluginsDir </> pluginName
 
     when (isUrl pluginUrl) $
-        execProcess curlExecName ["-L", "-o", installPath, pluginUrl] pluginsDir >>=
+        execProcessQuiet curlExecName ["-L", "-o", installPath, pluginUrl] pluginsDir >>=
             expectExitSuccess (printf "Failed to download a plugin '%s': %%s." pluginUrl)
 
     unless (isUrl pluginUrl) $

@@ -59,7 +59,7 @@ downloadLatestPaper = do
 
     putStrLn' (printf "Downloading Paper %s Build %d ..." (show ver) latest)
 
-    execProcess curlExecName ["-L", "-o", jarPath, jarUrl] workingDir >>=
+    execProcessQuiet curlExecName ["-L", "-o", jarPath, jarUrl] workingDir >>=
         expectExitSuccess (printf "Failed to download a Paper server '%s': %%s." jarUrl)
 
 setupPaper :: AppStateIO ()

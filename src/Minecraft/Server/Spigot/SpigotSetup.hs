@@ -23,7 +23,7 @@ downloadBuildTools = do
     let buildToolsUrl = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
         downloadPath  = buildDir </> "BuildTools.jar"
 
-    execProcess curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir >>=
+    execProcessQuiet curlExecName ["-L", "-o", downloadPath, buildToolsUrl] buildDir >>=
         expectExitSuccess (printf "Failed to download BuildTools '%s': %%s." buildToolsUrl)
 
 useBuildTools :: AppStateIO ()
