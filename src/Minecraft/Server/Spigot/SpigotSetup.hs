@@ -38,7 +38,7 @@ useBuildTools = do
 
     let buildToolsPath = buildDir </> "BuildTools.jar"
 
-    execProcess javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir >>=
+    execProcessQuiet javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir >>=
         expectExitSuccess "Failed to build a Spigot server: %s."
 
 adoptServerJar :: AppStateIO ()
