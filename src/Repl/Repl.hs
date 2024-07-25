@@ -5,6 +5,7 @@ module Repl.Repl (startRepl) where
 import           Imports
 
 import           AppState
+import           CLIOptions.CLIOptions               (CLIOptions (enableStacktrace))
 import           CrossPlatform                       (currentOSType)
 import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
 import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
@@ -50,27 +51,20 @@ repLoop appState = do
         hFlush stdout
         getLine
 
-    let cmdName = head (splitOn " " input)
+    let showStacktrace = enableStacktrace (_cliOptions appState)
+        cmdName = head (splitOn " " input)
         cmdArgs = drop 1 (splitOn " " input)
         execution = execReplCommand cmdName cmdArgs
 
-    result <- try (runStateT execution appState) :: IO (Either SomeException ((), AppState))
+    result <- try (runStateT execution appState)
 
     case result of
         Right ((), newState) ->
             repLoop newState
 
-        Left err ->
-            case show err of
-                s | s =~ ("^ExitSuccess$" :: String) ->
-                    exitSuccess
-
-                s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
-                    exitFailure
-
-                errorMsg -> do
-                    putStrLn errorMsg
-                    repLoop appState
+        Left err -> do
+            handleSomeException showStacktrace err
+            repLoop appState
 
 
 runAutoexec :: AppState -> IO AppState
@@ -80,27 +74,37 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
         program appState' cmd = do
             putStrLn (printf "> %s (autoexec)" cmd)
 
-            let cmdName = head (splitOn " " cmd)
+            let showStacktrace = enableStacktrace (_cliOptions appState)
+                cmdName = head (splitOn " " cmd)
                 cmdArgs = drop 1 (splitOn " " cmd)
                 execution = execReplCommand cmdName cmdArgs
 
-            result <- try (runStateT execution appState') :: IO (Either SomeException ((), AppState))
+            result <- try (runStateT execution appState')
 
             case result of
                 Right ((), newState) ->
                     return newState
 
-                Left err ->
-                    case show err of
-                        s | s =~ ("^ExitSuccess$" :: String) ->
-                            exitSuccess
+                Left err -> do
+                    handleSomeException showStacktrace err
+                    return appState
 
-                        s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
-                            exitFailure
+handleSomeException :: Bool -> SomeException -> IO ()
+handleSomeException showStacktrace err =
+    case show err of
+        s | s =~ ("^ExitSuccess$" :: String) ->
+            exitSuccess
 
-                        errorMsg -> do
-                            putStrLn errorMsg
-                            return appState
+        s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
+            exitFailure
+
+        errorMsg | showStacktrace ->
+            putStrLn errorMsg
+
+        errorMsg ->
+            let errorLinesWithoutStacktrace =
+                    takeWhile (not . (=~ ("^CallStack .+$" :: String))) (lines errorMsg) in
+                        putStrLn (unlines errorLinesWithoutStacktrace)
 
 startRepl :: IO ()
 startRepl = do

@@ -8,9 +8,10 @@ import           Options.Applicative
 import           System.Directory    (getCurrentDirectory, getHomeDirectory)
 
 data CLIOptions = CLIOptions
-    { minecraftDir   :: FilePath
-    , configFile     :: FilePath
-    , dynamicPlugins :: Maybe [FilePath]
+    { minecraftDir     :: FilePath
+    , configFile       :: FilePath
+    , enableStacktrace :: Bool
+    , dynamicPlugins   :: Maybe [FilePath]
     }
     deriving Show
 
@@ -26,6 +27,7 @@ cliOptionsParser = do
         CLIOptions
             <$> strOption
                 ( long "minecraft-dir"
+               <> short 'm'
                <> metavar "FilePath"
                <> value defaultMCDir
                <> showDefault
@@ -33,10 +35,16 @@ cliOptionsParser = do
                 )
             <*> strOption
                 ( long "config"
+               <> short 'c'
                <> metavar "FilePath"
                <> value defaultConfPath
                <> showDefault
                <> help "Specifies config file expressly."
+                )
+            <*> switch
+                ( long "stacktrace"
+               <> short 's'
+               <> help "Prints a stacktrace when an error has occurred."
                 )
             <*> optional
                 ( some
