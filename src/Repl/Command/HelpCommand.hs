@@ -30,6 +30,7 @@ reference =
     [ "help"            ~> "Show the command reference of this REPL. You can use '?' or 'listCommand' instead."
     , "exit"            ~> "Exit the program. You can use 'quit' or 'stop' instead."
     , "showConfig"      ~> "Show the current configurations."
+    , "reloadConfig"    ~> "Reload the configurations."
     , "newClient"       ~> "Create a new Minecraft client."
     , "listClient"      ~> "Show a list of Minecraft clients that are currently running."
     , "terminateClient" ~> "Terminate a Minecraft client."

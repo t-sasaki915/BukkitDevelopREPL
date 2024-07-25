@@ -105,10 +105,16 @@ instance FromJSON ServerConfig where
 instance ToJSON ServerConfig where
     toJSON conf =
         object
-            [ "brand"         .= serverBrand conf
-            , "version"       .= serverVersion conf
-            , "jvmOptions"    .= serverJvmOptions conf
-            , "staticPlugins" .= serverStaticPlugins conf
+            [ "brand"               .= serverBrand conf
+            , "version"             .= serverVersion conf
+            , "jvmOptions"          .= serverJvmOptions conf
+            , "staticPlugins"       .= serverStaticPlugins conf
+            , "port"                .= serverPort conf
+            , "onlineMode"          .= serverOnlineMode conf
+            , "motd"                .= serverMotd conf
+            , "maxPlayers"          .= serverMaxPlayers conf
+            , "enableCommandBlocks" .= serverEnableCommandBlocks conf
+            , "defaultGameMode"     .= serverDefaultGameMode conf
             ]
 
 defaultServerConfig :: ServerConfig

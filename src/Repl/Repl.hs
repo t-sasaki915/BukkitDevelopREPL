@@ -12,6 +12,7 @@ import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
 import           Repl.Command.InstallPluginsCommand  (InstallPluginsCommand (InstallPluginsCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
 import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
+import           Repl.Command.ReloadConfigCommand    (ReloadConfigCommand (ReloadConfigCommand))
 import           Repl.Command.RestartServerCommand   (RestartServerCommand (RestartServerCommand))
 import           Repl.Command.ShowConfigCommand      (ShowConfigCommand (ShowConfigCommand))
 import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
@@ -26,6 +27,7 @@ import           Data.Version                        (showVersion)
 import           System.Exit                         (exitFailure, exitSuccess)
 import           System.IO                           (hFlush, stdout)
 
+
 execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =
     case cmdName of
@@ -36,6 +38,7 @@ execReplCommand cmdName cmdArgs =
         "quit"            -> execute ExitCommand
         "stop"            -> execute ExitCommand
         "showConfig"      -> execute ShowConfigCommand
+        "reloadConfig"    -> execute ReloadConfigCommand
         "newClient"       -> execute NewClientCommand
         "listClient"      -> execute ListClientCommand
         "terminateClient" -> execute TerminateClientCommand

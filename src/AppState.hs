@@ -49,6 +49,14 @@ initialState = do
 getAutoexecCommands :: AppState -> [String]
 getAutoexecCommands = autoexecCommands . applicationConfig . _config
 
+getConfigFilePath :: AppStateIO FilePath
+getConfigFilePath = get <&> (configFile . _cliOptions)
+
+setConfig :: Config -> AppStateIO ()
+setConfig newConfig = do
+    state <- get
+    put (set config newConfig state)
+
 absolutePath :: FilePath -> AppStateIO FilePath
 absolutePath = lift . makeAbsolute
 

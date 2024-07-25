@@ -7,7 +7,6 @@ import           Config.Resource (defaultConfigFile)
 
 import qualified Data.ByteString as BS
 import           Data.Yaml       (decodeEither', prettyPrintParseException)
-import           System.Exit     (exitFailure)
 
 writeDefaultConfigFile :: FilePath -> IO ()
 writeDefaultConfigFile filePath =
@@ -22,11 +21,9 @@ readConfigFile filePath =
             writeDefaultConfigFile filePath
             return defaultConfigFile
 
-loadConfig :: FilePath -> IO Config
+loadConfig :: HasCallStack => FilePath -> IO Config
 loadConfig filePath = do
     rawConfig <- readConfigFile filePath
     case decodeEither' rawConfig of
         Right conf -> return conf
-        Left err -> do
-            putStrLn (prettyPrintParseException err)
-            exitFailure
+        Left err   -> error (prettyPrintParseException err)
