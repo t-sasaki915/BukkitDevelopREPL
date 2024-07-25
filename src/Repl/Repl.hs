@@ -20,7 +20,7 @@ import           Repl.ReplCommand                    (ReplCommand (..))
 
 import           Control.Exception                   (SomeException (..), try)
 import           Control.Monad.Trans.State.Strict    (runStateT)
-import           Data.List.Extra                     (splitOn)
+import           Data.List.Extra                     (dropEnd, splitOn)
 import           Data.Version                        (showVersion)
 import           System.Exit                         (exitFailure, exitSuccess)
 import           System.IO                           (hFlush, stdout)
@@ -47,7 +47,8 @@ execReplCommand cmdName cmdArgs =
 repLoop :: AppState -> IO ()
 repLoop appState = do
     input <- do
-        putStr "> "
+        putStrLn ""
+        putStr "REPL> "
         hFlush stdout
         getLine
 
@@ -72,7 +73,8 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
     where
         program :: AppState -> String -> IO AppState
         program appState' cmd = do
-            putStrLn (printf "> %s (autoexec)" cmd)
+            putStrLn ""
+            putStrLn (printf "REPL> %s (autoexec)" cmd)
 
             let showStacktrace = enableStacktrace (_cliOptions appState)
                 cmdName = head (splitOn " " cmd)
@@ -104,7 +106,7 @@ handleSomeException showStacktrace err =
         errorMsg ->
             let errorLinesWithoutStacktrace =
                     takeWhile (not . (=~ ("^CallStack .+$" :: String))) (lines errorMsg) in
-                        putStrLn (unlines errorLinesWithoutStacktrace)
+                        putStrLn (dropEnd 1 (unlines errorLinesWithoutStacktrace))
 
 startRepl :: IO ()
 startRepl = do
@@ -113,6 +115,5 @@ startRepl = do
     putStrLn (printf "BukkitDevelopREPL %s (%s) by TSasaki" (showVersion version) (show currentOSType))
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
-    putStrLn ""
 
     runAutoexec initState >>= repLoop
