@@ -35,6 +35,7 @@ reference =
     , "terminateClient" ~> "Terminate a Minecraft client."
     , "startServer"     ~> "Start the Minecraft server."
     , "terminateServer" ~> "Terminate the Minecraft server."
+    , "restartServer"   ~> "Restart the Minecraft server without confirming."
     , "installPlugins"  ~> "Install plugins to the server."
     ]
     where (~>) a b = (a, b)
