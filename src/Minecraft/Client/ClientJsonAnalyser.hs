@@ -135,6 +135,11 @@ parseClientJson mcVersion = do
     versionsDir <- getMinecraftVersionsDir
     let clientJsonPath = versionsDir </> show mcVersion </> printf "%s.json" (show mcVersion)
 
+    unlessM (lift (doesFileExist clientJsonPath)) $
+        error $ printf
+            "Could not find '%s'. You need to launch Minecraft %s at least once with the official Minecraft Launcher."
+                clientJsonPath (show mcVersion)
+
     jsonContent <- lift (BS.readFile clientJsonPath)
     case eitherDecode (BS.fromStrict jsonContent) :: Either String ClientJson of
         Right clientJson -> return clientJson

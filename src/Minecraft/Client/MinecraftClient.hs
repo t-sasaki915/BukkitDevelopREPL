@@ -78,6 +78,11 @@ createClientProcess clientVersion clientUsername = do
             , workDir
             ] ++ assetsOptions
 
+    unlessM (lift (doesFileExist clientJar)) $
+        error $ printf
+            "Could not find '%s'. You need to launch Minecraft %s at least once with the official Minecraft Launcher."
+                clientJar (show clientVersion)
+
     execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
 
 spawnMinecraftClient :: MCVersion -> String -> AppStateIO ProcessHandle
