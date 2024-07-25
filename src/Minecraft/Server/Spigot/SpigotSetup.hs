@@ -37,9 +37,11 @@ useBuildTools = do
     putStrLn' "Building a Spigot Server... This will take some minutes."
 
     let buildToolsPath = buildDir </> "BuildTools.jar"
+        buildToolsLog  = buildDir </> "BuildTools.log.txt"
 
     execProcessQuiet javaExecName ["-jar", buildToolsPath, "--rev", show serverVersion] buildDir >>=
-        expectExitSuccess "Failed to build a Spigot server: %s."
+        expectExitSuccess
+            (printf "Failed to build a Spigot server: %%s. Please refer '%s' to get more information." buildToolsLog)
 
 adoptServerJar :: AppStateIO ()
 adoptServerJar = do
