@@ -3,8 +3,7 @@ module Minecraft.Client.MinecraftClient (spawnMinecraftClient) where
 import           Imports
 
 import           AppState
-import           CrossPlatform                       (javaExecName,
-                                                      javaLibrarySeparator)
+import           CrossPlatform
 import           Minecraft.Client.ClientJsonAnalyser as ClientJson
 import           ProcessIO
 
@@ -48,7 +47,8 @@ createClientProcess clientVersion clientUsername = do
 
     nativeDirs  <- map (binDir </>) <$> lift (listDirectory binDir)
 
-    let nativeOption = printf "-Djava.library.path=%s" (intercalate javaLibrarySeparator nativeDirs)
+    let osx = currentOSType == OSX
+        nativeOption = printf "-Djava.library.path=%s" (intercalate javaLibrarySeparator nativeDirs)
         clientJar = versionsDir </> show clientVersion </> printf "%s.jar" (show clientVersion)
         libs = map (libsDir </>) libraries ++ [clientJar]
         assetsOptions
@@ -83,7 +83,7 @@ createClientProcess clientVersion clientUsername = do
             "Could not find '%s'. You need to launch Minecraft %s at least once with the official Minecraft Launcher."
                 clientJar (show clientVersion)
 
-    execProcessQuiet javaExecName (jvmOptions ++ [nativeOption] ++ clientOptions) workDir
+    execProcessQuiet javaExecName (jvmOptions ++ ["-XstartOnFirstThread" | osx] ++ [nativeOption] ++ clientOptions) workDir
 
 spawnMinecraftClient :: MCVersion -> String -> AppStateIO ProcessHandle
 spawnMinecraftClient clientVersion clientUsername = do
