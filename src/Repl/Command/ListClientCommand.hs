@@ -20,6 +20,9 @@ listClientCommandProcedure _ = do
     updateClientList
     clients <- getClients
 
+    when (null clients) $
+        error "There are no Minecraft clients that are running."
+
     putStrLn' "These are Minecraft clients that are currently running:"
     forM_ (map fst clients) $ \ci ->
         let cVersion  = runningClientVersion ci
