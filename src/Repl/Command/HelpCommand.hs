@@ -1,4 +1,4 @@
-module Repl.Command.HelpCommand (HelpCommand(HelpCommand)) where
+module Repl.Command.HelpCommand (HelpCommand(HelpCommand), reference) where
 
 import           Imports
 

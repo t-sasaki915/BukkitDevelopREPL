@@ -6,8 +6,8 @@ import           Imports
 
 import           AppState
 import           Minecraft.Server.PluginInstaller
-import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
-import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
+import           Repl.Command.StartServerCommand
+import           Repl.Command.TerminateServerCommand
 import           Repl.ReplCommand                    (ReplCommand (..))
 
 import           Options.Applicative

@@ -7,23 +7,24 @@ import           Imports
 import           AppState
 import           CLIOptions.CLIOptions               (CLIOptions (enableStacktrace))
 import           CrossPlatform                       (currentOSType)
-import           Repl.Command.ExitCommand            (ExitCommand (ExitCommand))
-import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
-import           Repl.Command.InstallPluginsCommand  (InstallPluginsCommand (InstallPluginsCommand))
-import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
-import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
-import           Repl.Command.OpenPluginsDirCommand  (OpenPluginsDirCommand (OpenPluginsDirCommand))
-import           Repl.Command.ReloadConfigCommand    (ReloadConfigCommand (ReloadConfigCommand))
-import           Repl.Command.RestartServerCommand   (RestartServerCommand (RestartServerCommand))
-import           Repl.Command.ShowConfigCommand      (ShowConfigCommand (ShowConfigCommand))
-import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
-import           Repl.Command.TerminateClientCommand (TerminateClientCommand (TerminateClientCommand))
-import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
+import           Repl.Command.ExitCommand
+import           Repl.Command.HelpCommand
+import           Repl.Command.InstallPluginsCommand
+import           Repl.Command.ListClientCommand
+import           Repl.Command.NewClientCommand
+import           Repl.Command.OpenPluginsDirCommand
+import           Repl.Command.ReloadConfigCommand
+import           Repl.Command.RestartServerCommand
+import           Repl.Command.ShowConfigCommand
+import           Repl.Command.StartServerCommand
+import           Repl.Command.TerminateClientCommand
+import           Repl.Command.TerminateServerCommand
 import           Repl.ReplCommand                    (ReplCommand (..))
 
 import           Control.Exception                   (SomeException (..), try)
 import           Control.Monad.Trans.State.Strict    (runStateT)
-import           Data.List.Extra                     (dropEnd, splitOn)
+import           Data.List.Extra                     (dropEnd, isPrefixOf,
+                                                      splitOn)
 import           Data.Version                        (showVersion)
 import           System.Console.Haskeline
 import           System.Console.Haskeline.History    (addHistory)
@@ -52,7 +53,9 @@ execReplCommand cmdName cmdArgs =
         where execute c = executeReplCommand c cmdName cmdArgs
 
 repLoop :: AppState -> InputT IO ()
-repLoop appState =
+repLoop appState = do
+    outputStrLn ""
+
     whenJustM (getInputLine "REPL> ") $ \input -> do
         let showStacktrace = enableStacktrace (_cliOptions appState)
             cmdName = head (splitOn " " input)
@@ -75,6 +78,7 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
     where
         program :: AppState -> String -> InputT IO AppState
         program appState' cmd = do
+            outputStrLn ""
             outputStrLn (printf "REPL> %s (autoexec)" cmd)
             modifyHistory (addHistory cmd)
 
@@ -117,7 +121,17 @@ startRepl = do
     putStrLn (printf "BukkitDevelopREPL %s (%s) by TSasaki" (showVersion version) (show currentOSType))
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
-    putStrLn ""
 
-    runInputT defaultSettings $
+    let settings =
+            Settings
+                { historyFile = Nothing
+                , complete =
+                    completeWord Nothing " \t" $ \str ->
+                        return $
+                            map simpleCompletion $ filter (str `isPrefixOf`)
+                                (map fst reference)
+                , autoAddHistory = True
+                }
+
+    runInputT settings $
         runAutoexec initState >>= repLoop

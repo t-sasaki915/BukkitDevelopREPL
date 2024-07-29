@@ -3,8 +3,8 @@
 module Repl.Command.RestartServerCommand (RestartServerCommand(RestartServerCommand)) where
 
 import           AppState
-import           Repl.Command.StartServerCommand     (StartServerCommand (StartServerCommand))
-import           Repl.Command.TerminateServerCommand (TerminateServerCommand (TerminateServerCommand))
+import           Repl.Command.StartServerCommand
+import           Repl.Command.TerminateServerCommand
 import           Repl.ReplCommand                    (ReplCommand (..),
                                                       executeReplCommandInternal)
 
