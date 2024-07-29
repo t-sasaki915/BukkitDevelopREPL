@@ -12,6 +12,7 @@ import           Repl.Command.HelpCommand            (HelpCommand (HelpCommand))
 import           Repl.Command.InstallPluginsCommand  (InstallPluginsCommand (InstallPluginsCommand))
 import           Repl.Command.ListClientCommand      (ListClientCommand (ListClientCommand))
 import           Repl.Command.NewClientCommand       (NewClientCommand (NewClientCommand))
+import           Repl.Command.OpenPluginsDirCommand  (OpenPluginsDirCommand (OpenPluginsDirCommand))
 import           Repl.Command.ReloadConfigCommand    (ReloadConfigCommand (ReloadConfigCommand))
 import           Repl.Command.RestartServerCommand   (RestartServerCommand (RestartServerCommand))
 import           Repl.Command.ShowConfigCommand      (ShowConfigCommand (ShowConfigCommand))
@@ -46,6 +47,7 @@ execReplCommand cmdName cmdArgs =
         "terminateServer" -> execute TerminateServerCommand
         "restartServer"   -> execute RestartServerCommand
         "installPlugins"  -> execute InstallPluginsCommand
+        "openPluginsDir"  -> execute OpenPluginsDirCommand
         _                 -> error (printf "Command '%s' is undefined." cmdName)
         where execute c = executeReplCommand c cmdName cmdArgs
 

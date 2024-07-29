@@ -7,6 +7,7 @@ module CrossPlatform
     , defaultMinecraftDir
     , javaExecName
     , curlExecName
+    , explorerExecName
     ) where
 
 import           Imports
@@ -55,3 +56,9 @@ curlExecName = case currentOSType of
     Linux   -> "curl"
     OSX     -> "curl"
     Windows -> "curl.exe"
+
+explorerExecName :: String
+explorerExecName = case currentOSType of
+    Linux   -> "xdg-open"
+    OSX     -> "open"
+    Windows -> "explorer.exe"

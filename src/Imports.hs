@@ -5,6 +5,7 @@ module Imports
     , forM
     , forM_
     , unless
+    , void
     , when
     , unlessM
     , whenJust
@@ -25,7 +26,7 @@ module Imports
     ) where
 
 import           Control.Monad             (filterM, foldM, foldM_, forM, forM_,
-                                            unless, when)
+                                            unless, void, when)
 import           Control.Monad.Extra       (unlessM, whenJust, whenJustM, whenM)
 import           Control.Monad.Trans.Class (lift)
 import           Data.Functor              ((<&>))

@@ -43,6 +43,7 @@ library
       Repl.Command.InstallPluginsCommand
       Repl.Command.ListClientCommand
       Repl.Command.NewClientCommand
+      Repl.Command.OpenPluginsDirCommand
       Repl.Command.ReloadConfigCommand
       Repl.Command.RestartServerCommand
       Repl.Command.ShowConfigCommand
