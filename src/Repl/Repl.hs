@@ -25,9 +25,9 @@ import           Control.Exception                   (SomeException (..), try)
 import           Control.Monad.Trans.State.Strict    (runStateT)
 import           Data.List.Extra                     (dropEnd, splitOn)
 import           Data.Version                        (showVersion)
+import           System.Console.Haskeline
+import           System.Console.Haskeline.History    (addHistory)
 import           System.Exit                         (exitFailure, exitSuccess)
-import           System.IO                           (hFlush, stdout)
-
 
 execReplCommand :: String -> [String] -> AppStateIO ()
 execReplCommand cmdName cmdArgs =
@@ -51,44 +51,39 @@ execReplCommand cmdName cmdArgs =
         _                 -> error (printf "Command '%s' is undefined." cmdName)
         where execute c = executeReplCommand c cmdName cmdArgs
 
-repLoop :: AppState -> IO ()
-repLoop appState = do
-    input <- do
-        putStrLn ""
-        putStr "REPL> "
-        hFlush stdout
-        getLine
+repLoop :: AppState -> InputT IO ()
+repLoop appState =
+    whenJustM (getInputLine "REPL> ") $ \input -> do
+        let showStacktrace = enableStacktrace (_cliOptions appState)
+            cmdName = head (splitOn " " input)
+            cmdArgs = drop 1 (splitOn " " input)
+            execution = execReplCommand cmdName cmdArgs
 
-    let showStacktrace = enableStacktrace (_cliOptions appState)
-        cmdName = head (splitOn " " input)
-        cmdArgs = drop 1 (splitOn " " input)
-        execution = execReplCommand cmdName cmdArgs
+        result <- lift (try (runStateT execution appState))
 
-    result <- try (runStateT execution appState)
+        case result of
+            Right ((), newState) ->
+                repLoop newState
 
-    case result of
-        Right ((), newState) ->
-            repLoop newState
-
-        Left err -> do
-            handleSomeException showStacktrace err
-            repLoop appState
+            Left err -> do
+                handleSomeException showStacktrace err
+                repLoop appState
 
 
-runAutoexec :: AppState -> IO AppState
+runAutoexec :: AppState -> InputT IO AppState
 runAutoexec appState = foldM program appState (getAutoexecCommands appState)
     where
-        program :: AppState -> String -> IO AppState
+        program :: AppState -> String -> InputT IO AppState
         program appState' cmd = do
-            putStrLn ""
-            putStrLn (printf "REPL> %s (autoexec)" cmd)
+            outputStrLn (printf "REPL> %s (autoexec)" cmd)
+            modifyHistory (addHistory cmd)
 
             let showStacktrace = enableStacktrace (_cliOptions appState)
                 cmdName = head (splitOn " " cmd)
                 cmdArgs = drop 1 (splitOn " " cmd)
                 execution = execReplCommand cmdName cmdArgs
 
-            result <- try (runStateT execution appState')
+            result <- lift (try (runStateT execution appState'))
 
             case result of
                 Right ((), newState) ->
@@ -98,22 +93,22 @@ runAutoexec appState = foldM program appState (getAutoexecCommands appState)
                     handleSomeException showStacktrace err
                     return appState
 
-handleSomeException :: Bool -> SomeException -> IO ()
+handleSomeException :: Bool -> SomeException -> InputT IO ()
 handleSomeException showStacktrace err =
     case show err of
         s | s =~ ("^ExitSuccess$" :: String) ->
-            exitSuccess
+            lift exitSuccess
 
         s | s =~ ("^ExitFailure [0-9]+$" :: String) ->
-            exitFailure
+            lift exitFailure
 
         errorMsg | showStacktrace ->
-            putStrLn errorMsg
+            outputStrLn errorMsg
 
         errorMsg ->
             let errorLinesWithoutStacktrace =
                     takeWhile (not . (=~ ("^CallStack .+$" :: String))) (lines errorMsg) in
-                        putStrLn (dropEnd 1 (unlines errorLinesWithoutStacktrace))
+                        outputStrLn (dropEnd 1 (unlines errorLinesWithoutStacktrace))
 
 startRepl :: IO ()
 startRepl = do
@@ -122,5 +117,7 @@ startRepl = do
     putStrLn (printf "BukkitDevelopREPL %s (%s) by TSasaki" (showVersion version) (show currentOSType))
     putStrLn "Typing 'help' will show you the reference."
     putStrLn "Typing 'exit' is the way to quit the program gracefully."
+    putStrLn ""
 
-    runAutoexec initState >>= repLoop
+    runInputT defaultSettings $
+        runAutoexec initState >>= repLoop
